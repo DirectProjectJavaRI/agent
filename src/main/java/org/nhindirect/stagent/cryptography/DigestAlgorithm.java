@@ -22,7 +22,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 
 package org.nhindirect.stagent.cryptography;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
 
 /**

@@ -17,7 +17,7 @@ import javax.mail.internet.InternetAddress;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.nhindirect.common.crypto.CryptoExtensions;
 import org.nhindirect.stagent.cert.CertificateResolver;
 import org.nhindirect.stagent.cert.impl.DNSCertificateStore;

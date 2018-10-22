@@ -79,9 +79,9 @@ import org.nhindirect.stagent.mail.MimeError;
 import org.nhindirect.stagent.mail.MimeException;
 import org.nhindirect.stagent.mail.MimeStandard;
 import org.nhindirect.stagent.parser.EntitySerializer;
-
+import org.apache.commons.codec.Charsets;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -756,8 +756,7 @@ public class SMIMECryptographerImpl implements Cryptographer
 	        final String  header = "signed; protocol=\"application/pkcs7-signature\"; micalg=" + 
 	        		CryptoAlgorithmsHelper.toDigestAlgorithmMicalg(this.m_digestAlgorithm);           
 	        
-	        //String encodedSig = Base64.encodeBase64String(signedData.getEncoded());
-	        final String encodedSig = StringUtils.newStringUtf8(Base64.encodeBase64(signedData.getEncoded(), true));
+	        final String encodedSig = StringUtils.toEncodedString(Base64.encodeBase64(signedData.getEncoded(), true), Charsets.UTF_8);
 	        
 	        retVal = new MimeMultipart(header.toString());
 	        

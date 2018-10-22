@@ -2,7 +2,7 @@ package org.nhindirect.stagent.cert.impl;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.nhindirect.common.crypto.MutableKeyStoreProtectionManager;
 import org.nhindirect.common.crypto.PKCS11Credential;
 import org.nhindirect.common.crypto.impl.BootstrappedPKCS11Credential;

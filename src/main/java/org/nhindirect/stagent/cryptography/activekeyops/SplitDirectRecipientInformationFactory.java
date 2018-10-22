@@ -24,7 +24,7 @@ package org.nhindirect.stagent.cryptography.activekeyops;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.cms.KeyTransRecipientInfo;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.cms.CMSEnvelopedData;

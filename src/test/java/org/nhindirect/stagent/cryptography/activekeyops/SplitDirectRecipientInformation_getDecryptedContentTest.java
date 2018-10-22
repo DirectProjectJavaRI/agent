@@ -8,7 +8,7 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Enumeration;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.cms.RecipientInformation;
 import org.bouncycastle.mail.smime.SMIMEEnveloped;
 import org.nhindirect.common.crypto.CryptoExtensions;

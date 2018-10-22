@@ -11,7 +11,7 @@ import java.util.List;
 
 import javax.mail.internet.MimeBodyPart;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.DERObjectIdentifier;
 import org.bouncycastle.asn1.smime.SMIMECapabilitiesAttribute;

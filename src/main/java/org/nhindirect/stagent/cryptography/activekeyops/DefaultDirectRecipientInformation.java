@@ -24,7 +24,7 @@ package org.nhindirect.stagent.cryptography.activekeyops;
 import java.security.Key;
 import java.security.NoSuchProviderException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.RecipientInformation;
 import org.nhindirect.common.crypto.CryptoExtensions;
