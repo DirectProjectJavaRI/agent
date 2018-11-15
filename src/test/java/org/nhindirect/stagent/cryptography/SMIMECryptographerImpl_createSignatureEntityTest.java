@@ -17,10 +17,11 @@ import javax.mail.internet.MimeMultipart;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.SignerInformation;
+import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
 import org.bouncycastle.mail.smime.CMSProcessableBodyPart;
 import org.nhindirect.common.crypto.CryptoExtensions;
+import org.nhindirect.common.options.OptionsManagerUtils;
 import org.nhindirect.stagent.cert.X509CertificateEx;
-import org.nhindirect.stagent.cryptography.activekeyops.SplitProviderDirectSignedDataGeneratorFactory;
 import org.nhindirect.stagent.mail.Message;
 import org.nhindirect.stagent.mail.MimeEntity;
 import org.nhindirect.stagent.parser.EntitySerializer;
@@ -32,11 +33,23 @@ public class SMIMECryptographerImpl_createSignatureEntityTest extends TestCase
 {
 	protected String pkcs11ProvName;
 	
+	
 	@Override
 	public void setUp() throws Exception
 	{
+		OptionsManagerUtils.clearOptionsManagerOptions();
+		OptionsManagerUtils.clearOptionsManagerInstance();
     	CryptoExtensions.registerJCEProviders();
 	}
+	
+	@Override
+	public void tearDown()
+	{
+		OptionsManagerUtils.clearOptionsManagerOptions();
+		OptionsManagerUtils.clearOptionsManagerInstance();
+		CryptoExtensions.registerJCEProviders();
+	}
+	
 	
 	protected MimeEntity contentToMimeEntity(BodyPart part) throws Exception
 	{
@@ -74,46 +87,6 @@ public class SMIMECryptographerImpl_createSignatureEntityTest extends TestCase
 		validateSignature(deserializeSignatureEnvelope(mm), sigCertBPrivate);
 	}
 	
-	public void testCreateSignatureEntity_difSigAndDigestGenerators_assertEntityCreatedAndMatchesControl() throws Exception
-	{
-		SplitProviderDirectSignedDataGeneratorFactory factory = new SplitProviderDirectSignedDataGeneratorFactory("SunRsaSign", "BC");
-		final SMIMECryptographerImpl impl = new SMIMECryptographerImpl();
-		impl.setSignedDataGeneratorFactory(factory);
-		
-		final String testMessage = TestUtils.readResource("MultipartMimeMessage.txt");
-		
-		final MimeEntity ent = new Message(new ByteArrayInputStream(testMessage.getBytes())).extractEntityForSignature(true);
-		
-		byte[] bytesToSign = EntitySerializer.Default.serializeToBytes(ent); 
-		
-		final X509Certificate sigCertBPrivate = TestUtils.loadCertificate("certCheckB.p12");
-		
-		final MimeMultipart mm = impl.createSignatureEntity(bytesToSign, Arrays.asList(sigCertBPrivate));
-		
-		assertNotNull(mm);
-		assertEquals(2, mm.getCount());
-		
-		validatedSignatureHeaders(mm);
-		
-		// now create the control
-		final SMIMECryptographerImpl controllImpl = new SMIMECryptographerImpl();
-		final MimeMultipart controllmm = controllImpl.createSignatureEntity(bytesToSign, Arrays.asList(sigCertBPrivate));
-		assertNotNull(controllmm);
-		assertEquals(2, controllmm.getCount());
-		
-		// make sure the signatures match
-		
-		final MimeEntity signedContent = contentToMimeEntity(mm.getBodyPart(1));
-		final MimeEntity controlSignedContent = contentToMimeEntity(controllmm.getBodyPart(1));
-	
-		
-		assertTrue(Arrays.equals(signedContent.getContentAsBytes(), controlSignedContent.getContentAsBytes()));
-		
-		// verify the signatures
-		validateSignature(deserializeSignatureEnvelope(mm), sigCertBPrivate);
-		validateSignature(deserializeSignatureEnvelope(controllmm), sigCertBPrivate);
-	}	
-	
 
 	
 	public void testCreateSignatureEntity_hsmSignatureGenerator_assertEntityCreatedAndMatchesControl() throws Exception
@@ -150,9 +123,9 @@ public class SMIMECryptographerImpl_createSignatureEntityTest extends TestCase
 	
 				final X509Certificate signerCert = X509CertificateEx.fromX509Certificate((X509Certificate)entry.getCertificate(), entry.getPrivateKey());
 				
-				SplitProviderDirectSignedDataGeneratorFactory factory = new SplitProviderDirectSignedDataGeneratorFactory(pkcs11ProvName, "BC");
+				CryptoExtensions.setJCEProviderName(pkcs11ProvName);
+	
 				final SMIMECryptographerImpl impl = new SMIMECryptographerImpl();
-				impl.setSignedDataGeneratorFactory(factory);
 				
 				final String testMessage = TestUtils.readResource("MultipartMimeMessage.txt");
 				
@@ -186,8 +159,6 @@ public class SMIMECryptographerImpl_createSignatureEntityTest extends TestCase
 			}
 		}
 	}
-	
-	@SuppressWarnings("unchecked")
 	protected void validateSignature(CMSSignedData data, X509Certificate signerCert) throws Exception
 	{
     	assertNotNull(data);
@@ -195,7 +166,7 @@ public class SMIMECryptographerImpl_createSignatureEntityTest extends TestCase
 		assertEquals(1, data.getSignerInfos().getSigners().size());
 		for (SignerInformation sigInfo : (Collection<SignerInformation>)data.getSignerInfos().getSigners())	
 		{
-    		assertTrue(sigInfo.verify(signerCert, CryptoExtensions.getJCEProviderName()));
+    		assertTrue(sigInfo.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider(CryptoExtensions.getJCEProviderName()).build(signerCert)));
     		/*
     		 * explicit hash algorithm checking for compliance with Applicability
     		 * Statement v 1.2

@@ -9,7 +9,7 @@ import javax.mail.internet.MimeMultipart;
 
 import junit.framework.TestCase;
 
-import org.apache.mailet.base.mail.MimeMultipartReport;
+import org.apache.james.javax.MimeMultipartReport;
 import org.nhindirect.stagent.NHINDException;
 
 import com.sun.mail.dsn.DispositionNotification;

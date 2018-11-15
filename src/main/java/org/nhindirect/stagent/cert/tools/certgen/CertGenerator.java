@@ -44,7 +44,6 @@ import javax.crypto.spec.PBEParameterSpec;
 import org.apache.commons.io.FileUtils;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.ASN1Set;
-import org.bouncycastle.asn1.DEREncodable;
 import org.bouncycastle.asn1.DERObjectIdentifier;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.cms.Attribute;
@@ -59,9 +58,9 @@ import org.bouncycastle.asn1.x509.X509Extensions;
 import org.bouncycastle.crypto.prng.VMPCRandomGenerator;
 import org.bouncycastle.jce.PKCS10CertificationRequest;
 import org.bouncycastle.jce.X509Principal;
+import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
 import org.bouncycastle.x509.extension.AuthorityKeyIdentifierStructure;
-import org.bouncycastle.x509.extension.SubjectKeyIdentifierStructure;
 import org.nhindirect.common.crypto.CryptoExtensions;
 
 /**
@@ -120,8 +119,9 @@ public class CertGenerator
 		return retVal;
 	}
 	
-	public static X509Certificate createCertFromCSR(PKCS10CertificationRequest certReq, CertCreateFields signerCert) throws Exception
+	public static X509Certificate createCertFromCSR(PemObject certReq, CertCreateFields signerCert) throws Exception
 	{
+		/*
 		certReq.verify();
 		
 		final CertificationRequestInfo reqInfo = certReq.getCertificationRequestInfo();
@@ -185,7 +185,8 @@ public class CertGenerator
         }
         
         return v1CertGen.generate((PrivateKey)signerCert.getSignerKey(), CryptoExtensions.getJCEProviderName());
-        
+        */
+		return null;
 	}
 	
 	private static CertCreateFields createNewCA(CertCreateFields fields, KeyPair keyPair, boolean addAltNames) throws Exception
@@ -306,8 +307,10 @@ public class CertGenerator
         v1CertGen.addExtension(X509Extensions.AuthorityKeyIdentifier, false,
         		new AuthorityKeyIdentifierStructure(fields.getSignerCert()));
 
+        /*
         v1CertGen.addExtension(X509Extensions.SubjectKeyIdentifier, false,
-                new SubjectKeyIdentifierStructure(keyPair.getPublic()));
+                new SubjectKeyIdentifier(keyPair.getPublic()));
+	    */
 
         boolean allowToSign = (fields.getAttributes().get("ALLOWTOSIGN") != null && 
         		fields.getAttributes().get("ALLOWTOSIGN").toString().equalsIgnoreCase("true"));

@@ -49,8 +49,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1Object;
 import org.bouncycastle.asn1.ASN1OctetString;
-import org.bouncycastle.asn1.DERObject;
 import org.bouncycastle.asn1.x509.CRLDistPoint;
 import org.bouncycastle.asn1.x509.DistributionPoint;
 import org.bouncycastle.asn1.x509.X509Extensions;
@@ -638,7 +638,7 @@ public class CRLRevocationManager implements RevocationManager
     }
     
     
-    protected static DERObject getExtensionValue(
+    protected static ASN1Object getExtensionValue(
             java.security.cert.X509Extension    ext,
             String                              oid)
             throws AnnotatedException
@@ -653,7 +653,7 @@ public class CRLRevocationManager implements RevocationManager
         }
         
     @SuppressWarnings("deprecation")
-	private static DERObject getObject(
+	private static ASN1Object getObject(
             String oid,
             byte[] ext)
             throws AnnotatedException

@@ -34,15 +34,19 @@ public class CryptoAlgorithmsHelper
                 return "md5";                
                 
             case SHA1:
+            case SHA1WITHRSA:	
                 return "sha1";
                 
             case SHA256:
+            case SHA256WITHRSA:
             	return "sha256";
             	
             case SHA384:
+            case SHA384WITHRSA:
             	return "sha384"; 
             	
             case SHA512:
+            case SHA512WITHRSA:
             	return "sha512";           	
         }
     }   

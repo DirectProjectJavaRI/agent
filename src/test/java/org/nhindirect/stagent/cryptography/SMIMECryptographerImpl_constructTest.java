@@ -6,8 +6,6 @@ import java.io.OutputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.nhindirect.common.options.OptionsManagerUtils;
-import org.nhindirect.stagent.cryptography.activekeyops.SplitDirectRecipientInformationFactory;
-import org.nhindirect.stagent.cryptography.activekeyops.SplitProviderDirectSignedDataGeneratorFactory;
 
 import junit.framework.TestCase;
 
@@ -31,10 +29,8 @@ public class SMIMECryptographerImpl_constructTest extends TestCase
 	{
 		SMIMECryptographerImpl impl = new SMIMECryptographerImpl();
 		
-		assertEquals(DigestAlgorithm.SHA256, impl.getDigestAlgorithm());
+		assertEquals(DigestAlgorithm.SHA256WITHRSA, impl.getDigestAlgorithm());
 		assertEquals(EncryptionAlgorithm.AES128, impl.getEncryptionAlgorithm());
-		assertTrue(impl.getSignedDataGeneratorFactory() instanceof SplitProviderDirectSignedDataGeneratorFactory);
-		assertTrue(impl.getRecipientInformationFactory() instanceof SplitDirectRecipientInformationFactory);
 	}
 	
 	public void testContructSMIMECryptographerImpl_setAlgorithms()
@@ -43,31 +39,8 @@ public class SMIMECryptographerImpl_constructTest extends TestCase
 		
 		assertEquals(DigestAlgorithm.SHA384, impl.getDigestAlgorithm());
 		assertEquals(EncryptionAlgorithm.RSA_3DES, impl.getEncryptionAlgorithm());
-		assertTrue(impl.getSignedDataGeneratorFactory() instanceof SplitProviderDirectSignedDataGeneratorFactory);
-		assertTrue(impl.getRecipientInformationFactory() instanceof SplitDirectRecipientInformationFactory);
 	}
 	
-	public void testContructSMIMECryptographerImpl_setSigningFactory()
-	{
-		SMIMECryptographerImpl impl = new SMIMECryptographerImpl(EncryptionAlgorithm.RSA_3DES, DigestAlgorithm.SHA384, 
-				new SplitProviderDirectSignedDataGeneratorFactory(), null);
-		
-		assertEquals(DigestAlgorithm.SHA384, impl.getDigestAlgorithm());
-		assertEquals(EncryptionAlgorithm.RSA_3DES, impl.getEncryptionAlgorithm());
-		assertTrue(impl.getSignedDataGeneratorFactory() instanceof SplitProviderDirectSignedDataGeneratorFactory);
-		assertTrue(impl.getRecipientInformationFactory() instanceof SplitDirectRecipientInformationFactory);
-	}
-	
-	public void testContructSMIMECryptographerImpl_setDecFactory()
-	{
-		SMIMECryptographerImpl impl = new SMIMECryptographerImpl(EncryptionAlgorithm.RSA_3DES, DigestAlgorithm.SHA384, 
-				new SplitProviderDirectSignedDataGeneratorFactory(), new SplitDirectRecipientInformationFactory());
-		
-		assertEquals(DigestAlgorithm.SHA384, impl.getDigestAlgorithm());
-		assertEquals(EncryptionAlgorithm.RSA_3DES, impl.getEncryptionAlgorithm());
-		assertTrue(impl.getSignedDataGeneratorFactory() instanceof SplitProviderDirectSignedDataGeneratorFactory);
-		assertTrue(impl.getRecipientInformationFactory() instanceof SplitDirectRecipientInformationFactory);
-	}
 	
 	public void testContructSMIMECryptographerImpl_JVMSettings()
 	{
@@ -99,7 +72,7 @@ public class SMIMECryptographerImpl_constructTest extends TestCase
 		
 			SMIMECryptographerImpl impl = new SMIMECryptographerImpl();
 		
-			assertEquals(DigestAlgorithm.SHA256, impl.getDigestAlgorithm());
+			assertEquals(DigestAlgorithm.SHA256WITHRSA, impl.getDigestAlgorithm());
 			assertEquals(EncryptionAlgorithm.AES128, impl.getEncryptionAlgorithm());
 		}
 		finally

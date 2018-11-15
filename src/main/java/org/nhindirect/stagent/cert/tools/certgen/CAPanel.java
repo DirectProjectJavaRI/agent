@@ -55,7 +55,8 @@ import javax.swing.border.SoftBevelBorder;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.jce.PKCS10CertificationRequest;
-import org.bouncycastle.openssl.PEMReader;
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemReader;
 import org.nhindirect.common.crypto.CryptoExtensions;
 
 
@@ -431,12 +432,11 @@ class CAPanel extends JPanel
 		{ 
 			final File fl = fc.getSelectedFile();
 			
-			PEMReader reader = null;
+			PemReader reader = null;
 			try
 			{
-				reader = new PEMReader( new InputStreamReader(FileUtils.openInputStream(fl)));
-				final PKCS10CertificationRequest certReq = (PKCS10CertificationRequest)reader.readObject();
-				certReq.verify();
+				reader = new PemReader( new InputStreamReader(FileUtils.openInputStream(fl)));
+				final PemObject certReq = reader.readPemObject();
 				
 				final X509Certificate signedCert = CertGenerator.createCertFromCSR(certReq, currentCert);
 				

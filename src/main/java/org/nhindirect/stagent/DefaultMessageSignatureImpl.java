@@ -26,11 +26,12 @@ import java.security.cert.X509Certificate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1OctetString;
-import org.bouncycastle.asn1.DERObject;
 import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.cms.CMSAttributes;
 import org.bouncycastle.cms.SignerInformation;
+import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
 import org.nhindirect.common.crypto.CryptoExtensions;
 import org.nhindirect.common.options.OptionsManager;
 import org.nhindirect.common.options.OptionsParameter;
@@ -130,7 +131,7 @@ public class DefaultMessageSignatureImpl implements MessageSignature
 	{		
         try
         {
-        	signatureValid = signer.verify(signerCert, CryptoExtensions.getJCEProviderName());     		    	
+        	signatureValid = signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider(CryptoExtensions.getJCEProviderName()).build(signerCert));     		    	
         }
         catch (Exception e)
         {     
@@ -155,7 +156,7 @@ public class DefaultMessageSignatureImpl implements MessageSignature
     		{
 		        //get the digests
 		        final Attribute digAttr = sigInfo.getSignedAttributes().get(CMSAttributes.messageDigest);
-		        final DERObject hashObj = digAttr.getAttrValues().getObjectAt(0).getDERObject();
+		        final ASN1Encodable hashObj = digAttr.getAttrValues().getObjectAt(0);
 		        final byte[] signedDigest = ((ASN1OctetString)hashObj).getOctets();
 		        final String signedDigestHex = org.apache.commons.codec.binary.Hex.encodeHexString(signedDigest);
 		        

@@ -1,9 +1,9 @@
 package org.nhindirect.stagent.cert.tools;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
-import java.security.cert.CertStore;
-import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 
@@ -12,18 +12,21 @@ import javax.mail.internet.MimeMultipart;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1Object;
 import org.bouncycastle.asn1.ASN1OctetString;
-import org.bouncycastle.asn1.DERBitString;
-import org.bouncycastle.asn1.DERObject;
 import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.cms.CMSAttributes;
 import org.bouncycastle.asn1.x509.KeyUsage;
+import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.SignerInformationStore;
+import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
 import org.bouncycastle.mail.smime.CMSProcessableBodyPart;
+import org.bouncycastle.util.Store;
 import org.nhindirect.common.crypto.CryptoExtensions;
 import org.nhindirect.policy.PolicyProcessException;
 
@@ -104,22 +107,22 @@ public class MessageSigInspector
         	final CMSSignedData signed = new CMSSignedData(new CMSProcessableBodyPart(mm.getBodyPart(0)), mm.getBodyPart(1).getInputStream());
         	
            	
-	        CertStore certs = signed.getCertificatesAndCRLs("Collection", CryptoExtensions.getJCEProviderName());
+        	Store<X509CertificateHolder> certs = signed.getCertificates();
 	        SignerInformationStore  signers = signed.getSignerInfos();
-	        @SuppressWarnings("unchecked")
 			Collection<SignerInformation> c = signers.getSigners();
 	        
 	        System.out.println("Found " + c.size() + " signers");
 	        
+	        CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
 	        int cnt = 1;
 	        for (SignerInformation signer : c)
 	        {
 	        			
-	            Collection<? extends Certificate> certCollection = certs.getCertificates(signer.getSID());
+	            Collection<X509CertificateHolder> certCollection = certs.getMatches(signer.getSID());
 	            if (certCollection != null && certCollection.size() > 0)
 	            {
-	            
-	            	X509Certificate cert = (X509Certificate)certCollection.iterator().next();
+	            	
+	            	X509Certificate cert = (X509Certificate)certFactory.generateCertificate(new ByteArrayInputStream(certCollection.iterator().next().getEncoded()));
 	            	System.out.println("\r\nInfo for certificate " + cnt++);
 	            	System.out.println("\tSubject " + cert.getSubjectDN());
 	            	
@@ -131,8 +134,8 @@ public class MessageSigInspector
 	            	if (bytes != null)
 	            	{
 	            		
-		            	final DERObject obj = getObject(bytes);
-		            	final KeyUsage keyUsage = new KeyUsage((DERBitString)obj);
+		            	final ASN1Object obj = getObject(bytes);
+		            	final KeyUsage keyUsage = KeyUsage.getInstance(obj);
 		            	
 		        		final byte[] data = keyUsage.getBytes();
 		        		
@@ -145,14 +148,14 @@ public class MessageSigInspector
 	            	
 	            	//verify and get the digests
 		        	final Attribute digAttr = signer.getSignedAttributes().get(CMSAttributes.messageDigest);
-		        	final DERObject hashObj = digAttr.getAttrValues().getObjectAt(0).getDERObject();
+		        	final ASN1Encodable hashObj = digAttr.getAttrValues().getObjectAt(0);
 		        	final byte[] signedDigest = ((ASN1OctetString)hashObj).getOctets();
 		        	final String signedDigestHex = org.apache.commons.codec.binary.Hex.encodeHexString(signedDigest);
 		        	System.out.println("\r\nSigned Message Digest: " + signedDigestHex);
 	            	
 		        	try
 		        	{
-		        		signer.verify(cert, "BC");
+		        		signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider(CryptoExtensions.getJCEProviderName()).build(cert));
 		        		System.out.println("Signature verified.");
 		        	}
 		        	catch (CMSException e)
@@ -179,7 +182,7 @@ public class MessageSigInspector
 	}
 	
     @SuppressWarnings("deprecation")
-	protected static DERObject getObject(byte[] ext)
+	protected static ASN1Object getObject(byte[] ext)
             throws PolicyProcessException
     {
     	ASN1InputStream aIn = null;

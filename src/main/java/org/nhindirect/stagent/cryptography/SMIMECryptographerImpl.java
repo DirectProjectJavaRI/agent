@@ -32,8 +32,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.security.cert.CertStore;
-import java.security.cert.CollectionCertStoreParameters;
 import java.security.cert.X509Certificate;
 
 import javax.mail.MessagingException;
@@ -43,36 +41,43 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.ParseException;
 
+import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1EncodableVector;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.DEREncodableVector;
-import org.bouncycastle.asn1.DERObject;
-import org.bouncycastle.asn1.DERObjectIdentifier;
 import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.cms.AttributeTable;
 import org.bouncycastle.asn1.cms.CMSAttributes;
 import org.bouncycastle.asn1.smime.SMIMECapabilitiesAttribute;
 import org.bouncycastle.asn1.smime.SMIMECapability;
 import org.bouncycastle.asn1.smime.SMIMECapabilityVector;
+import org.bouncycastle.cert.jcajce.JcaCertStore;
+import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.cms.RecipientId;
+import org.bouncycastle.cms.RecipientInformation;
 import org.bouncycastle.cms.RecipientInformationStore;
 import org.bouncycastle.cms.SignerInformation;
+import org.bouncycastle.cms.jcajce.JcaSignerInfoGeneratorBuilder;
+import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
+import org.bouncycastle.cms.jcajce.JceCMSContentEncryptorBuilder;
+import org.bouncycastle.cms.jcajce.JceKeyTransEnvelopedRecipient;
+import org.bouncycastle.cms.jcajce.JceKeyTransRecipientInfoGenerator;
 import org.bouncycastle.mail.smime.CMSProcessableBodyPart;
 import org.bouncycastle.mail.smime.SMIMEEnveloped;
 import org.bouncycastle.mail.smime.SMIMEEnvelopedGenerator;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.OutputEncryptor;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
 import org.nhindirect.common.crypto.CryptoExtensions;
 import org.nhindirect.common.options.OptionsManager;
 import org.nhindirect.common.options.OptionsParameter;
 import org.nhindirect.stagent.NHINDException;
 import org.nhindirect.stagent.SignatureValidationException;
 import org.nhindirect.stagent.cert.X509CertificateEx;
-import org.nhindirect.stagent.cryptography.activekeyops.DirectRecipientInformation;
-import org.nhindirect.stagent.cryptography.activekeyops.DirectRecipientInformationFactory;
-import org.nhindirect.stagent.cryptography.activekeyops.DirectSignedDataGenerator;
-import org.nhindirect.stagent.cryptography.activekeyops.DirectSignedDataGeneratorFactory;
-import org.nhindirect.stagent.cryptography.activekeyops.SplitDirectRecipientInformationFactory;
-import org.nhindirect.stagent.cryptography.activekeyops.SplitProviderDirectSignedDataGeneratorFactory;
 import org.nhindirect.stagent.mail.Message;
 import org.nhindirect.stagent.mail.MimeEntity;
 import org.nhindirect.stagent.mail.MimeError;
@@ -92,7 +97,6 @@ import org.apache.commons.logging.LogFactory;
  * @author Umesh Madan
  *
  */
-@SuppressWarnings("unchecked")
 public class SMIMECryptographerImpl implements Cryptographer
 {
 
@@ -100,15 +104,13 @@ public class SMIMECryptographerImpl implements Cryptographer
 	private static final Log LOGGER = LogFactory.getFactory().getInstance(SMIMECryptographerImpl.class);
 	
 	// Using the BC PKCSObjectIdentifiers type is not compatible across versions of the BC library
-	public final static DERObjectIdentifier x509CertificateObjectsIdent = new DERObjectIdentifier("1.2.840.113549.1.9.22.1");
+	public final static ASN1ObjectIdentifier x509CertificateObjectsIdent = new ASN1ObjectIdentifier("1.2.840.113549.1.9.22.1");
 	
     public final static SMIMECryptographerImpl Default = new SMIMECryptographerImpl();
     
     protected EncryptionAlgorithm m_encryptionAlgorithm;
     protected DigestAlgorithm m_digestAlgorithm;
     protected boolean m_includeEpilogue = true;
-    protected DirectSignedDataGeneratorFactory sigFactory;
-    protected DirectRecipientInformationFactory decFactory;
     protected boolean enforceStrongEncryption;
     protected boolean enforceStrongDigests;
     
@@ -123,45 +125,17 @@ public class SMIMECryptographerImpl implements Cryptographer
     	this.m_encryptionAlgorithm = (param == null) ? EncryptionAlgorithm.AES128 : EncryptionAlgorithm.fromString(param.getParamValue(), EncryptionAlgorithm.AES128);
     	
         param = OptionsManager.getInstance().getParameter(OptionsParameter.CRYPTOGRAHPER_SMIME_DIGEST_ALGORITHM);
-        this.m_digestAlgorithm = (param == null) ? DigestAlgorithm.SHA256 : DigestAlgorithm.fromString(param.getParamValue(), DigestAlgorithm.SHA256);
+        this.m_digestAlgorithm = (param == null) ? DigestAlgorithm.SHA256WITHRSA : DigestAlgorithm.fromString(param.getParamValue(), DigestAlgorithm.SHA256WITHRSA);
         
         param = OptionsManager.getInstance().getParameter(OptionsParameter.ENFORCE_STRONG_DIGESTS);
         this.enforceStrongDigests = OptionsParameter.getParamValueAsBoolean(param, true);
         
         param = OptionsManager.getInstance().getParameter(OptionsParameter.ENFORCE_STRONG_ENCRYPTION);
         this.enforceStrongEncryption = OptionsParameter.getParamValueAsBoolean(param, true);
-        
-        this.sigFactory = new SplitProviderDirectSignedDataGeneratorFactory();
-        this.decFactory = new SplitDirectRecipientInformationFactory();
 		
 		this.m_logDigest = OptionsParameter.getParamValueAsBoolean(param, false);
     }
 
-    /**
-     * Constructs a Cryptographer with a signature factory and decryption factory
-     * @param sigFactory The factory object that will create direct digital signature generators.
-     * @param decFactor The factory object that will create message decryption recip info objects.
-     */ 
-    public SMIMECryptographerImpl(DirectSignedDataGeneratorFactory sigFactory, DirectRecipientInformationFactory decFactory)
-    {
-    	OptionsParameter param = OptionsManager.getInstance().getParameter(OptionsParameter.CRYPTOGRAHPER_SMIME_ENCRYPTION_ALGORITHM);
-    	this.m_encryptionAlgorithm = (param == null) ? EncryptionAlgorithm.AES128 : EncryptionAlgorithm.fromString(param.getParamValue(), EncryptionAlgorithm.AES128);
-    	
-        param = OptionsManager.getInstance().getParameter(OptionsParameter.CRYPTOGRAHPER_SMIME_DIGEST_ALGORITHM);
-        this.m_digestAlgorithm = (param == null) ? DigestAlgorithm.SHA256 : DigestAlgorithm.fromString(param.getParamValue(), DigestAlgorithm.SHA256);
-        
-        param = OptionsManager.getInstance().getParameter(OptionsParameter.ENFORCE_STRONG_DIGESTS);
-        this.enforceStrongDigests = OptionsParameter.getParamValueAsBoolean(param, true);
-        
-        param = OptionsManager.getInstance().getParameter(OptionsParameter.ENFORCE_STRONG_ENCRYPTION);
-        this.enforceStrongEncryption = OptionsParameter.getParamValueAsBoolean(param, true);
-        
-        this.sigFactory = (sigFactory == null) ? new SplitProviderDirectSignedDataGeneratorFactory() : sigFactory;
-        this.decFactory = (decFactory == null) ? new SplitDirectRecipientInformationFactory() : decFactory;
-		
-		this.m_logDigest = OptionsParameter.getParamValueAsBoolean(param, false);
-    }
-    
     /**
      * Constructs a Cryptographer with an EncryptionAlgorithm and DigestAlgorithm.
      * @param encryptionAlgorithm The encryption algorithm used to encrypt the message.
@@ -171,8 +145,6 @@ public class SMIMECryptographerImpl implements Cryptographer
     {
         this.m_encryptionAlgorithm = encryptionAlgorithm;
         this.m_digestAlgorithm = digestAlgorithm;
-        this.sigFactory = new SplitProviderDirectSignedDataGeneratorFactory();
-        this.decFactory = new SplitDirectRecipientInformationFactory();
         
         OptionsParameter param = OptionsManager.getInstance().getParameter(OptionsParameter.ENFORCE_STRONG_DIGESTS);
         this.enforceStrongDigests = OptionsParameter.getParamValueAsBoolean(param, true);
@@ -181,66 +153,6 @@ public class SMIMECryptographerImpl implements Cryptographer
         this.enforceStrongEncryption = OptionsParameter.getParamValueAsBoolean(param, true);
 		
 		this.m_logDigest = OptionsParameter.getParamValueAsBoolean(param, false);
-    }
-
-    /**
-     * Constructs a Cryptographer with an EncryptionAlgorithm, DigestAlgorithm, signature factory, and and decryption factory
-     * @param encryptionAlgorithm The encryption algorithm used to encrypt the message.
-     * @param digestAlgorithm The digest algorithm used to generate the message digest stored in the message signature.
-     * @param sigFactory The factory object that will create direct digital signature generators.
-     * @param decFactor The factory object that will create message decryption recip info objects.
-     */ 
-    public SMIMECryptographerImpl(EncryptionAlgorithm encryptionAlgorithm, DigestAlgorithm digestAlgorithm,
-    		DirectSignedDataGeneratorFactory sigFactory, DirectRecipientInformationFactory decFactory)
-    {
-        this.m_encryptionAlgorithm = encryptionAlgorithm;
-        this.m_digestAlgorithm = digestAlgorithm;
-        this.sigFactory = (sigFactory == null) ? new SplitProviderDirectSignedDataGeneratorFactory() : sigFactory;
-        this.decFactory = (decFactory == null) ? new SplitDirectRecipientInformationFactory() : decFactory;
-        
-        OptionsParameter param = OptionsManager.getInstance().getParameter(OptionsParameter.ENFORCE_STRONG_DIGESTS);
-        this.enforceStrongDigests = OptionsParameter.getParamValueAsBoolean(param, true);
-        
-        param = OptionsManager.getInstance().getParameter(OptionsParameter.ENFORCE_STRONG_ENCRYPTION);
-        this.enforceStrongEncryption = OptionsParameter.getParamValueAsBoolean(param, true);
-		
-		this.m_logDigest = OptionsParameter.getParamValueAsBoolean(param, false);
-    }
-    
-    /**
-     * Gets the decryption factory.
-     * @return The decryption factory.
-     */
-    public DirectRecipientInformationFactory getRecipientInformationFactory()
-    {
-    	return this.decFactory;
-    }
-    
-    /**
-     * Sets the decryption factory.
-     * @param sigFactory The decryption factory.
-     */
-    public void setRecipientInformationFactory(DirectRecipientInformationFactory decFactory)
-    {
-    	this.decFactory = decFactory;
-    }
-    
-    /**
-     * Gets the signed data factory.
-     * @return The signed data factory.
-     */
-    public DirectSignedDataGeneratorFactory getSignedDataGeneratorFactory()
-    {
-    	return this.sigFactory;
-    }
-    
-    /**
-     * Sets the signed data factory.
-     * @param sigFactory The signed data factory.
-     */
-    public void setSignedDataGeneratorFactory(DirectSignedDataGeneratorFactory sigFactory)
-    {
-    	this.sigFactory = sigFactory;
     }
     
     /**
@@ -473,16 +385,23 @@ public class SMIMECryptographerImpl implements Cryptographer
         
         SMIMEEnvelopedGenerator gen = new SMIMEEnvelopedGenerator();
 
-        for(X509Certificate cert : encryptingCertificates)
-        	gen.addKeyTransRecipient(cert);
         
         MimeBodyPart retVal = null;
         
         try
         {
-        	final String encryAlgOID = this.m_encryptionAlgorithm.getOID();
-        	retVal =  gen.generate(bodyPart, encryAlgOID, 
-        			CryptoExtensions.getJCEProviderNameForTypeAndAlgorithm("Cipher", encryAlgOID));
+            for(X509Certificate cert : encryptingCertificates)
+            	gen.addRecipientInfoGenerator(new JceKeyTransRecipientInfoGenerator(cert).setProvider(CryptoExtensions.getJCEProviderName()));
+        	
+        	final ASN1ObjectIdentifier encryAlgOID = new ASN1ObjectIdentifier(this.m_encryptionAlgorithm.getOID());
+        	final OutputEncryptor encryptor = new JceCMSContentEncryptorBuilder(encryAlgOID).
+        			setProvider(CryptoExtensions.getJCEProviderNameForTypeAndAlgorithm("Cipher", this.m_encryptionAlgorithm.getOID())).build();
+        	
+        	retVal =  gen.generate(bodyPart, encryptor);
+        			
+        			
+        			//encryAlgOID, 
+        			//CryptoExtensions.getJCEProviderNameForTypeAndAlgorithm("Cipher", encryAlgOID));
         }
         catch (Exception e)
         {
@@ -574,11 +493,15 @@ public class SMIMECryptographerImpl implements Cryptographer
 	            final RecipientId recId = generateRecipientSelector(decryptCert);
 		
 		        final RecipientInformationStore recipients = m.getRecipientInfos();
-		        final DirectRecipientInformation recipient = decFactory.createInstance(recipients.get(recId), m);	
+		        final RecipientInformation recipient = recipients.get(recId);	
 		        if (recipient == null)
 		        	continue;
 	
-		        final byte[] decryptedPayload = recipient.getDecryptedContent(decryptCert.getPrivateKey());
+		        final JceKeyTransEnvelopedRecipient recip = new JceKeyTransEnvelopedRecipient(decryptCert.getPrivateKey());
+		        recip.setProvider(CryptoExtensions.getJCESensitiveProviderName());
+		        recip.setContentProvider(CryptoExtensions.getJCEProviderName());
+		        
+		        final byte[] decryptedPayload = recipient.getContent(recip);
 	            if (LOGGER.isDebugEnabled())
 	            {	
 	            	writePostDecrypt(decryptedPayload);
@@ -613,15 +536,10 @@ public class SMIMECryptographerImpl implements Cryptographer
     private RecipientId generateRecipientSelector(X509Certificate decryptCert)
     {
     	RecipientId retVal = null;
-    	Class<RecipientId> loadClass = null;
     	
     	try
     	{
-    		// support for bcmail-jdk15-146
-    		loadClass = (Class<RecipientId>)getClass().getClassLoader().loadClass("org.bouncycastle.cms.jcajce.JceKeyTransRecipientId");
-    		
-    		Constructor<RecipientId> constructor = loadClass.getConstructor(X509Certificate.class);
-    		retVal = constructor.newInstance(decryptCert);
+    		retVal = new org.bouncycastle.cms.jcajce.JceKeyTransRecipientId(decryptCert);
     	}
     	catch (Throwable e)
     	{
@@ -632,25 +550,7 @@ public class SMIMECryptographerImpl implements Cryptographer
     			LOGGER.debug(builder.toString());
     		}
     	}
-    	
-    	if (retVal == null)
-    	{
-    		try
-    		{
-	    		// fall back to bcmail-jdk15-140 interfaces
-	    		loadClass = (Class<RecipientId>)getClass().getClassLoader().loadClass("org.bouncycastle.cms.RecipientId");
 
-	    		retVal = loadClass.newInstance();
-	    		
-	    		retVal.setSerialNumber(decryptCert.getSerialNumber());
-	    		retVal.setIssuer(decryptCert.getIssuerX500Principal().getEncoded());
-    		}
-        	catch (Throwable e)
-        	{
-         		LOGGER.error("Attempt to fall back to bcmail-jdk15-140 org.bouncycastle.cms.RecipientId failed.", e);
-        	}    		
-    	}
-    	
     	return retVal;
 
     }
@@ -730,28 +630,33 @@ public class SMIMECryptographerImpl implements Cryptographer
 	    	caps.addCapability(SMIMECapability.dES_EDE3_CBC);
 	    	caps.addCapability(SMIMECapability.rC2_CBC, 128);
 	    	caps.addCapability(SMIMECapability.dES_CBC);
-	    	caps.addCapability(new DERObjectIdentifier("1.2.840.113549.1.7.1"));	    	
+	    	caps.addCapability(new ASN1ObjectIdentifier("1.2.840.113549.1.7.1"));	    	
 	    	caps.addCapability(x509CertificateObjectsIdent);
 	    	signedAttrs.add(new SMIMECapabilitiesAttribute(caps));  
 	    	
 	    	final List<X509Certificate>  certList = new ArrayList<X509Certificate>();
-	    	final DirectSignedDataGenerator generator = sigFactory.createInstance();
+	    	CMSSignedDataGenerator gen = new CMSSignedDataGenerator();
 	    	for (X509Certificate signer : signingCertificates)
 	    	{
 	    		if (signer instanceof X509CertificateEx)
 	    		{	    			
-	    			generator.addSigner(((X509CertificateEx)signer).getPrivateKey(), signer,
-	    					this.m_digestAlgorithm.getOID(), createAttributeTable(signedAttrs), null);
+	    			ContentSigner digestSigner = new JcaContentSignerBuilder(this.m_digestAlgorithm.getAlgName())
+	    					.setProvider(CryptoExtensions.getJCESensitiveProviderName()).build(((X509CertificateEx) signer).getPrivateKey());
+	    			
+	    			
+	    			gen.addSignerInfoGenerator(new JcaSignerInfoGeneratorBuilder(new JcaDigestCalculatorProviderBuilder()
+	    			  .setProvider(CryptoExtensions.getJCEProviderName()).build())
+                      .build(digestSigner, signer));
+	    			
 	    			certList.add(signer);
 	    		}
 	    	}    	  	    		    	
 	    	
-	    	final CertStore certsAndcrls = CertStore.getInstance("Collection", new CollectionCertStoreParameters(certList), 
-	    			CryptoExtensions.getJCEProviderNameForTypeAndAlgorithm("CertStore", "Collection"));   
-	    	generator.addCertificatesAndCRLs(certsAndcrls);
-	    	final CMSProcessableBodyPart content = new CMSProcessableBodyPart(signedContent);
+	    	final JcaCertStore  certs = new JcaCertStore(certList);
+	    	gen.addCertificates(certs);
+	    	final CMSProcessableByteArray content = new CMSProcessableByteArray(entity);
 	    	
-	    	final CMSSignedData signedData = generator.generate(content);
+	    	final CMSSignedData signedData = gen.generate(content);
 	    	  	    	
 	        final String  header = "signed; protocol=\"application/pkcs7-signature\"; micalg=" + 
 	        		CryptoAlgorithmsHelper.toDigestAlgorithmMicalg(this.m_digestAlgorithm);           
@@ -861,7 +766,7 @@ public class SMIMECryptographerImpl implements Cryptographer
     			if (!isAllowedDigestAlgorithm(sigInfo.getDigestAlgOID()))
     				throw new SignatureValidationException("Digest algorithm " + sigInfo.getDigestAlgOID() + " is not allowed.");
     				
-	    		if (sigInfo.verify(signerCertificate, CryptoExtensions.getJCEProviderName()))
+	    		if (sigInfo.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider(CryptoExtensions.getJCEProviderName()).build(signerCertificate)))
 	    		{
 	    			
 	    			return; // verified... return
@@ -898,7 +803,8 @@ public class SMIMECryptographerImpl implements Cryptographer
     	 * Dis-allow MD5 explicitly
     	 * may include other algorithms in further implementations
     	 */
-    	return digestOID.equalsIgnoreCase(DigestAlgorithm.MD5.getOID()) ? false: true;
+    	return (digestOID.equalsIgnoreCase(DigestAlgorithm.MD5.getOID()) || digestOID.equalsIgnoreCase(DigestAlgorithm.SHA1.getOID()) ||
+    			digestOID.equalsIgnoreCase(DigestAlgorithm.SHA1WITHRSA.getOID())) ? false: true;
 
     }
     
@@ -929,7 +835,7 @@ public class SMIMECryptographerImpl implements Cryptographer
     		{
 		        //get the digests
 		        final Attribute digAttr = sigInfo.getSignedAttributes().get(CMSAttributes.messageDigest);
-		        final DERObject hashObj = digAttr.getAttrValues().getObjectAt(0).getDERObject();
+		        final ASN1Encodable hashObj = digAttr.getAttrValues().getObjectAt(0);
 		        final byte[] signedDigest = ((ASN1OctetString)hashObj).getOctets();
 		        final String signedDigestHex = org.apache.commons.codec.binary.Hex.encodeHexString(signedDigest);
 		        

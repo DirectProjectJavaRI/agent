@@ -51,8 +51,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1Object;
 import org.bouncycastle.asn1.ASN1OctetString;
-import org.bouncycastle.asn1.DERObject;
 import org.nhindirect.common.crypto.CryptoExtensions;
 import org.nhindirect.policy.PolicyProcessException;
 import org.nhindirect.policy.x509.AuthorityInfoAccessExtentionField;
@@ -232,7 +232,7 @@ public class TrustChainValidator
     
     private boolean isIssuerInAnchors(Collection<X509Certificate> anchors, X509Certificate checkIssuer)
     {
-    	final DERObject checkIssuerExValue = getExtensionValue(checkIssuer, "2.5.29.14");
+    	final ASN1Object checkIssuerExValue = getExtensionValue(checkIssuer, "2.5.29.14");
     	
     	for (X509Certificate anchor : anchors)
     	{
@@ -240,7 +240,7 @@ public class TrustChainValidator
     			return true; // already found the certificate issuer... done
     		
     		// thumbprint may not be enough... it is possible that there might be change of anchors but they keep the same subject key id
-    		final DERObject anchorExValue = getExtensionValue(anchor, "2.5.29.14");
+    		final ASN1Object anchorExValue = getExtensionValue(anchor, "2.5.29.14");
     		
     		if (checkIssuerExValue != null && anchorExValue != null && anchorExValue.equals(checkIssuerExValue))
     			return true;
@@ -551,7 +551,7 @@ public class TrustChainValidator
     }
     
     
-    private DERObject getExtensionValue(X509Certificate cert, String oid)
+    private ASN1Object getExtensionValue(X509Certificate cert, String oid)
     {	
         byte[]  bytes = cert.getExtensionValue(oid);
         if (bytes == null)
@@ -563,7 +563,7 @@ public class TrustChainValidator
     }
     
     @SuppressWarnings("deprecation")
-	private DERObject getObject(byte[] ext)
+	private ASN1Object getObject(byte[] ext)
     {
     	ASN1InputStream aIn = null;
         try

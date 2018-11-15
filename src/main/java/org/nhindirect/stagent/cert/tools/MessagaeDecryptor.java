@@ -10,11 +10,11 @@ import javax.mail.internet.MimeBodyPart;
 
 import org.apache.commons.io.FileUtils;
 import org.bouncycastle.cms.RecipientId;
+import org.bouncycastle.cms.RecipientInformation;
 import org.bouncycastle.cms.RecipientInformationStore;
+import org.bouncycastle.cms.jcajce.JceKeyTransEnvelopedRecipient;
 import org.bouncycastle.mail.smime.SMIMEEnveloped;
 import org.nhindirect.common.crypto.CryptoExtensions;
-import org.nhindirect.stagent.cryptography.activekeyops.DirectRecipientInformation;
-import org.nhindirect.stagent.cryptography.activekeyops.SplitDirectRecipientInformationFactory;
 
 public class MessagaeDecryptor
 {
@@ -50,16 +50,15 @@ public class MessagaeDecryptor
 			
 			final SMIMEEnveloped m = new SMIMEEnveloped(part); 
 			
-			RecipientId recId = new RecipientId();
-			recId.setIssuer(cert.getIssuerX500Principal().getEncoded());
-			recId.setSerialNumber(cert.getSerialNumber());
+			RecipientId recId =  new org.bouncycastle.cms.jcajce.JceKeyTransRecipientId(cert);
 			
 			
 			final RecipientInformationStore recipients = m.getRecipientInfos();
-			final DirectRecipientInformation recipient = new SplitDirectRecipientInformationFactory().createInstance(recipients.get(recId), m);	
+			final RecipientInformation recipient = recipients.get(recId);	
+			final JceKeyTransEnvelopedRecipient recip = new JceKeyTransEnvelopedRecipient(entry);
 			
 			
-			recipient.getDecryptedContent(entry);
+			recipient.getContent(recip);
 			System.out.println("Alg OID: " + m.getEncryptionAlgOID());
 			
 			

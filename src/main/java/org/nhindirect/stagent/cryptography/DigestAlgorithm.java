@@ -23,6 +23,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 package org.nhindirect.stagent.cryptography;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
 
 /**
@@ -36,8 +37,12 @@ public enum DigestAlgorithm
     SHA1("SHA1", CMSSignedDataGenerator.DIGEST_SHA1),
     SHA256("SHA256", CMSSignedDataGenerator.DIGEST_SHA256),
     SHA384("SHA384", CMSSignedDataGenerator.DIGEST_SHA384),
-    SHA512("SHA512", CMSSignedDataGenerator.DIGEST_SHA512);
-    
+    SHA512("SHA512", CMSSignedDataGenerator.DIGEST_SHA512),
+    SHA1WITHRSA("SHA1WITHRSA", PKCSObjectIdentifiers.sha1WithRSAEncryption.getId()),    
+	SHA256WITHRSA("SHA256WITHRSA", PKCSObjectIdentifiers.sha256WithRSAEncryption.getId()),
+	SHA384WITHRSA("SHA384WITHRSA", PKCSObjectIdentifiers.sha384WithRSAEncryption.getId()),
+	SHA512WITHRSA("SHA512WITHRSA", PKCSObjectIdentifiers.sha512WithRSAEncryption.getId());
+	
     protected final String algName;
     protected final String OID;
     
@@ -68,6 +73,14 @@ public enum DigestAlgorithm
     		return SHA512;
     	else if (algorithmName.equalsIgnoreCase(MD5.getAlgName()))
     		return MD5;
+    	else if (algorithmName.equalsIgnoreCase(SHA1WITHRSA.getAlgName()))
+    		return SHA1WITHRSA;   	
+    	else if (algorithmName.equalsIgnoreCase(SHA256WITHRSA.getAlgName()))
+    		return SHA256WITHRSA;   	
+    	else if (algorithmName.equalsIgnoreCase(SHA384WITHRSA.getAlgName()))
+    		return SHA384WITHRSA;    
+    	else if (algorithmName.equalsIgnoreCase(SHA512WITHRSA.getAlgName()))
+    		return SHA512WITHRSA;    	
     	else
     		return defaultAlgorithm;
     }
@@ -85,6 +98,8 @@ public enum DigestAlgorithm
     	
     	if (OID.equalsIgnoreCase(SHA1.getOID()))
     		return SHA1;
+    	if (OID.equalsIgnoreCase(SHA1WITHRSA.getOID()))
+    		return SHA1WITHRSA; 	
     	else if (OID.equalsIgnoreCase(SHA256.getOID()))
     		return SHA256;
     	else if (OID.equalsIgnoreCase(SHA384.getOID()))
@@ -92,7 +107,13 @@ public enum DigestAlgorithm
     	else if (OID.equalsIgnoreCase(SHA512.getOID()))
     		return SHA512;
     	else if (OID.equalsIgnoreCase(MD5.getOID()))
-    		return MD5;    	
+    		return MD5;    
+    	else if (OID.equalsIgnoreCase(SHA256WITHRSA.getOID()))
+    		return SHA256WITHRSA; 	
+    	else if (OID.equalsIgnoreCase(SHA384WITHRSA.getOID()))
+    		return SHA384WITHRSA; 	
+    	else if (OID.equalsIgnoreCase(SHA512WITHRSA.getOID()))
+    		return SHA512WITHRSA; 	
     	else
     		return defaultAlgorithm;
     }

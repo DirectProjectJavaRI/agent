@@ -1025,7 +1025,7 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
 	        if (SMIMEStandard.isContentEnvelopedSignature(new ContentType(decryptedEntity.getContentType())))
 	        {
 	            signatures = cryptographer.deserializeEnvelopedSignature(decryptedEntity);                
-	            payload = new MimeEntity(new ByteArrayInputStream(signatures.getContentInfo().getEncoded()));
+	            payload = new MimeEntity(new ByteArrayInputStream(signatures.toASN1Structure().getEncoded()));
 	        }                        
 	        else if (SMIMEStandard.isContentMultipartSignature(new ContentType(decryptedEntity.getContentType())))
 	        {

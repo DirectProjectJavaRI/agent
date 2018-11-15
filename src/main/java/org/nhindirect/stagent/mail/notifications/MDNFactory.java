@@ -30,8 +30,8 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.util.ByteArrayDataSource;
 
-import org.apache.jsieve.mailet.mdn.Disposition;
-import org.apache.mailet.base.mail.MimeMultipartReport;
+import org.apache.james.javax.MimeMultipartReport;
+
 
 /**
  * Overridden implementation of the Apache James MDNFactory.  Adds support for additional fiedls such as error and gateway and does not automatically

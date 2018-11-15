@@ -23,7 +23,9 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.util.Store;
 import org.bouncycastle.util.encoders.Base64;
 import org.nhindirect.common.crypto.CryptoExtensions;
 import org.nhindirect.common.crypto.MutableKeyStoreProtectionManager;
@@ -39,7 +41,6 @@ import org.nhindirect.stagent.cryptography.DigestAlgorithm;
 import org.nhindirect.stagent.cryptography.EncryptionAlgorithm;
 import org.nhindirect.stagent.cryptography.SMIMECryptographerImpl;
 import org.nhindirect.stagent.cryptography.SignedEntity;
-import org.nhindirect.stagent.cryptography.activekeyops.SplitDirectRecipientInformationFactory;
 import org.nhindirect.stagent.mail.MimeEntity;
 import org.nhindirect.stagent.mail.MimeError;
 import org.nhindirect.stagent.mail.MimeStandard;
@@ -165,7 +166,6 @@ public class CryptographerTest extends TestCase
 			X509Certificate cert = TestUtils.getExternalCert("user1");
 			
 			SMIMECryptographerImpl cryptographer = new SMIMECryptographerImpl();
-			cryptographer.setRecipientInformationFactory(new SplitDirectRecipientInformationFactory(pkcs11ProviderName, ""));
 			
 			cryptographer.setEncryptionAlgorithm(encAlg);
 			
@@ -293,24 +293,19 @@ public class CryptographerTest extends TestCase
 	
 	}	
 	
-	public void testSignMimeEntitySHA1() throws Exception
-	{
-		testSignMimeEntity(DigestAlgorithm.SHA1);
-	}
-	
 	public void testSignMimeEntitySHA256() throws Exception
 	{
-		testSignMimeEntity(DigestAlgorithm.SHA256);
+		testSignMimeEntity(DigestAlgorithm.SHA256WITHRSA);
 	}	
 	
 	public void testSignMimeEntitySHA384() throws Exception
 	{
-		testSignMimeEntity(DigestAlgorithm.SHA384);
+		testSignMimeEntity(DigestAlgorithm.SHA384WITHRSA);
 	}	
 	
 	public void testSignMimeEntitySHA512() throws Exception
 	{
-		testSignMimeEntity(DigestAlgorithm.SHA512);
+		testSignMimeEntity(DigestAlgorithm.SHA512WITHRSA);
 	}		
 	
 	private void testSignMimeEntity(DigestAlgorithm digAlg) throws Exception
@@ -341,12 +336,12 @@ public class CryptographerTest extends TestCase
 		cryptographer.checkSignature(signedEnt, cert, new ArrayList<X509Certificate>());
 	}
 
-	public void testSignMimeEntity_MD5Digest_forceStrongDigest_assertRejectValidation() throws Exception
+	public void testSignMimeEntity_SHA1Digest_forceStrongDigest_assertRejectValidation() throws Exception
 	{	
 		X509CertificateEx certex = TestUtils.getInternalCert("user1");
 		
 		SMIMECryptographerImpl cryptographer = new SMIMECryptographerImpl();
-		cryptographer.setDigestAlgorithm(DigestAlgorithm.MD5);
+		cryptographer.setDigestAlgorithm(DigestAlgorithm.SHA1WITHRSA);
 		
 		MimeEntity entity = new MimeEntity();
 		entity.setText("Hello world.");
@@ -383,7 +378,7 @@ public class CryptographerTest extends TestCase
 		X509CertificateEx certex = TestUtils.getInternalCert("user1");
 		
 		SMIMECryptographerImpl cryptographer = new SMIMECryptographerImpl();
-		cryptographer.setDigestAlgorithm(DigestAlgorithm.SHA256);
+		cryptographer.setDigestAlgorithm(DigestAlgorithm.SHA256WITHRSA);
 		
 		MimeEntity entity = new MimeEntity();
 		entity.setText("Hello world.");
@@ -407,12 +402,12 @@ public class CryptographerTest extends TestCase
 		
 	}
 	
-	public void testSignMimeEntity_MD5Digest_doNotforceStrongDigest_assertValidation() throws Exception
+	public void testSignMimeEntity_SHA1Digest_doNotforceStrongDigest_assertValidation() throws Exception
 	{	
 		X509CertificateEx certex = TestUtils.getInternalCert("user1");
 		
 		SMIMECryptographerImpl cryptographer = new SMIMECryptographerImpl();
-		cryptographer.setDigestAlgorithm(DigestAlgorithm.MD5);
+		cryptographer.setDigestAlgorithm(DigestAlgorithm.SHA1WITHRSA);
 		cryptographer.setStrongDigestEnforced(false);
 		
 		MimeEntity entity = new MimeEntity();
@@ -531,11 +526,10 @@ public class CryptographerTest extends TestCase
 		
        	CMSSignedData signed = new CMSSignedData(byteData);
 		
-       	CertStore certs = signed.getCertificatesAndCRLs("Collection", CryptoExtensions.getJCEProviderName());
+       	Store<X509CertificateHolder> certs = signed.getCertificates();
        	
-       	Collection<? extends Certificate> certCollection = certs.getCertificates(null);
        	
-        for (Certificate cert : certCollection)
+        for (X509CertificateHolder cert : certs.getMatches(null))
         {
         	FileUtils.writeByteArrayToFile(new File("./testCert.der"), cert.getEncoded());
         }

@@ -38,12 +38,10 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 
+import org.apache.james.javax.MimeMultipartReport;
 import org.nhindirect.stagent.NHINDException;
 import org.nhindirect.stagent.mail.MailStandard;
 import org.nhindirect.stagent.mail.MimeEntity;
-
-import org.apache.mailet.base.mail.MimeMultipartReport;
-
 
 /**
  * Represents notification (MDN) content.
