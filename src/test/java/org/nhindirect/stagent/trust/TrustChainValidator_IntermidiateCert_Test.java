@@ -91,22 +91,6 @@ public class TrustChainValidator_IntermidiateCert_Test extends TestCase
         return retVal;
     }
     
-    public void testValidateCertAgainstNonRootCA_CertGenToolCerts() throws Exception
-    {
-    	X509Certificate anchor = certFromData(getCertificateFileData("messaging.cerner.com.der"));
-    	X509Certificate certToValidate = certFromData(getCertificateFileData("greg@messaging.cerner.com.p12"));
-    	
-    	TrustChainValidator validator = new TrustChainValidator();
-    	
-    	boolean isTrusted = false;
-    	try
-    	{	
-    		isTrusted = validator.isTrusted(certToValidate, Arrays.asList(anchor));
-    	}
-    	catch (Exception e) {}
-    	
-    	assertTrue(isTrusted);
-    }
     
     public void testValidateCertAgainstNonRootCA_OpenSSLCerts() throws Exception
     {
