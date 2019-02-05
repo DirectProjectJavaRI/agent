@@ -316,7 +316,7 @@ public class TestUtils
      */
 	public static AbstractPKCS11TokenKeyStoreProtectionManager getLunaKeyStoreMgr() throws Exception
 	{	
-		  final BootstrappedPKCS11Credential cred = new BootstrappedPKCS11Credential("1Kingpuff");
+		  final BootstrappedPKCS11Credential cred = new BootstrappedPKCS11Credential("1kingpuff");
 		  final StaticPKCS11TokenKeyStoreProtectionManager mgr = new StaticPKCS11TokenKeyStoreProtectionManager();
 		  mgr.setCredential(cred);
 		  mgr.setKeyStoreType("Luna");
@@ -324,6 +324,8 @@ public class TestUtils
 		  mgr.setKeyStoreProviderName("com.safenetinc.luna.provider.LunaProvider");
 		  mgr.setKeyStorePassPhraseAlias("keyStorePassPhrase");
 		  mgr.setPrivateKeyPassPhraseAlias("privateKeyPassPhrase");
+		  
+		  mgr.initTokenStore();
 		  
 		  return mgr;
 	}	
