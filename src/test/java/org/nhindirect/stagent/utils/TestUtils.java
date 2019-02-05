@@ -25,6 +25,9 @@ import javax.security.auth.callback.PasswordCallback;
 
 import org.apache.commons.io.FileUtils;
 import org.nhindirect.common.crypto.CryptoExtensions;
+import org.nhindirect.common.crypto.impl.AbstractPKCS11TokenKeyStoreProtectionManager;
+import org.nhindirect.common.crypto.impl.BootstrappedPKCS11Credential;
+import org.nhindirect.common.crypto.impl.StaticPKCS11TokenKeyStoreProtectionManager;
 import org.nhindirect.stagent.DefaultNHINDAgent;
 import org.nhindirect.stagent.NHINDAgentTest;
 import org.nhindirect.stagent.NHINDException;
@@ -293,4 +296,38 @@ public class TestUtils
 		return p.getName();
 	}
     
+	
+    /**
+     * used for testing with a Luna HSM token
+     * @return The Security provider name if the token is loaded successfully... an empty string other wise 
+     * @throws Exception
+     */
+	public static String setupLunaToken() throws Exception
+	{	
+
+		  final StaticPKCS11TokenKeyStoreProtectionManager mgr = (StaticPKCS11TokenKeyStoreProtectionManager)getLunaKeyStoreMgr();
+		  
+		  return mgr.getKS().getProvider().getName();
+	}	
+	
+    /**
+     * used for testing with a Luna HSM token
+     * @throws Exception
+     */
+	public static AbstractPKCS11TokenKeyStoreProtectionManager getLunaKeyStoreMgr() throws Exception
+	{	
+		  final BootstrappedPKCS11Credential cred = new BootstrappedPKCS11Credential("1kingpuff");
+		  final StaticPKCS11TokenKeyStoreProtectionManager mgr = new StaticPKCS11TokenKeyStoreProtectionManager();
+		  mgr.setCredential(cred);
+		  mgr.setKeyStoreType("Luna");
+		  mgr.setKeyStoreSourceAsString("slot:0");
+		  mgr.setKeyStoreProviderName("com.safenetinc.luna.provider.LunaProvider");
+		  mgr.setKeyStorePassPhraseAlias("keyStorePassPhrase");
+		  mgr.setPrivateKeyPassPhraseAlias("privateKeyPassPhrase");
+		  
+		  mgr.initTokenStore();
+		  
+		  return mgr;
+	}	
+	
 }
