@@ -78,6 +78,7 @@ import org.nhindirect.common.options.OptionsParameter;
 import org.nhindirect.stagent.NHINDException;
 import org.nhindirect.stagent.SignatureValidationException;
 import org.nhindirect.stagent.cert.X509CertificateEx;
+import org.nhindirect.stagent.cryptography.bc.DirectJceKeyTransEnvelopedRecipient;
 import org.nhindirect.stagent.mail.Message;
 import org.nhindirect.stagent.mail.MimeEntity;
 import org.nhindirect.stagent.mail.MimeError;
@@ -497,7 +498,7 @@ public class SMIMECryptographerImpl implements Cryptographer
 		        if (recipient == null)
 		        	continue;
 	
-		        final JceKeyTransEnvelopedRecipient recip = new JceKeyTransEnvelopedRecipient(decryptCert.getPrivateKey());
+		        final JceKeyTransEnvelopedRecipient recip = new DirectJceKeyTransEnvelopedRecipient(decryptCert.getPrivateKey());
 		        recip.setProvider(CryptoExtensions.getJCESensitiveProviderName());
 		        recip.setContentProvider(CryptoExtensions.getJCEProviderName());
 		        

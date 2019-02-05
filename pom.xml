@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>agent</artifactId>    
     <name>Direct Project Security And Trust Agent</name>
-    <version>6.1-SNAPSHOT</version>
+    <version>6.0.1-SNAPSHOT</version>
     <description>Direct Project Security And Trust Agent</description>
     <inceptionYear>2010</inceptionYear>
     <url>https://github.com/DirectProjectJavaRI/agent</url> 
@@ -55,11 +55,23 @@
 		  <groupId>org.nhind</groupId>
 		  <artifactId>direct-policy</artifactId>
 		  <version>6.0</version>
+		    <exclusions>
+		        <exclusion>
+		            <groupId>org.bouncycastle</groupId>
+		            <artifactId>bcprov-jdk15on</artifactId>
+		        </exclusion>
+		    </exclusions>			  
 		</dependency>	  
 		<dependency>
 		  <groupId>org.nhind</groupId>
 		  <artifactId>direct-common</artifactId>
-		  <version>6.0</version>		  
+		  <version>6.0</version>	
+		    <exclusions>
+		        <exclusion>
+		            <groupId>org.bouncycastle</groupId>
+		            <artifactId>bcprov-jdk15on</artifactId>
+		        </exclusion>
+		    </exclusions>			  	  
 		</dependency>	
 		<dependency>
 		  <groupId>org.nhind</groupId>
@@ -99,18 +111,30 @@
 		</dependency>	
 		<dependency>
 		    <groupId>org.bouncycastle</groupId>
-		    <artifactId>bcprov-jdk15on</artifactId>
+		    <artifactId>bcprov-debug-jdk15on</artifactId>
 		    <version>1.60</version>    
 		</dependency>  
 		<dependency>
 		    <groupId>org.bouncycastle</groupId>
 		    <artifactId>bcmail-jdk15on</artifactId>
-		    <version>1.60</version>	    
+		    <version>1.60</version>	 
+		    <exclusions>
+		        <exclusion>
+		            <groupId>org.bouncycastle</groupId>
+		            <artifactId>bcprov-jdk15on</artifactId>
+		        </exclusion>
+		    </exclusions>			       
 		</dependency>
 		<dependency>
 		    <groupId>org.bouncycastle</groupId>
 		    <artifactId>bcpkix-jdk15on</artifactId>
-		    <version>1.60</version>    
+		    <version>1.60</version>   
+		    <exclusions>
+		        <exclusion>
+		            <groupId>org.bouncycastle</groupId>
+		            <artifactId>bcprov-jdk15on</artifactId>
+		        </exclusion>
+		    </exclusions>			     
 		</dependency> 			
 		<dependency>
 		    <groupId>dnsjava</groupId>
