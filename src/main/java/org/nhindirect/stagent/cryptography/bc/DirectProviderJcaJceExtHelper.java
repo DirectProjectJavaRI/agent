@@ -5,6 +5,8 @@ import java.security.Provider;
 
 import javax.crypto.SecretKey;
 
+import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.jcajce.util.ProviderJcaJceHelper;
 import org.bouncycastle.operator.SymmetricKeyUnwrapper;
@@ -22,7 +24,19 @@ public class DirectProviderJcaJceExtHelper extends ProviderJcaJceHelper implemen
     
     public JceAsymmetricKeyUnwrapper createAsymmetricUnwrapper(AlgorithmIdentifier keyEncryptionAlgorithm, PrivateKey keyEncryptionKey)
     {
-        return new DirectJceAsymmetricKeyUnwrapper(keyEncryptionAlgorithm, keyEncryptionKey).setProvider(provider);
+    	final JceAsymmetricKeyUnwrapper retVal = new DirectJceAsymmetricKeyUnwrapper(keyEncryptionAlgorithm, keyEncryptionKey);
+    	retVal.setProvider(provider);
+    	
+    	/*
+    	 * For a non-BC provider, we need to map the OAEP algorithm OID to a name.  Many HSMs do not recognized the algorithm OID and explicitly
+    	 * need the name.
+    	 */
+    	if (provider != null && !StringUtils.isEmpty(provider.getName()) && !provider.getName().equalsIgnoreCase("BC"))
+    	{
+    		retVal.setAlgorithmMapping(PKCSObjectIdentifiers.id_RSAES_OAEP, "RSA/ECB/OAEP");
+    	}    	
+    	
+        return retVal;
     }
     
     public JceKTSKeyUnwrapper createAsymmetricUnwrapper(AlgorithmIdentifier keyEncryptionAlgorithm, PrivateKey keyEncryptionKey, byte[] partyUInfo, byte[] partyVInfo)
