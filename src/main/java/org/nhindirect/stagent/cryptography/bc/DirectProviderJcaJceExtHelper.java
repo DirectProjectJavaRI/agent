@@ -29,11 +29,11 @@ public class DirectProviderJcaJceExtHelper extends ProviderJcaJceHelper implemen
     	
     	/*
     	 * For a non-BC provider, we need to map the OAEP algorithm OID to a name.  Many HSMs do not recognized the algorithm OID and explicitly
-    	 * need the name.
+    	 * need the name.  May need to get sophisticated in later versions to map names for specific HSMs. 
     	 */
     	if (provider != null && !StringUtils.isEmpty(provider.getName()) && !provider.getName().equalsIgnoreCase("BC"))
     	{
-    		retVal.setAlgorithmMapping(PKCSObjectIdentifiers.id_RSAES_OAEP, "RSA/ECB/OAEP");
+    		retVal.setAlgorithmMapping(PKCSObjectIdentifiers.id_RSAES_OAEP, "RSA/None/OAEPWithSHA1AndMGF1Padding");
     	}    	
     	
         return retVal;

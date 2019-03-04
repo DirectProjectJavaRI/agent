@@ -31,7 +31,7 @@ public class DirectNamedJcaJceExtHelper extends NamedJcaJceHelper implements Dir
     	 */
     	if (!StringUtils.isEmpty(providerName) && !providerName.equalsIgnoreCase("BC"))
     	{
-    		retVal.setAlgorithmMapping(PKCSObjectIdentifiers.id_RSAES_OAEP, "RSA/ECB/OAEP");
+    		retVal.setAlgorithmMapping(PKCSObjectIdentifiers.id_RSAES_OAEP, "RSA/None/OAEPWithSHA1AndMGF1Padding");
     	}
     	
         return retVal;
