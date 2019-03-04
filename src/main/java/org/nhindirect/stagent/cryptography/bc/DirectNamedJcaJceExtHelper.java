@@ -27,7 +27,7 @@ public class DirectNamedJcaJceExtHelper extends NamedJcaJceHelper implements Dir
     	
     	/*
     	 * For a non-BC provider, we need to map the OAEP algorithm OID to a name.  Many HSMs do not recognized the algorithm OID and explicitly
-    	 * need the name.
+    	 * need the name.  May need to get sophisticated in later versions to map names for specific HSMs. 
     	 */
     	if (!StringUtils.isEmpty(providerName) && !providerName.equalsIgnoreCase("BC"))
     	{
