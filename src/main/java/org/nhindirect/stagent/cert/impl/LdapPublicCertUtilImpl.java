@@ -71,7 +71,6 @@ import org.xbill.DNS.Type;
  */
 public class LdapPublicCertUtilImpl implements LdapCertUtil{
 
-	@SuppressWarnings("deprecation")
 	private static final Log LOGGER = LogFactory.getFactory().getInstance(LdapPublicCertUtilImpl.class);
 	
 	private static final String DEFAULT_LDAP_TIMEOUT = "5000";
@@ -135,7 +134,7 @@ public class LdapPublicCertUtilImpl implements LdapCertUtil{
 						
 						NamingEnumeration<SearchResult> searchResult = ctx.search(
 								dn, 
-								EMAIL_ATTRIBUTE + "=" + subjectName,
+								"(&(" + EMAIL_ATTRIBUTE + "=" + subjectName  +")(|(userCertificate;binary=*)(userCertificate=*)))",
 								getDefaultSearchControls());
 						
 						while (searchResult != null && searchResult.hasMore()) {

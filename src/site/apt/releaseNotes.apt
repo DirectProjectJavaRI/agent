@@ -6,6 +6,22 @@
         Greg Meyer
         ---
 
+{6.0.3}
+
+    Changes included with release 6.0.3
+    
+    []
+    
+    Enhancements
+    
+ 	* Updating to SpringBoot 2.1.9
+
+    [] 
+     
+    Bug Fixes
+
+    * Fixing issue resolving certificate via LDAP.  Using same filters on return types as NIST tooling.
+
 {6.0.2}
 
     Changes included with release 6.0.2
