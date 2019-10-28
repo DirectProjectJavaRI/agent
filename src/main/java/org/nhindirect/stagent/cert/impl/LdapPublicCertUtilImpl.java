@@ -71,8 +71,7 @@ import org.xbill.DNS.Type;
  */
 public class LdapPublicCertUtilImpl implements LdapCertUtil{
 
-	@SuppressWarnings("deprecation")
-	private static final Log LOGGER = LogFactory.getFactory().getInstance(LdapPublicCertUtilImpl.class);
+	private static final Log LOGGER = LogFactory.getLog(LdapPublicCertUtilImpl.class);
 	
 	private static final String DEFAULT_LDAP_TIMEOUT = "5000";
 	private static final String DEFAULT_LDAP_CONNECT_TIMEOUT = "10000";
@@ -137,6 +136,26 @@ public class LdapPublicCertUtilImpl implements LdapCertUtil{
 								dn, 
 								EMAIL_ATTRIBUTE + "=" + subjectName,
 								getDefaultSearchControls());
+						
+						/*
+						 * Try again with slightly different filters.  This is what is used by the NIST tooling.  Some servers may not like this
+						 * syntax.
+						 */
+
+						if (!(searchResult != null && searchResult.hasMore()))
+						{
+							try
+							{
+								searchResult = ctx.search(
+									dn, 
+									"(&(" + EMAIL_ATTRIBUTE + "=" + subjectName  +")(|(userCertificate;binary=*)(userCertificate=*)))",
+									getDefaultSearchControls());
+							}
+							catch (Exception e)
+							{
+								LOGGER.warn("Exception when looking up LDAP certificates using alternative search filter: " + e.getMessage());
+							}
+						}
 						
 						while (searchResult != null && searchResult.hasMore()) {
 							final SearchResult certEntry = searchResult.nextElement();
