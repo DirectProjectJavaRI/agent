@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>agent</artifactId>    
     <name>Direct Project Security And Trust Agent</name>
-    <version>6.0.3-SNAPSHOT</version>
+    <version>6.0.3</version>
     <description>Direct Project Security And Trust Agent</description>
     <inceptionYear>2010</inceptionYear>
     <url>https://github.com/DirectProjectJavaRI/agent</url> 
@@ -281,7 +281,7 @@
               </execution>
             </executions>	        
 	      </plugin>		
-		<!--  for release only   
+		<!--  for release only
 	      <plugin>
              <groupId>org.apache.maven.plugins</groupId>
              <artifactId>maven-gpg-plugin</artifactId>
