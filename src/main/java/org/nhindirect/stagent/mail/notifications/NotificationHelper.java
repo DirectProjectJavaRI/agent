@@ -25,6 +25,8 @@ package org.nhindirect.stagent.mail.notifications;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.TreeSet;
 import java.util.Arrays;
 
 import javax.mail.MessagingException;
@@ -107,11 +109,23 @@ public class NotificationHelper
     	
     	try
     	{
-    		retVal = message.getHeader(MDNStandard.Headers.DispositionNotificationTo, ",");
-    		
-    		if (retVal == null || retVal.isEmpty())
-    		{
-    			retVal = message.getHeader(MDNStandard.Headers.From, ",");
+    		String[] destinations = message.getHeader(MDNStandard.Headers.DispositionNotificationTo);
+
+    		if (destinations == null || destinations.length == 0) {
+    			destinations = message.getHeader(MDNStandard.Headers.From);
+    		}
+
+    		if (destinations == null || destinations.length == 0) {
+    			retVal = "";
+    		} else if (destinations.length == 1) {
+    			retVal = destinations[0];
+    		} else if (destinations.length > 1) {
+    			// remove (case-insensitive) duplicates
+    			List<String> uniqueDestinations = new ArrayList<>();
+    			Collections.addAll(uniqueDestinations, destinations);
+    			TreeSet<String> seen = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+    			uniqueDestinations.removeIf(s -> !seen.add(s));
+    			retVal = String.join(",", uniqueDestinations);
     		}
     	}
     	catch (MessagingException e) {/* no-op */}
