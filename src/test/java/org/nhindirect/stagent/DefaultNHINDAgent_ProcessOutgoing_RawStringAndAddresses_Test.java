@@ -1,11 +1,15 @@
 package org.nhindirect.stagent;
 
+import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+
+import org.junit.jupiter.api.Test;
+
 import javax.mail.Message.RecipientType;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import junit.framework.TestCase;
-import org.nhindirect.stagent.DefaultNHINDAgent;
 import org.nhindirect.stagent.cert.impl.KeyStoreCertificateStore;
 import org.nhindirect.stagent.mail.Message;
 import org.nhindirect.stagent.trust.DefaultTrustAnchorResolver;
@@ -16,7 +20,8 @@ import org.nhindirect.stagent.utils.SecondaryMimeMessage;
  * Generated test case.
  * @author junit_generate
  */
-public class DefaultNHINDAgent_ProcessOutgoing_RawStringAndAddresses_Test extends TestCase {
+public class DefaultNHINDAgent_ProcessOutgoing_RawStringAndAddresses_Test 
+{
 	abstract class TestPlan extends BaseTestPlan {
 		@Override
 		protected void performInner() throws Exception {
@@ -70,7 +75,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_RawStringAndAddresses_Test extend
 				}
 				catch(Exception e) {
 					e.printStackTrace();
-					fail();
+					fail("");
 				}
 				return theWrapMessage;
 		}
@@ -113,6 +118,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_RawStringAndAddresses_Test extend
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCorrectRecipientsParamIsPassedToCheckEnvelopeAddresses() throws Exception {
 		new TestPlan() {
 			protected void checkEnvelopeAddresses_Internal(
@@ -131,6 +137,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_RawStringAndAddresses_Test extend
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCorrectSenderParamIsPassedToCheckEnvelopeAddresses() throws Exception {
 		new TestPlan() {
 			protected void checkEnvelopeAddresses_Internal(
@@ -149,6 +156,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_RawStringAndAddresses_Test extend
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCorrectMessageTxtParamIsPassedToWrapMessage() throws Exception {
 		new TestPlan() {
 			
@@ -169,6 +177,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_RawStringAndAddresses_Test extend
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testProcessOutgoingMethodIsCalled() throws Exception {
 		new TestPlan() {
 			

@@ -1,5 +1,10 @@
 package org.nhindirect.stagent.cert.impl;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 
@@ -8,6 +13,7 @@ import org.nhindirect.stagent.utils.TestUtils;
 
 public class CacheableKeyStoreManagerCertificateStore_getAllCertificateTest extends BaseKeyStoreManagerCertStoreTest
 {	
+	@Test
 	public void testGetGetAllCertificates_noCertificatesInstalled_assertNoCertificates() throws Exception
 	{
 		if (store != null)
@@ -16,6 +22,7 @@ public class CacheableKeyStoreManagerCertificateStore_getAllCertificateTest exte
 		}
 	}
 	
+	@Test
 	public void testGetGetAllCertificates_singleCertificatesInstalled_assertCertificateRetrieved() throws Exception
 	{
 		if (store != null)

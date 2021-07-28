@@ -24,8 +24,6 @@ package org.nhindirect.stagent;
 
 import java.security.cert.X509Certificate;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.cms.Attribute;
@@ -37,6 +35,8 @@ import org.nhindirect.common.options.OptionsManager;
 import org.nhindirect.common.options.OptionsParameter;
 import org.nhindirect.stagent.cert.Thumbprint;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Contains information specific to a discrete signer of a message.  Includes the singer information and the certificate used to sign the message (optimally
  * extracted from the signature).  This is a subset of the CMS signed data.
@@ -44,11 +44,9 @@ import org.nhindirect.stagent.cert.Thumbprint;
  * @author Umesh Madan
  *
  */
+@Slf4j
 public class DefaultMessageSignatureImpl implements MessageSignature
-{
-	@SuppressWarnings("deprecation")
-	private static final Log LOGGER = LogFactory.getFactory().getInstance(DefaultMessageSignatureImpl.class);
-	
+{	
 	private boolean signatureValid;
 	private SignerInformation signer;
 	private boolean useOrgCertificate;
@@ -160,12 +158,12 @@ public class DefaultMessageSignatureImpl implements MessageSignature
 		        final byte[] signedDigest = ((ASN1OctetString)hashObj).getOctets();
 		        final String signedDigestHex = org.apache.commons.codec.binary.Hex.encodeHexString(signedDigest);
 		        
-		        LOGGER.info("Signed Message Digest: " + signedDigestHex);
+		        log.info("Signed Message Digest: {}", signedDigestHex);
 		           
 		        // should have the computed digest now
 		        final byte[] digest = sigInfo.getContentDigest();
 		        final String digestHex = org.apache.commons.codec.binary.Hex.encodeHexString(digest);
-		        LOGGER.info("Computed Message Digest: " + digestHex);
+		        log.info("Computed Message Digest: {}", digestHex);
     		}
     		catch (Throwable t)
     		{  /* no-op.... logging digests is a quiet operation */}

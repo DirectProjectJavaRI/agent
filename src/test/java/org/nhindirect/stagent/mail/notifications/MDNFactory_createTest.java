@@ -1,5 +1,11 @@
 package org.nhindirect.stagent.mail.notifications;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -7,15 +13,13 @@ import javax.mail.BodyPart;
 import javax.mail.internet.InternetHeaders;
 import javax.mail.internet.MimeMultipart;
 
-import junit.framework.TestCase;
-
 import org.apache.james.javax.MimeMultipartReport;
 import org.nhindirect.stagent.NHINDException;
 
 import com.sun.mail.dsn.DispositionNotification;
 
 
-public class MDNFactory_createTest extends TestCase
+public class MDNFactory_createTest
 {
 	public static InternetHeaders getNotificationFieldsAsHeaders(MimeMultipart mm)
 	{
@@ -60,6 +64,7 @@ public class MDNFactory_createTest extends TestCase
 		
 	}	
 
+	@Test
 	public void testCreate_withGernalAttributes() throws Exception
 	{
 		final Disposition disp = new Disposition(NotificationType.Processed);
@@ -84,6 +89,7 @@ public class MDNFactory_createTest extends TestCase
 		assertEquals("test", obj);
 	}
 	
+	@Test
 	public void testCreate_withError() throws Exception
 	{
 		final Disposition disp = new Disposition(NotificationType.Processed);
@@ -99,6 +105,7 @@ public class MDNFactory_createTest extends TestCase
 		assertEquals("junit error", headers.getHeader("Error", ","));
 	}
 	
+	@Test
 	public void testCreate_withError_oldConstructor() throws Exception
 	{
 		final Disposition disp = new Disposition(NotificationType.Processed);
@@ -114,6 +121,7 @@ public class MDNFactory_createTest extends TestCase
 		assertEquals("junit error", headers.getHeader("Error", ","));
 	}
 	
+	@Test
 	public void testCreate_withWarning() throws Exception
 	{
 		final Disposition disp = new Disposition(NotificationType.Processed);
@@ -129,6 +137,7 @@ public class MDNFactory_createTest extends TestCase
 		assertEquals("junit warning", headers.getHeader("Warning", ","));
 	}
 	
+	@Test
 	public void testCreate_withFailure() throws Exception
 	{
 		final Disposition disp = new Disposition(NotificationType.Processed);
@@ -144,6 +153,7 @@ public class MDNFactory_createTest extends TestCase
 		assertEquals("junit failure", headers.getHeader("Failure", ","));
 	}		
 	
+	@Test
 	public void testCreate_withExtensionNameOnly() throws Exception
 	{
 		final Disposition disp = new Disposition(NotificationType.Processed);
@@ -159,6 +169,7 @@ public class MDNFactory_createTest extends TestCase
 		assertEquals("", headers.getHeader("X-EXTENSION", ","));
 	}	
 	
+	@Test
 	public void testCreate_withExtensionNameWithValue() throws Exception
 	{
 		final Disposition disp = new Disposition(NotificationType.Processed);
@@ -174,6 +185,7 @@ public class MDNFactory_createTest extends TestCase
 		assertEquals("junit value", headers.getHeader("X-EXTENSION", ","));
 	}
 	
+	@Test
 	public void testCreate_noDisposition_assertException() throws Exception
 	{
 		final MdnGateway gateway = new MdnGateway("junitGateway");

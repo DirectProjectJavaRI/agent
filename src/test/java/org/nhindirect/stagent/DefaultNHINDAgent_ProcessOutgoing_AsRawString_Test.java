@@ -1,11 +1,17 @@
 package org.nhindirect.stagent;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import javax.mail.Message.RecipientType;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import junit.framework.TestCase;
-import org.nhindirect.stagent.DefaultNHINDAgent;
 import org.nhindirect.stagent.cert.impl.KeyStoreCertificateStore;
 import org.nhindirect.stagent.mail.Message;
 import org.nhindirect.stagent.trust.DefaultTrustAnchorResolver;
@@ -16,7 +22,8 @@ import org.nhindirect.stagent.utils.SecondaryMimeMessage;
  * Generated test case.
  * @author junit_generate
  */
-public class DefaultNHINDAgent_ProcessOutgoing_AsRawString_Test extends TestCase {
+public class DefaultNHINDAgent_ProcessOutgoing_AsRawString_Test 
+{
 	abstract class TestPlan extends BaseTestPlan {
 		@Override
 		protected void performInner() throws Exception {
@@ -51,13 +58,13 @@ public class DefaultNHINDAgent_ProcessOutgoing_AsRawString_Test extends TestCase
 			MimeMessage mimeMsg = new SecondaryMimeMessage();
 			mimeMsg.setText("");
 			mimeMsg.setRecipients(RecipientType.TO, "some");
-			mimeMsg.setSender(new InternetAddress());
+			mimeMsg.setSender(new InternetAddress("some"));
 			Message msg = new Message(mimeMsg);
 			theWrapMessage = msg;
 			}
 			catch(Exception e) {
 				e.printStackTrace();
-				fail();
+				fail("");
 			}
 			return theWrapMessage;
 		}
@@ -85,6 +92,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_AsRawString_Test extends TestCase
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testMessageTxtIsNull_ThrowsException() throws Exception {
 		new TestPlan() {
 			@Override
@@ -95,7 +103,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_AsRawString_Test extends TestCase
 
 			protected void doAssertions(OutgoingMessage processOutgoing)
 					throws Exception {
-				fail();
+				fail("");
 			}
 
 			@Override
@@ -111,6 +119,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_AsRawString_Test extends TestCase
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testMessageTxtIsBlank_ThrowsException() throws Exception {
 		new TestPlan() {
 			@Override
@@ -121,7 +130,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_AsRawString_Test extends TestCase
 
 			protected void doAssertions(OutgoingMessage processOutgoing)
 					throws Exception {
-				fail();
+				fail("");
 			}
 
 			@Override
@@ -138,6 +147,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_AsRawString_Test extends TestCase
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCorrectMessageTxtParamIsPassedToWrapMessage() throws Exception {
 		new TestPlan() {
 			
@@ -158,6 +168,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_AsRawString_Test extends TestCase
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testMessageTxtIsValid_ProcessOutgoingMethodIsCalled()
 			throws Exception {
 		new TestPlan() {

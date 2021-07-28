@@ -1,7 +1,14 @@
 package org.nhindirect.stagent.cert.impl;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.lang.ref.SoftReference;
 import java.security.cert.X509CRL;
@@ -9,11 +16,9 @@ import java.util.Calendar;
 
 import org.nhindirect.common.crypto.CryptoExtensions;
 
-import junit.framework.TestCase;
-
-public class CRLRevocationManager_getCRLCollectionTest extends TestCase
+public class CRLRevocationManager_getCRLCollectionTest 
 {
-	@Override
+	@BeforeEach
 	public void setUp()
 	{
     	CryptoExtensions.registerJCEProviders();
@@ -23,18 +28,20 @@ public class CRLRevocationManager_getCRLCollectionTest extends TestCase
 		CRLRevocationManager.crlCacheLocation = null;
 	}
 	
-	@Override
+	@AfterEach
 	public void tearDown()
 	{
 		CRLRevocationManager.getInstance().flush();
 		CRLRevocationManager.initCRLCacheLocation();
 	}
 	
+	@Test
 	public void testGetCRLCollection_emptyCRL_assertEmpty()
 	{
 		assertEquals(0, CRLRevocationManager.getInstance().getCRLCollection().size());
 	}
 	
+	@Test
 	public void testGetCRLCollection_singleCRL_assertCRLRetrieved()
 	{
 		String uri = "http://localhost:8080/master.crl";
@@ -54,6 +61,7 @@ public class CRLRevocationManager_getCRLCollectionTest extends TestCase
 	}
 	
 	@SuppressWarnings("unchecked")
+	@Test
 	public void testGetCRLCollection_singleCRL_softRefExpired_assertEmpty()
 	{
 		String uri = "http://localhost:8080/master.crl";

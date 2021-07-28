@@ -4,6 +4,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 import java.io.InputStream;
 import java.security.KeyStore;
@@ -20,9 +24,6 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.nhindirect.common.crypto.CryptoExtensions;
 import org.nhindirect.common.crypto.impl.AbstractPKCS11TokenKeyStoreProtectionManager;
 import org.nhindirect.common.options.OptionsManager;
@@ -53,14 +54,14 @@ public class SMIMECryptographerImpl_wrappableHSMDirectTest
 	protected String oldSensitiveProvider;
 	
 	
-	@Before
+	@BeforeEach
 	public void setUp()
 	{
 		oldSensitiveProvider = CryptoExtensions.getJCESensitiveProviderName();
 		
 	}
 	
-	@After
+	@AfterEach
 	public void done()
 	{
 		OptionsManager.getInstance().setOptionsParameter(

@@ -1,6 +1,11 @@
 package org.nhindirect.stagent.policy.impl;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static org.mockito.Mockito.mock;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,12 +13,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.nhindirect.policy.PolicyExpression;
 
-public class DomainPolicyResolver_contstuctTest extends TestCase
+public class DomainPolicyResolver_contstuctTest
 {
+	@Test
 	public void testConstruct_sameForIncomingAndOutgoing_assertAttributes()
 	{
 		final PolicyExpression expression = mock(PolicyExpression.class);
@@ -36,6 +40,7 @@ public class DomainPolicyResolver_contstuctTest extends TestCase
 		assertNotNull(retrievedExpressions);
 	}
 	
+	@Test
 	public void testConstruct_differentForIncomingAndOutgoing_assertAttributes()
 	{
 		final PolicyExpression expression1 = mock(PolicyExpression.class);
@@ -66,6 +71,7 @@ public class DomainPolicyResolver_contstuctTest extends TestCase
 		assertNotNull(retrievedExpressions);
 	}	
 	
+	@Test
 	public void testConstruct_nullPolicies_assertException()
 	{
 		// single parameter

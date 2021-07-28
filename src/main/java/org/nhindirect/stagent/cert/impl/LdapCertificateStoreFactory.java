@@ -4,17 +4,16 @@ import java.util.Hashtable;
 
 import javax.naming.Context;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.nhindirect.stagent.NHINDException;
 import org.nhindirect.stagent.cert.CertStoreCachePolicy;
 import org.nhindirect.stagent.cert.CertificateResolver;
 import org.nhindirect.stagent.cert.CertificateStore;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class LdapCertificateStoreFactory
 {
-	@SuppressWarnings("deprecation")
-	private static final Log LOGGER = LogFactory.getFactory().getInstance(LdapCertificateStoreFactory.class);
 	private static final String LDAP_FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
 	private static final String LDAP_TIMEOUT = "com.sun.jndi.ldap.read.timeout";	
 	
@@ -44,13 +43,13 @@ public class LdapCertificateStoreFactory
 				int connectionTimeOut = Integer.parseInt(ldapConfiguration.getLdapConnectionTimeOut());
 				if(connectionTimeOut<1) 
 				{
-					LOGGER.error("Connection timeout must be a positive integer");
+					log.error("Connection timeout must be a positive integer");
 					throw new NHINDException("Invalid value for the LDAP connection timeout");
 				}
 			}
 			catch (NumberFormatException nfe)
 			{
-				LOGGER.error("Connection timeout string is not a valid number.");
+				log.error("Connection timeout string is not a valid number.");
 				throw new NHINDException("Invalid value for the LDAP connection timeout", nfe);
 			}
 			env.put(LDAP_TIMEOUT, ldapConfiguration.getLdapConnectionTimeOut());

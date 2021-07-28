@@ -1,18 +1,24 @@
 package org.nhindirect.stagent.mail.notifications;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static org.mockito.Mockito.when;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+
+
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.nhindirect.stagent.mail.Message;
 
-@RunWith(MockitoJUnitRunner.class)
-public class NotificationHelperTest {
+@ExtendWith(MockitoExtension.class)
+public class NotificationHelperTest 
+{
+	
 	@Mock
 	private Message mockMessage;
+	
 	private static final String DISPOSITION_NOTIFICATION_TO = "a@test.com";
 	private static final String FROM = "b@test.com";
 

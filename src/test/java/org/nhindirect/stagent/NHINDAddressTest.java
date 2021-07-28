@@ -1,15 +1,19 @@
 package org.nhindirect.stagent;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.List;
 
 import javax.mail.internet.InternetAddress;
 
-import junit.framework.TestCase;
 
-public class NHINDAddressTest extends TestCase 
+public class NHINDAddressTest
 {
+	@Test
 	public void testSetGetPersonllAttribute() throws Exception
 	{
 		NHINDAddress address = new NHINDAddress("Greg Meyer <gm2552@cerner.com>");

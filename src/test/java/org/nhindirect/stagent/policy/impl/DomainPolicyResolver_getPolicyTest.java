@@ -1,6 +1,12 @@
 package org.nhindirect.stagent.policy.impl;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static org.mockito.Mockito.mock;
+
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,10 +19,9 @@ import javax.mail.internet.InternetAddress;
 
 import org.nhindirect.policy.PolicyExpression;
 
-import junit.framework.TestCase;
-
-public class DomainPolicyResolver_getPolicyTest extends TestCase
+public class DomainPolicyResolver_getPolicyTest
 {
+	@Test
 	public void testGetPolicy_incomingPolicyExists_assertPolicies() throws Exception
 	{
 		final PolicyExpression expression = mock(PolicyExpression.class);
@@ -33,6 +38,7 @@ public class DomainPolicyResolver_getPolicyTest extends TestCase
 		assertEquals(1, retrievedExpressions.size());
 	}
 	
+	@Test
 	public void testGetPolicy_incomingPolicyDoesNotExist_assertEmpty() throws Exception
 	{
 		final PolicyExpression expression = mock(PolicyExpression.class);
@@ -49,6 +55,7 @@ public class DomainPolicyResolver_getPolicyTest extends TestCase
 		assertEquals(0, retrievedExpressions.size());
 	}
 	
+	@Test
 	public void testGetPolicy_outgoingPolicyExists_assertPolicies() throws Exception
 	{
 		final PolicyExpression expression = mock(PolicyExpression.class);
@@ -65,6 +72,7 @@ public class DomainPolicyResolver_getPolicyTest extends TestCase
 		assertEquals(1, retrievedExpressions.size());
 	}
 	
+	@Test
 	public void testGetPolicy_outgoingPolicyDoesNotExist_assertEmpty() throws Exception
 	{
 		final PolicyExpression expression = mock(PolicyExpression.class);
@@ -81,6 +89,7 @@ public class DomainPolicyResolver_getPolicyTest extends TestCase
 		assertEquals(0, retrievedExpressions.size());
 	}
 	
+	@Test
 	public void testGetPolicy_nullAddress_assertException() throws Exception
 	{
 		final List<PolicyExpression> expressions = new ArrayList<PolicyExpression>();

@@ -1,9 +1,14 @@
 package org.nhindirect.stagent;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
+
+import org.junit.jupiter.api.Test;
 
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -20,10 +25,10 @@ import org.nhindirect.stagent.cert.CertificateResolver;
 import org.nhindirect.stagent.policy.PolicyResolver;
 import org.nhindirect.stagent.trust.TrustAnchorResolver;
 
-import junit.framework.TestCase;
 
-public class DefaultNHINDAgent_filterCertificateByPolicyTest extends TestCase
+public class DefaultNHINDAgent_filterCertificateByPolicyTest
 {
+	@Test
 	public void testFilterCertificateByPolicy_nullResolver_assertNoCertsFiltered() throws Exception
 	{
 		final X509Certificate cert = mock(X509Certificate.class);
@@ -37,6 +42,7 @@ public class DefaultNHINDAgent_filterCertificateByPolicyTest extends TestCase
 		assertEquals(1, filteredCerts.size());
 	}
 	
+	@Test
 	public void testFilterCertificateByPolicy_noIncomingExpressions_assertNoCertsFiltered() throws Exception
 	{
 		final X509Certificate cert = mock(X509Certificate.class);
@@ -53,6 +59,7 @@ public class DefaultNHINDAgent_filterCertificateByPolicyTest extends TestCase
 		assertEquals(1, filteredCerts.size());
 	}
 	
+	@Test
 	public void testFilterCertificateByPolicy_noOutgoingExpressions_assertNoCertsFiltered() throws Exception
 	{
 		final X509Certificate cert = mock(X509Certificate.class);
@@ -69,6 +76,7 @@ public class DefaultNHINDAgent_filterCertificateByPolicyTest extends TestCase
 		assertEquals(1, filteredCerts.size());
 	}
 	
+	@Test
 	public void testFilterCertificateByPolicy_incomingPolicyCompliant_assertNoCertsFiltered() throws Exception
 	{
 		final PolicyFilter filter = mock(PolicyFilter.class);
@@ -89,6 +97,7 @@ public class DefaultNHINDAgent_filterCertificateByPolicyTest extends TestCase
 		assertEquals(1, filteredCerts.size());
 	}
 	
+	@Test
 	public void testFilterCertificateByPolicy_outgoingPolicyCompliant_assertNoCertsFiltered() throws Exception
 	{
 		final PolicyFilter filter = mock(PolicyFilter.class);
@@ -109,6 +118,7 @@ public class DefaultNHINDAgent_filterCertificateByPolicyTest extends TestCase
 		assertEquals(1, filteredCerts.size());
 	}	
 	
+	@Test
 	public void testFilterCertificateByPolicy_notCompliant_assertNoCertsFiltered() throws Exception
 	{
 		final PolicyFilter filter = mock(PolicyFilter.class);
@@ -130,6 +140,7 @@ public class DefaultNHINDAgent_filterCertificateByPolicyTest extends TestCase
 		assertEquals(0, filteredCerts.size());
 	}	
 	
+	@Test
 	public void testFilterCertificateByPolicy_requiredFieldMissing_assertNoCertsFiltered() throws Exception
 	{
 		final PolicyFilter filter = mock(PolicyFilter.class);
@@ -150,6 +161,7 @@ public class DefaultNHINDAgent_filterCertificateByPolicyTest extends TestCase
 		assertEquals(0, filteredCerts.size());
 	}	
 	
+	@Test
 	public void testFilterCertificateByPolicy_badPolicyExpression_assertNoCertsFiltered() throws Exception
 	{
 		final PolicyFilter filter = mock(PolicyFilter.class);

@@ -1,5 +1,12 @@
 package org.nhindirect.stagent.cryptography;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -27,14 +34,13 @@ import org.nhindirect.stagent.mail.MimeEntity;
 import org.nhindirect.stagent.parser.EntitySerializer;
 import org.nhindirect.stagent.utils.TestUtils;
 
-import junit.framework.TestCase;
 
-public class SMIMECryptographerImpl_createSignatureEntityTest extends TestCase
+public class SMIMECryptographerImpl_createSignatureEntityTest
 {
 	protected String pkcs11ProvName;
 	
 	
-	@Override
+	@BeforeEach
 	public void setUp() throws Exception
 	{
 		OptionsManagerUtils.clearOptionsManagerOptions();
@@ -42,7 +48,7 @@ public class SMIMECryptographerImpl_createSignatureEntityTest extends TestCase
     	CryptoExtensions.registerJCEProviders();
 	}
 	
-	@Override
+	@Test
 	public void tearDown()
 	{
 		OptionsManagerUtils.clearOptionsManagerOptions();
@@ -65,6 +71,7 @@ public class SMIMECryptographerImpl_createSignatureEntityTest extends TestCase
 	/*
 	 * This is the control test
 	 */
+	@Test
 	public void testCreateSignatureEntity_defaultSigGenerator_assertEntityCreated() throws Exception
 	{
 		final SMIMECryptographerImpl impl = new SMIMECryptographerImpl();
@@ -88,7 +95,7 @@ public class SMIMECryptographerImpl_createSignatureEntityTest extends TestCase
 	}
 	
 
-	
+	@Test
 	public void testCreateSignatureEntity_hsmSignatureGenerator_assertEntityCreatedAndMatchesControl() throws Exception
 	{
 		final String installedAlias = "JunitTestKey";

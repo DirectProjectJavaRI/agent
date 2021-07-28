@@ -1,9 +1,14 @@
 package org.nhindirect.stagent.trust;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
+
+import org.junit.jupiter.api.Test;
 
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -18,10 +23,9 @@ import org.nhindirect.policy.PolicyRequiredException;
 import org.nhindirect.stagent.AgentException;
 import org.nhindirect.stagent.policy.PolicyResolver;
 
-import junit.framework.TestCase;
-
-public class TrustModel_isCertPolicyCompliantTest extends TestCase
+public class TrustModel_isCertPolicyCompliantTest 
 {
+	@Test
 	public void testIsCertPolicyCompliant_noResolver_assertTrue() throws Exception
 	{
 		final TrustModel model = new TrustModel();
@@ -33,6 +37,7 @@ public class TrustModel_isCertPolicyCompliantTest extends TestCase
 		assertTrue(model.isCertPolicyCompliant(new InternetAddress("me@test.com"), cert));
 	}
 	
+	@Test
 	public void testIsCertPolicyCompliant_noPolicyFilter_assertTrue() throws Exception
 	{
 		final TrustModel model = new TrustModel();
@@ -45,6 +50,7 @@ public class TrustModel_isCertPolicyCompliantTest extends TestCase
 		assertTrue(model.isCertPolicyCompliant(new InternetAddress("me@test.com"), cert));
 	}
 	
+	@Test
 	public void testIsCertPolicyCompliant_noPolicyExpression_assertTrue() throws Exception
 	{
 		final TrustModel model = new TrustModel();
@@ -59,6 +65,7 @@ public class TrustModel_isCertPolicyCompliantTest extends TestCase
 		assertTrue(model.isCertPolicyCompliant(new InternetAddress("me@test.com"), cert));
 	}	
 	
+	@Test
 	public void testIsCertPolicyCompliant_policyCompliant_assertTrue() throws Exception
 	{
 		final TrustModel model = new TrustModel();
@@ -77,6 +84,7 @@ public class TrustModel_isCertPolicyCompliantTest extends TestCase
 		assertTrue(model.isCertPolicyCompliant(new InternetAddress("me@test.com"), cert));
 	}	
 	
+	@Test
 	public void testIsCertPolicyCompliant_policyNotCompliant_assertFalse() throws Exception
 	{
 		final TrustModel model = new TrustModel();
@@ -95,6 +103,7 @@ public class TrustModel_isCertPolicyCompliantTest extends TestCase
 		assertFalse(model.isCertPolicyCompliant(new InternetAddress("me@test.com"), cert));
 	}	
 	
+	@Test
 	public void testIsCertPolicyCompliant_missingRequiredField_assertFalse() throws Exception
 	{
 		final TrustModel model = new TrustModel();
@@ -114,6 +123,7 @@ public class TrustModel_isCertPolicyCompliantTest extends TestCase
 		assertFalse(model.isCertPolicyCompliant(new InternetAddress("me@test.com"), cert));
 	}	
 	
+	@Test
 	public void testIsCertPolicyCompliant_policyExpressionError_assertExecption() throws Exception
 	{
 		final TrustModel model = new TrustModel();

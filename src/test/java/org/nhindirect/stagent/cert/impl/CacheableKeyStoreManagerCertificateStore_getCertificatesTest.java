@@ -1,5 +1,9 @@
 package org.nhindirect.stagent.cert.impl;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 import java.security.cert.X509Certificate;
 import java.util.Collection;
@@ -11,6 +15,8 @@ import org.nhindirect.stagent.utils.TestUtils;
 
 public class CacheableKeyStoreManagerCertificateStore_getCertificatesTest extends BaseKeyStoreManagerCertStoreTest
 {
+	
+	@Test
 	public void testGetCertificate_noCertsInStore_assertNoFound() throws Exception
 	{
 		if (store != null)
@@ -19,6 +25,7 @@ public class CacheableKeyStoreManagerCertificateStore_getCertificatesTest extend
 		}
 	}
 	
+	@Test
 	public void testGetCertificate_existingCertsInStore_assertFound() throws Exception
 	{
 		if (store != null)
@@ -37,6 +44,7 @@ public class CacheableKeyStoreManagerCertificateStore_getCertificatesTest extend
 		}
 	}
 	
+	@Test
 	public void testGetCertificate_existingCertsInStore_findByEmailAddress_assertFound() throws Exception
 	{
 		if (store != null)

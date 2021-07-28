@@ -1,11 +1,14 @@
 package org.nhindirect.stagent;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import junit.framework.TestCase;
-import org.nhindirect.stagent.DefaultNHINDAgent;
 import org.nhindirect.stagent.cert.impl.KeyStoreCertificateStore;
 import org.nhindirect.stagent.cryptography.SMIMECryptographerImpl;
 import org.nhindirect.stagent.mail.MailStandard;
@@ -20,7 +23,8 @@ import org.nhindirect.stagent.utils.SecondaryMimeMessage;
  * Generated test case.
  * @author junit_generate
  */
-public class DefaultNHINDAgent_ProcessOutgoingMessage_Test extends TestCase {
+public class DefaultNHINDAgent_ProcessOutgoingMessage_Test 
+{
 	abstract class TestPlan extends BaseTestPlan {
 		@Override
 		protected void performInner() throws Exception {
@@ -142,6 +146,7 @@ public class DefaultNHINDAgent_ProcessOutgoingMessage_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testMessageIsWrapped_WrapMessageIsNotCalled() throws Exception {
 		new TestPlan() {
 			protected OutgoingMessage createMessage() throws Exception {
@@ -180,6 +185,7 @@ public class DefaultNHINDAgent_ProcessOutgoingMessage_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCorrectMessageParamIsPassedToBindAddressMethod() throws Exception {
 		new TestPlan() {
 			
@@ -199,6 +205,7 @@ public class DefaultNHINDAgent_ProcessOutgoingMessage_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testMessageDoesntHaveRecipients_ThrowsException() throws Exception {
 		new TestPlan() {
 			
@@ -208,7 +215,7 @@ public class DefaultNHINDAgent_ProcessOutgoingMessage_Test extends TestCase {
 				}
 			
 			protected void doAssertions() throws Exception {
-				fail();
+				fail("");
 			}
 
 			@Override
@@ -227,6 +234,7 @@ public class DefaultNHINDAgent_ProcessOutgoingMessage_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCorrectMessageParamIsPassedToEnforce() throws Exception {
 		new TestPlan() {
 			
@@ -245,6 +253,7 @@ public class DefaultNHINDAgent_ProcessOutgoingMessage_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testMessageDoesntHaveTrustedRecipients_ThrowsException() throws Exception {
 		new TestPlan() {
 			
@@ -259,7 +268,7 @@ public class DefaultNHINDAgent_ProcessOutgoingMessage_Test extends TestCase {
 				}
 			
 			protected void doAssertions() throws Exception {
-				fail();
+				fail("");
 			}
 
 			@Override

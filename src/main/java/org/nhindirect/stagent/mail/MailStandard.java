@@ -22,6 +22,10 @@ THE POSSIBILITY OF SUCH DAMAGE.
 
 package org.nhindirect.stagent.mail;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.ContentType;
+import javax.mail.internet.MimeMessage;
+
 /**
  * Common RFC822/5322 headers and common header collections. 
  * @author Greg Meyer
@@ -65,4 +69,32 @@ public class MailStandard
     {
     	public static final String WrappedMessage = "message/rfc822";
     }
+    
+    /*
+     * Gets the content type of the entity
+     */
+    public static ContentType getContentType(MimeEntity entity)
+    {
+    	try
+    	{
+    		return new ContentType(entity.getContentType());
+    	}
+    	catch (MessagingException e) {/* no-op */}
+    	
+    	return null;
+    }   
+    
+    /*
+     * Gets the content type of the message
+     */
+    public static ContentType getContentType(MimeMessage msg)
+    {
+    	try
+    	{
+    		return new ContentType(msg.getContentType());
+    	}
+    	catch (MessagingException e) {/* no-op */}
+    	
+    	return null;
+    }   
 }

@@ -1,5 +1,13 @@
 package org.nhindirect.stagent.cert.impl;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 import java.security.cert.CRL;
 import java.security.cert.X509CRL;
@@ -7,11 +15,9 @@ import java.security.cert.X509CRL;
 import org.nhindirect.common.crypto.CryptoExtensions;
 import org.nhindirect.stagent.utils.TestUtils;
 
-import junit.framework.TestCase;
-
-public class CRLRevocationManager_removeCRLCacheFileTest extends TestCase
+public class CRLRevocationManager_removeCRLCacheFileTest
 {
-	@Override
+	@BeforeEach
 	public void setUp()
 	{
     	CryptoExtensions.registerJCEProviders();
@@ -21,13 +27,14 @@ public class CRLRevocationManager_removeCRLCacheFileTest extends TestCase
 		CRLRevocationManager.crlCacheLocation = null;
 	}
 	
-	@Override
+	@AfterEach
 	public void tearDown()
 	{
 		CRLRevocationManager.getInstance().flush();
 		CRLRevocationManager.initCRLCacheLocation();
 	}
 	
+	@Test
 	public void testRemoveCRLCacheFile_removeExistingFile() throws Exception
 	{
 		CRLRevocationManager.initCRLCacheLocation();
@@ -50,6 +57,7 @@ public class CRLRevocationManager_removeCRLCacheFileTest extends TestCase
 		assertFalse(crlFile.exists());
 	}
 	
+	@Test
 	public void testRemoveCRLCacheFile_removeNonExistingFile() throws Exception
 	{
 		CRLRevocationManager.initCRLCacheLocation();
@@ -70,6 +78,7 @@ public class CRLRevocationManager_removeCRLCacheFileTest extends TestCase
 		assertFalse(crlFile.exists());
 	}
 	
+	@Test
 	public void testRemoveCRLCacheFile_noCacheLoction() throws Exception
 	{
 		String distURI = "http://localhost:8080/config";

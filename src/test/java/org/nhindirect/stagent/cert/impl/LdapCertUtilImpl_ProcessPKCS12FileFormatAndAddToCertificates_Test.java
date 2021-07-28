@@ -1,5 +1,11 @@
 package org.nhindirect.stagent.cert.impl;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -8,11 +14,8 @@ import java.lang.String;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.io.IOUtils;
 import org.nhindirect.stagent.cert.X509CertificateEx;
-import org.nhindirect.stagent.cert.impl.LdapCertUtilImpl;
 import org.nhindirect.stagent.utils.BaseTestPlan;
 
 /**
@@ -20,7 +23,7 @@ import org.nhindirect.stagent.utils.BaseTestPlan;
  * @author junit_generate
  */
 public class LdapCertUtilImpl_ProcessPKCS12FileFormatAndAddToCertificates_Test
-		extends TestCase {
+{
 	abstract class TestPlan extends BaseTestPlan {
 		@Override
 		protected void performInner() throws Exception {
@@ -82,6 +85,7 @@ public class LdapCertUtilImpl_ProcessPKCS12FileFormatAndAddToCertificates_Test
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testPKCS12File() throws Exception {
 		new TestPlan() {
 			protected void doAssertions() throws Exception {

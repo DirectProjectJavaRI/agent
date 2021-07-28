@@ -37,10 +37,8 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.mail.internet.AddressException;
@@ -48,8 +46,6 @@ import javax.mail.internet.InternetAddress;
 import javax.security.auth.x500.X500Principal;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Object;
 import org.bouncycastle.asn1.ASN1OctetString;
@@ -61,6 +57,8 @@ import org.nhindirect.stagent.NHINDException;
 import org.nhindirect.stagent.cert.CertificateResolver;
 import org.nhindirect.stagent.cert.Thumbprint;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Validates the trust chain of a certificate with a set of anchors.  If a certificate resolver is present, the validator will search
  * for intermediate certificates.
@@ -68,6 +66,7 @@ import org.nhindirect.stagent.cert.Thumbprint;
  * @author Umesh Madan
  *
  */
+@Slf4j
 public class TrustChainValidator 
 {
 	private static final int RFC822Name_TYPE = 1; // name type constant for Subject Alternative name email address
@@ -84,9 +83,6 @@ public class TrustChainValidator
 	private Collection<CertificateResolver> certResolvers = Collections.emptyList();
 	
 	private int maxIssuerChainLength = DefaultMaxIssuerChainLength;
-	
-	@SuppressWarnings("deprecation")
-	private static final Log LOGGER = LogFactory.getFactory().getInstance(TrustChainValidator.class);
 	
 	static
 	{
@@ -192,7 +188,7 @@ public class TrustChainValidator
     	}
     	catch (Exception e)
     	{
-    		LOGGER.warn("Certificate " + certificate.getSubjectX500Principal().getName() + " is not trusted.", e);
+    		log.warn("Certificate {} is not trusted.", certificate.getSubjectX500Principal().getName(), e);
     	}
     	
     	return false;    	
@@ -381,7 +377,7 @@ public class TrustChainValidator
     				}
     				catch (NHINDException e)
     				{
-    					LOGGER.warn("Intermediate cert cannot be resolved from AIA extension.", e);
+    					log.warn("Intermediate cert cannot be resolved from AIA extension.", e);
     				}
     			}
     		}
@@ -389,7 +385,7 @@ public class TrustChainValidator
     	///CLOVER:OFF
     	catch (PolicyProcessException e)
     	{
-    		LOGGER.warn("Intermediate cert cannot be resolved from AIA extension.", e);
+    		log.warn("Intermediate cert cannot be resolved from AIA extension.", e);
     	}
     	///CLOVER:ON
     	
@@ -517,37 +513,13 @@ public class TrustChainValidator
     		}
 		}
     	
-    	if (!address.isEmpty())
-    		return address;
+    	return address;
     	
-    	// can't find issuer address in alt names... try the principal 
-    	X500Principal issuerPrin = certificate.getIssuerX500Principal();
-    	
-    	// get the domain name
-		Map<String, String> oidMap = new HashMap<String, String>();
-		oidMap.put("1.2.840.113549.1.9.1", "EMAILADDRESS");  // OID for email address
-		String prinName = issuerPrin.getName(X500Principal.RFC1779, oidMap);    
-		
-		// see if there is an email address first in the DN
-		String searchString = "EMAILADDRESS=";
-		int index = prinName.indexOf(searchString);
-		if (index == -1)
-		{
-			searchString = "CN=";
-			// no Email.. check the CN
-			index = prinName.indexOf(searchString);
-			if (index == -1)
-				return ""; // no CN... nothing else that can be done from here
-		}
-		
-		// look for a "," to find the end of this attribute
-		int endIndex = prinName.indexOf(",", index);
-		if (endIndex > -1)
-			address = prinName.substring(index + searchString.length(), endIndex);
-		else 
-			address= prinName.substring(index + searchString.length());
-		
-		return address;
+    	/*
+    	 * As of version ANSI/DS 2019-01-100-2021 approved on May 13, 20201, the legacy Email field of the
+    	 * subject distinguished name is officially no longer supported for certificate binding to Direct addresses.
+    	 * Only the subject alt name is now used.
+    	 */
     }
     
     

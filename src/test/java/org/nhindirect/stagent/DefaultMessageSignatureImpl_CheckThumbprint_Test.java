@@ -1,7 +1,13 @@
 package org.nhindirect.stagent;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,13 +20,10 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 
-import junit.framework.TestCase;
-
-import org.apache.commons.codec.Charsets;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.ASN1EncodableVector;
-import org.bouncycastle.asn1.DERObjectIdentifier;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.smime.SMIMECapabilitiesAttribute;
 import org.bouncycastle.asn1.smime.SMIMECapability;
@@ -37,7 +40,6 @@ import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
 import org.nhindirect.common.crypto.CryptoExtensions;
-import org.nhindirect.stagent.DefaultMessageSignatureImpl;
 import org.nhindirect.stagent.cert.X509CertificateEx;
 import org.nhindirect.stagent.cryptography.CryptoAlgorithmsHelper;
 import org.nhindirect.stagent.cryptography.DigestAlgorithm;
@@ -52,7 +54,8 @@ import org.nhindirect.stagent.utils.TestUtils;
  * 
  * @author junit_generate
  */
-public class DefaultMessageSignatureImpl_CheckThumbprint_Test extends TestCase {
+public class DefaultMessageSignatureImpl_CheckThumbprint_Test
+{
 	abstract class TestPlan extends BaseTestPlan {
 		
 		@Override
@@ -142,7 +145,7 @@ public class DefaultMessageSignatureImpl_CheckThumbprint_Test extends TestCase {
 			caps.addCapability(SMIMECapability.dES_EDE3_CBC);
 			caps.addCapability(SMIMECapability.rC2_CBC, 128);
 			caps.addCapability(SMIMECapability.dES_CBC);
-			caps.addCapability(new DERObjectIdentifier("1.2.840.113549.1.7.1"));
+			caps.addCapability(new ASN1ObjectIdentifier("1.2.840.113549.1.7.1"));
 			caps.addCapability(PKCSObjectIdentifiers.x509Certificate);
 			signedAttrs.add(new SMIMECapabilitiesAttribute(caps));
 
@@ -172,7 +175,7 @@ public class DefaultMessageSignatureImpl_CheckThumbprint_Test extends TestCase {
 	        final String  header = "signed; protocol=\"application/pkcs7-signature\"; micalg=" + 
 	        		CryptoAlgorithmsHelper.toDigestAlgorithmMicalg(DigestAlgorithm.SHA256WITHRSA);           
 	        
-	        final String encodedSig = StringUtils.toEncodedString(Base64.encodeBase64(signedData.getEncoded(), true), Charsets.UTF_8);
+	        final String encodedSig = StringUtils.toEncodedString(Base64.encodeBase64(signedData.getEncoded(), true), StandardCharsets.UTF_8);
 	        
 	        retVal = new MimeMultipart(header.toString());
 	        
@@ -216,6 +219,7 @@ public class DefaultMessageSignatureImpl_CheckThumbprint_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testMessageSenderDoesNotHaveCertificates_ReturnsFalse()
 			throws Exception {
 		new TestPlan() {
@@ -236,6 +240,7 @@ public class DefaultMessageSignatureImpl_CheckThumbprint_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testThumbprintMatches_ReturnsTrue()
 			throws Exception {
 		new TestPlan() {
@@ -256,6 +261,7 @@ public class DefaultMessageSignatureImpl_CheckThumbprint_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testThumbprintDoesNotMatch_ReturnsFalse()
 			throws Exception {
 		new TestPlan() {

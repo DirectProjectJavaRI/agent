@@ -1,6 +1,12 @@
 package org.nhindirect.stagent.policy.impl;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static org.mockito.Mockito.mock;
+
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,12 +14,11 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.nhindirect.policy.PolicyExpression;
-import org.nhindirect.stagent.policy.impl.UniversalPolicyResolver;
 
-import junit.framework.TestCase;
 
-public class UniversalPolicyResolver_constructTest extends TestCase
+public class UniversalPolicyResolver_constructTest
 {
+	@Test
 	public void testConstruct_singleExpression_assertAttributes()
 	{
 		final PolicyExpression expression = mock(PolicyExpression.class);
@@ -25,6 +30,7 @@ public class UniversalPolicyResolver_constructTest extends TestCase
 		assertEquals(expression, resolver.expressions.iterator().next());
 	}
 	
+	@Test
 	public void testConstruct_multipleExpressions_assertAttributes()
 	{
 		final PolicyExpression expression1 = mock(PolicyExpression.class);
@@ -40,6 +46,7 @@ public class UniversalPolicyResolver_constructTest extends TestCase
 		assertEquals(expression2, iter.next());
 	}	
 	
+	@Test
 	public void testConstruct_emptyExpression_assertException()
 	{	
 		boolean exceptionOccured = false;
@@ -56,6 +63,7 @@ public class UniversalPolicyResolver_constructTest extends TestCase
 		assertTrue(exceptionOccured);
 	}
 	
+	@Test
 	public void testConstruct_nullExpression_assertException()
 	{	
 		// single expression constructor

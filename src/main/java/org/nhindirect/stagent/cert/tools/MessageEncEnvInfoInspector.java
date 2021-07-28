@@ -2,7 +2,6 @@ package org.nhindirect.stagent.cert.tools;
 
 import java.io.File;
 import java.io.InputStream;
-import java.math.BigInteger;
 import java.util.Collection;
 
 import javax.mail.internet.MimeMessage;
@@ -24,7 +23,7 @@ public class MessageEncEnvInfoInspector
 		CryptoExtensions.registerJCEProviders();
 	}
 	
-	@SuppressWarnings({ "unchecked", "deprecation" })
+
 	public static void main(String args[])
 	{
 		if (args.length == 0)
@@ -77,10 +76,9 @@ public class MessageEncEnvInfoInspector
         	System.err.println("Error: missing message file\n");
         }
         
-        InputStream inStream = null;
-        try
+        try(InputStream inStream = FileUtils.openInputStream(new File(messgefile));)
         {
-        	inStream = FileUtils.openInputStream(new File(messgefile));
+        	
         	
         	final SMIMEEnveloped env = new SMIMEEnveloped(new MimeMessage(null, inStream)); 
         	
@@ -107,7 +105,7 @@ public class MessageEncEnvInfoInspector
         }
         finally
         {
-        	IOUtils.closeQuietly(inStream);
+
         }
 	}
 }

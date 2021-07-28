@@ -1,12 +1,19 @@
 package org.nhindirect.stagent;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.Test;
 
 import javax.mail.MessagingException;
+import javax.mail.Message.RecipientType;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import junit.framework.TestCase;
-import org.nhindirect.stagent.DefaultNHINDAgent;
+import org.nhindirect.common.options.OptionsManager;
+import org.nhindirect.common.options.OptionsManagerUtils;
+import org.nhindirect.common.options.OptionsParameter;
 import org.nhindirect.stagent.cert.impl.KeyStoreCertificateStore;
 import org.nhindirect.stagent.cryptography.SMIMECryptographerImpl;
 import org.nhindirect.stagent.mail.Message;
@@ -23,7 +30,8 @@ import org.nhindirect.stagent.utils.SecondaryMimeMessage;
  * Generated test case.
  * @author junit_generate
  */
-public class DefaultNHINDAgent_ProcessIncomingMessage_Test extends TestCase {
+public class DefaultNHINDAgent_ProcessIncomingMessage_Test 
+{
 	abstract class TestPlan extends BaseTestPlan {
 		@Override
 		protected void performInner() throws Exception {
@@ -32,6 +40,17 @@ public class DefaultNHINDAgent_ProcessIncomingMessage_Test extends TestCase {
 			doAssertions();
 		}
 
+		protected void setupMocks() {
+			OptionsManagerUtils.clearOptionsManagerInstance();
+			
+			OptionsManager.getInstance().setOptionsParameter(new OptionsParameter(OptionsParameter.REJECT_ON_ROUTING_TAMPER, "false"));
+		}
+
+		protected void tearDownMocks() {
+			
+			OptionsManagerUtils.clearOptionsManagerInstance();
+		}
+		
 		protected DefaultNHINDAgent createNHINDAgent() throws Exception {
 			/*return new NHINDAgent((Collection<String>) null,
 					(ICertificateResolver) null, (ICertificateResolver) null,
@@ -81,7 +100,7 @@ public class DefaultNHINDAgent_ProcessIncomingMessage_Test extends TestCase {
 			}
 			catch (MessagingException e) {
 				e.printStackTrace();
-				fail();
+				fail("");
 			}
 			return theUnwrapMessage;
 		}
@@ -91,10 +110,12 @@ public class DefaultNHINDAgent_ProcessIncomingMessage_Test extends TestCase {
 		protected IncomingMessage createMessage() throws Exception {
 			MimeMessage mimeMsg = new SecondaryMimeMessage();
 			mimeMsg.setText("");
+			mimeMsg.setFrom(new InternetAddress("some"));
+			mimeMsg.addRecipient(RecipientType.TO, new InternetAddress("some"));
 			Message msg = new Message(mimeMsg);
 			NHINDAddressCollection recipients = new NHINDAddressCollection();
-			recipients.add(new NHINDAddress(""));
-			NHINDAddress sender = new NHINDAddress("");
+			recipients.add(new NHINDAddress("some"));
+			NHINDAddress sender = new NHINDAddress("some");
 			theCreateMessage = new IncomingMessage(msg, recipients, sender) {
 				
 				@Override 
@@ -149,6 +170,7 @@ public class DefaultNHINDAgent_ProcessIncomingMessage_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testMessageDoesNotHaveDomainRecips_ThrowsAgentException() throws Exception {
 		new TestPlan() {
 			
@@ -158,7 +180,7 @@ public class DefaultNHINDAgent_ProcessIncomingMessage_Test extends TestCase {
 				}
 			
 			protected void doAssertions() throws Exception {
-				fail();
+				fail("");
 			}
 
 			@Override
@@ -177,6 +199,7 @@ public class DefaultNHINDAgent_ProcessIncomingMessage_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCorrectMessageParamIsPassedToBindAddressMethod() throws Exception {
 		new TestPlan() {
 			
@@ -196,6 +219,7 @@ public class DefaultNHINDAgent_ProcessIncomingMessage_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCorrectMessageParamIsPassedToDecryptSignedContentMethod() throws Exception {
 		new TestPlan() {
 			
@@ -215,6 +239,7 @@ public class DefaultNHINDAgent_ProcessIncomingMessage_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCorrectMessageParamIsPassedToUnwrapMessageMethod() throws Exception {
 		new TestPlan() {
 			
@@ -235,6 +260,7 @@ public class DefaultNHINDAgent_ProcessIncomingMessage_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testMessageReturnedFromUnwrapMessageMethodIsSetInIncomingMessage() throws Exception {
 		new TestPlan() {
 			
@@ -251,6 +277,7 @@ public class DefaultNHINDAgent_ProcessIncomingMessage_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCorrectMessageParamIsPassedToEnforce() throws Exception {
 		new TestPlan() {
 			
@@ -269,6 +296,7 @@ public class DefaultNHINDAgent_ProcessIncomingMessage_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testMessageHasDomainRecipients_CategorizeRecipientsIsCalled() throws Exception {
 		new TestPlan() {
 			
@@ -289,6 +317,7 @@ public class DefaultNHINDAgent_ProcessIncomingMessage_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testMessageDoesNotHaveDomainRecipientsAfterCategorizeRecipientsIsCalled_ThrowsException() throws Exception {
 		new TestPlan() {
 			
@@ -303,7 +332,7 @@ public class DefaultNHINDAgent_ProcessIncomingMessage_Test extends TestCase {
 				}
 			
 			protected void doAssertions() throws Exception {
-				fail();
+				fail("");
 			}
 			
 			@Override

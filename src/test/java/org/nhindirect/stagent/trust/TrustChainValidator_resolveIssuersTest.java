@@ -1,9 +1,13 @@
 package org.nhindirect.stagent.trust;
 
-import static org.mockito.Matchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.any;
+
+import org.junit.jupiter.api.Test;
 
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -16,10 +20,9 @@ import org.nhindirect.stagent.cert.CertificateResolver;
 import org.nhindirect.stagent.trust.TrustChainValidator_getIntermediateCertsByAIATest.TrustChainValidatorWrapper;
 import org.nhindirect.stagent.utils.TestUtils;
 
-import junit.framework.TestCase;
-
-public class TrustChainValidator_resolveIssuersTest extends TestCase
+public class TrustChainValidator_resolveIssuersTest
 {
+	@Test
 	public void testResolveIssuers_AIAExists_validateResolved() throws Exception
 	{
 	
@@ -50,6 +53,7 @@ public class TrustChainValidator_resolveIssuersTest extends TestCase
 		verify(spyValidator, times(2)).downloadCertsFromAIA((String)any());
 	}
 	
+	@Test
 	public void testResolveIssuers_AIAExists_resolveToRoot_validateResolved() throws Exception
 	{
 	
@@ -83,6 +87,7 @@ public class TrustChainValidator_resolveIssuersTest extends TestCase
 		verify(spyValidator, times(2)).downloadCertsFromAIA((String)any());
 	}
 	
+	@Test
 	public void testResolveIssuers_noAIAExists_notAvailViaResolver_validateNotResolved() throws Exception
 	{
 	

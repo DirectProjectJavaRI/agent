@@ -90,7 +90,6 @@ public class Message extends MimeMessage
     /*
      * Utility function for retrieving raw headers.... raw headers information will be vital for proper message wrapping
      */
-    @SuppressWarnings("unchecked")
     private String getRawHeaderLine(String headerName)
     {
     	try
@@ -175,7 +174,6 @@ public class Message extends MimeMessage
 	 * Gets a copy of this message without any non-mime headers.
 	 * @returns A copy of this message without any non-mime headers.
 	 */
-    @SuppressWarnings("unchecked")
     public MimeEntity extractMimeEntity()
     {
     	MimeEntity retVal = null;

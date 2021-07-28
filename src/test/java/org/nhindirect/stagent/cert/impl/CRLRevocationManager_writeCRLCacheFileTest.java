@@ -1,7 +1,14 @@
 package org.nhindirect.stagent.cert.impl;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.security.cert.CRL;
@@ -10,11 +17,9 @@ import java.security.cert.X509CRL;
 import org.nhindirect.common.crypto.CryptoExtensions;
 import org.nhindirect.stagent.utils.TestUtils;
 
-import junit.framework.TestCase;
-
-public class CRLRevocationManager_writeCRLCacheFileTest extends TestCase
+public class CRLRevocationManager_writeCRLCacheFileTest
 {
-	@Override
+	@BeforeEach
 	public void setUp()
 	{
     	CryptoExtensions.registerJCEProviders();
@@ -24,13 +29,14 @@ public class CRLRevocationManager_writeCRLCacheFileTest extends TestCase
 		CRLRevocationManager.crlCacheLocation = null;
 	}
 	
-	@Override
+	@AfterEach
 	public void tearDown()
 	{
 		CRLRevocationManager.getInstance().flush();
 		CRLRevocationManager.initCRLCacheLocation();
 	}
 	
+	@Test
 	public void testWriteCRLCacheFile_writeToFile() throws Exception
 	{
 		CRLRevocationManager.initCRLCacheLocation();
@@ -45,6 +51,7 @@ public class CRLRevocationManager_writeCRLCacheFileTest extends TestCase
 		assertTrue(crlFile.exists());
 	}
 	
+	@Test
 	public void testWriteCRLCacheFile_writeToFile_deleteExisting() throws Exception
 	{
 		CRLRevocationManager.initCRLCacheLocation();
@@ -81,6 +88,7 @@ public class CRLRevocationManager_writeCRLCacheFileTest extends TestCase
 		
 	}
 	
+	@Test
 	public void testWriteCRLCacheFile_errorInWrite() throws Exception
 	{
 		CRLRevocationManager.initCRLCacheLocation();
@@ -96,7 +104,7 @@ public class CRLRevocationManager_writeCRLCacheFileTest extends TestCase
 		assertFalse(crlFile.exists());
 	}
 	
-	
+	@Test
 	public void testWriteCRLCacheFile_noCRLLocation_assertFileNotCreated() throws Exception
 	{
 

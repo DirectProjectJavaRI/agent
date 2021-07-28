@@ -37,11 +37,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.nhindirect.stagent.NHINDException;
 import org.nhindirect.stagent.cert.CertificateStore;
 import org.nhindirect.stagent.cert.X509CertificateEx;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Certificate storage using a Java keystore file.  If the keystore file does not exist, the service will automatically
@@ -50,13 +50,10 @@ import org.nhindirect.stagent.cert.X509CertificateEx;
  * @author Greg Meyer
  *
  */
+@Slf4j
 public class KeyStoreCertificateStore extends CertificateStore 
 {
 	private Set<X509Certificate> certs = new HashSet<X509Certificate>();
-	
-	@SuppressWarnings("deprecation")
-	private static final Log LOGGER = LogFactory.getFactory().getInstance(KeyStoreCertificateStore.class);
-	
 	/*
 	 * TODO: change the way the passwords and the keystore are held
 	 */
@@ -286,7 +283,7 @@ public class KeyStoreCertificateStore extends CertificateStore
     		}
     		catch (Exception e)
     		{
-    			LOGGER.warn("Error attempting to remove certificate: " + e.getMessage());
+    			log.warn("Error attempting to remove certificate: {}", e.getMessage());
     		}
     	}
     }
@@ -311,7 +308,7 @@ public class KeyStoreCertificateStore extends CertificateStore
     {
     	if (certs.contains(cert))
     	{
-    		LOGGER.warn("Certificate already exists in store.  Use update() instead.");
+    		log.warn("Certificate already exists in store.  Use update() instead.");
     		return;
     	}
     	
@@ -331,7 +328,7 @@ public class KeyStoreCertificateStore extends CertificateStore
 		}
 		catch (Throwable e)
 		{
-			LOGGER.warn("Error adding certificate to store: " + e.getMessage());
+			log.warn("Error adding certificate to store: {}", e.getMessage());
 		}     		
     }
     

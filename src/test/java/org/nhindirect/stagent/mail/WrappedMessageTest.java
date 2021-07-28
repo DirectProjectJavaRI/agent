@@ -1,5 +1,11 @@
 package org.nhindirect.stagent.mail;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.UUID;
@@ -8,10 +14,10 @@ import org.nhindirect.stagent.NHINDStandard;
 import org.nhindirect.stagent.OutgoingMessage;
 import org.nhindirect.stagent.utils.TestUtils;
 
-import junit.framework.TestCase;
 
-public class WrappedMessageTest extends TestCase 
+public class WrappedMessageTest
 {
+	@Test
 	public void testCopyNHINDStandard_assertPromotedCCHeaders() throws Exception
 	{
 		Message msg = new Message();
@@ -34,6 +40,7 @@ public class WrappedMessageTest extends TestCase
 		assertEquals("test@testdomain.com, gm2552@cerner.com", ccHeader);		
 	}
 	
+	@Test
 	public void testCopyNHINDStandard_fromFullMessage_assertPromotedCCHeaders() throws Exception
 	{
 		String testMessage = TestUtils.readResource("CCTestMessage.txt");
@@ -47,6 +54,7 @@ public class WrappedMessageTest extends TestCase
 		assertEquals("User1@Cerner.com, gm2552@cerner.com", ccHeader);		
 	}	
 	
+	@Test
 	public void testCopyNHINDStandard_encyrptMessage_assertPromotedInvalidCCHeaders() throws Exception
 	{
 		DefaultNHINDAgent agent = TestUtils.getStockAgent(Arrays.asList(new String[]{"cerner.com"}));		

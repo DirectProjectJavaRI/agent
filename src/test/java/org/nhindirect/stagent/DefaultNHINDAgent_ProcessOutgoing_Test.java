@@ -1,9 +1,15 @@
 package org.nhindirect.stagent;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import javax.mail.internet.MimeMessage;
 
-import junit.framework.TestCase;
-import org.nhindirect.stagent.DefaultNHINDAgent;
 import org.nhindirect.stagent.cert.impl.KeyStoreCertificateStore;
 import org.nhindirect.stagent.mail.Message;
 import org.nhindirect.stagent.trust.DefaultTrustAnchorResolver;
@@ -14,7 +20,8 @@ import org.nhindirect.stagent.utils.SecondaryMimeMessage;
  * Generated test case.
  * @author junit_generate
  */
-public class DefaultNHINDAgent_ProcessOutgoing_Test extends TestCase {
+public class DefaultNHINDAgent_ProcessOutgoing_Test 
+{
 	abstract class TestPlan extends BaseTestPlan {
 		@Override
 		protected void performInner() throws Exception {
@@ -56,6 +63,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testNullMessageParam_ThrowsException() throws Exception {
 		new TestPlan() {
 			protected OutgoingMessage createMessage() throws Exception {
@@ -65,7 +73,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_Test extends TestCase {
 
 			protected void doAssertions(OutgoingMessage processOutgoing)
 				throws Exception {
-				fail();
+				fail("");
 			}
 
 			@Override
@@ -108,6 +116,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testAgentIsSetInMessage() throws Exception {
 		new MessageParamIsNotNull() {
 			
@@ -123,6 +132,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testMessageIsValidated() throws Exception {
 		new MessageParamIsNotNull() {
 			
@@ -138,6 +148,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCorrectMessageParamIsPassedToProcessMessageMethod() throws Exception {
 		new MessageParamIsNotNull() {
 			
@@ -208,6 +219,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCorrectMessageParamIsPassedToPreProcessOutgoingMethod() throws Exception {
 		new NHINDAgentEventListenerIsNotNull() {
 			
@@ -228,6 +240,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCorrectMessageParamIsPassedToPostProcessOutgoingMethod() throws Exception {
 		new NHINDAgentEventListenerIsNotNull() {
 			
@@ -248,6 +261,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testPostProcessOutgoingMethodThrowsException_ErrorOutgoingIsCalled() throws Exception {
 		new NHINDAgentEventListenerIsNotNull() {
 			
@@ -267,7 +281,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_Test extends TestCase {
 			
 			protected void doAssertions(OutgoingMessage processOutgoing)
 					throws Exception {
-				fail();
+				fail("");
 			}
 
 			@Override

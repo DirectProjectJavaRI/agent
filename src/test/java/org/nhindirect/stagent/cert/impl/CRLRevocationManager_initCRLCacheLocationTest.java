@@ -1,5 +1,12 @@
 package org.nhindirect.stagent.cert.impl;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 import java.util.UUID;
 
@@ -7,9 +14,8 @@ import org.nhindirect.common.crypto.CryptoExtensions;
 import org.nhindirect.common.options.OptionsManager;
 import org.nhindirect.common.options.OptionsParameter;
 
-import junit.framework.TestCase;
 
-public class CRLRevocationManager_initCRLCacheLocationTest extends TestCase
+public class CRLRevocationManager_initCRLCacheLocationTest
 {
 	static final char[] invalidFileName;
 	
@@ -23,7 +29,7 @@ public class CRLRevocationManager_initCRLCacheLocationTest extends TestCase
 		}
 	}
 	
-	@Override
+	@BeforeEach
 	public void setUp()
 	{
     	CryptoExtensions.registerJCEProviders();
@@ -34,7 +40,7 @@ public class CRLRevocationManager_initCRLCacheLocationTest extends TestCase
 		OptionsManager.getInstance().setOptionsParameter(new OptionsParameter(OptionsParameter.CRL_CACHE_LOCATION, ""));
 	}
 	
-	@Override
+	@AfterEach
 	public void tearDown()
 	{
 		CRLRevocationManager.getInstance().flush();
@@ -42,12 +48,14 @@ public class CRLRevocationManager_initCRLCacheLocationTest extends TestCase
 		CRLRevocationManager.initCRLCacheLocation();
 	}
 	
+	@Test
 	public void testInitCRLCacheLocation_noOptionParameter()
 	{	
 		CRLRevocationManager.initCRLCacheLocation();
 		assertTrue(CRLRevocationManager.crlCacheLocation.getAbsolutePath().endsWith("CrlCache"));
 	}
 	
+	@Test
 	public void testInitCRLCacheLocation_customOptionParameter()
 	{	
 		String crlLocation = UUID.randomUUID().toString();
@@ -56,6 +64,7 @@ public class CRLRevocationManager_initCRLCacheLocationTest extends TestCase
 		assertTrue(CRLRevocationManager.crlCacheLocation.getAbsolutePath().endsWith(crlLocation));
 	}
 	
+	@Test
 	public void testInitCRLCacheLocation_locExistsAndNotADirectory() throws Exception
 	{	
 		String crlLocation = UUID.randomUUID().toString();
@@ -67,6 +76,7 @@ public class CRLRevocationManager_initCRLCacheLocationTest extends TestCase
 		assertNull(CRLRevocationManager.crlCacheLocation);
 	}
 	
+	@Test
 	public void testInitCRLCacheLocation_invalidLocationName() throws Exception
 	{	
 		

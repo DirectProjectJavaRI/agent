@@ -1,18 +1,24 @@
 package org.nhindirect.stagent.trust;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 import java.security.cert.X509Certificate;
 
 import org.nhindirect.stagent.NHINDException;
 import org.nhindirect.stagent.utils.TestUtils;
 
-import junit.framework.TestCase;
 
-public class TrustChainValidator_downloadCertFromAIATest extends TestCase
+public class TrustChainValidator_downloadCertFromAIATest
 {
 	protected String filePrefix;
 	
-	@Override
+	@BeforeEach
 	public void setUp()
 	{	
 		// check for Windows... it doens't like file://<drive>... turns it into FTP
@@ -23,6 +29,7 @@ public class TrustChainValidator_downloadCertFromAIATest extends TestCase
 			filePrefix = "file:///";
 	}
 	
+	@Test
 	@SuppressWarnings("deprecation")
 	public void testDownloadCertFromAIA_validURL_assertDownloaded() throws Exception
 	{
@@ -37,6 +44,7 @@ public class TrustChainValidator_downloadCertFromAIATest extends TestCase
 		assertEquals(TestUtils.loadCertificate("bob.der"), downloadedCert);
 	}
 	
+	@Test
 	@SuppressWarnings("deprecation")
 	public void testDownloadCertFromAIA_certNotAtURL_assertException() throws Exception
 	{

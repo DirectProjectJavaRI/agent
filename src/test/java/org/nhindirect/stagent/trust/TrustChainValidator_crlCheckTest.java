@@ -1,5 +1,9 @@
 package org.nhindirect.stagent.trust;
 
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.security.Key;
@@ -16,11 +20,10 @@ import org.nhindirect.stagent.NHINDException;
 import org.nhindirect.stagent.cert.X509CertificateEx;
 import org.nhindirect.stagent.cert.impl.CRLRevocationManager;
 
-import junit.framework.TestCase;
 
-public class TrustChainValidator_crlCheckTest extends TestCase
+public class TrustChainValidator_crlCheckTest
 {
-	@Override
+	@BeforeEach
 	public void setUp()
 	{
     	CryptoExtensions.registerJCEProviders();
@@ -89,6 +92,7 @@ public class TrustChainValidator_crlCheckTest extends TestCase
         return retVal;
     }
     
+    @Test
     public void testValidateCertWithCRL_assertValid() throws Exception
     {
     	X509Certificate anchor = certFromData(getCertificateFileData("CernerDirect DevCert Provider CA.der"));

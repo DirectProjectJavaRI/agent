@@ -1,7 +1,9 @@
 package org.nhindirect.stagent;
 
-import junit.framework.TestCase;
-import org.nhindirect.stagent.DefaultNHINDAgent;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import org.nhindirect.stagent.cert.impl.KeyStoreCertificateStore;
 import org.nhindirect.stagent.trust.DefaultTrustAnchorResolver;
 import org.nhindirect.stagent.utils.BaseTestPlan;
@@ -10,7 +12,8 @@ import org.nhindirect.stagent.utils.BaseTestPlan;
  * Generated test case.
  * @author junit_generate
  */
-public class DefaultNHINDAgent_ProcessIncoming_RawStringAndAddresses_Test extends TestCase {
+public class DefaultNHINDAgent_ProcessIncoming_RawStringAndAddresses_Test 
+{
 	abstract class TestPlan extends BaseTestPlan {
 		@Override
 		protected void performInner() throws Exception {
@@ -84,6 +87,7 @@ public class DefaultNHINDAgent_ProcessIncoming_RawStringAndAddresses_Test extend
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCorrectRecipientsParamIsPassedToCheckEnvelopeAddresses() throws Exception {
 		new TestPlan() {
 			protected void checkEnvelopeAddresses_Internal(
@@ -102,6 +106,7 @@ public class DefaultNHINDAgent_ProcessIncoming_RawStringAndAddresses_Test extend
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCorrectSenderParamIsPassedToCheckEnvelopeAddresses() throws Exception {
 		new TestPlan() {
 			protected void checkEnvelopeAddresses_Internal(
@@ -120,6 +125,7 @@ public class DefaultNHINDAgent_ProcessIncoming_RawStringAndAddresses_Test extend
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testProcessIncomingMethodIsCalled() throws Exception {
 		new TestPlan() {
 			

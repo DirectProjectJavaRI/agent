@@ -1,25 +1,32 @@
 package org.nhindirect.stagent.cert.impl;
 
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.nhindirect.common.crypto.impl.BootstrappedKeyStoreProtectionManager;
 import org.nhindirect.stagent.cert.CertCacheFactory;
 import org.nhindirect.stagent.cert.DefaultCertStoreCachePolicy;
 
-public class CacheableKeyStoreManagerCertificateStore_constructTest extends TestCase
+public class CacheableKeyStoreManagerCertificateStore_constructTest
 {
-	@Override
+	@BeforeEach
 	public void setUp()
-	{
+	{		
 		CertCacheFactory.getInstance().flushAll();
 	}
 	
-	@Override
+	@AfterEach
 	public void tearDown()
 	{
 		CertCacheFactory.getInstance().flushAll();
 	}
 	
+	@Test
 	public void testContrust_defaultConstructor_assertNullStore() throws Exception
 	{
 		final CacheableKeyStoreManagerCertificateStore store = new CacheableKeyStoreManagerCertificateStore();
@@ -29,6 +36,7 @@ public class CacheableKeyStoreManagerCertificateStore_constructTest extends Test
 		assertEquals(CacheableKeyStoreManagerCertificateStore.DEFAULT_CACHE_TTL, store.cachePolicy.getSubjectTTL());
 	}
 	
+	@Test
 	public void testContrust_providedStore_assertNonEmptyStore() throws Exception
 	{
 		final BootstrappedKeyStoreProtectionManager mgr = new BootstrappedKeyStoreProtectionManager();
@@ -39,6 +47,7 @@ public class CacheableKeyStoreManagerCertificateStore_constructTest extends Test
 		assertEquals(CacheableKeyStoreManagerCertificateStore.DEFAULT_CACHE_TTL, store.cachePolicy.getSubjectTTL());
 	}
 	
+	@Test
 	public void testContrust_providedStoreAndCachePolicy_assertNonEmptyStoreAndCustomPolicy() throws Exception
 	{
 		DefaultCertStoreCachePolicy policy = new DefaultCertStoreCachePolicy();

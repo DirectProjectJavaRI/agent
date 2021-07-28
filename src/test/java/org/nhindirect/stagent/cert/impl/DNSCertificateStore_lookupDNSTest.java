@@ -1,8 +1,15 @@
 package org.nhindirect.stagent.cert.impl;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.security.cert.Certificate;
@@ -21,13 +28,12 @@ import org.xbill.DNS.Message;
 import org.xbill.DNS.Rcode;
 import org.xbill.DNS.Section;
 
-import junit.framework.TestCase;
 
-public class DNSCertificateStore_lookupDNSTest extends TestCase
+public class DNSCertificateStore_lookupDNSTest 
 {
 	protected String filePrefix;
 	
-	@Override
+	@BeforeEach
 	public void setUp()
 	{
 		// flush the caches
@@ -105,7 +111,7 @@ public class DNSCertificateStore_lookupDNSTest extends TestCase
 		return retVal;
 	}
 	
-	
+	@Test
 	public void testLookupDNS_certInRRRecord_assertCertificate() throws Exception
 	{
 		final X509Certificate cert = (X509Certificate)TestUtils.loadCertificate("certCheckA.der");
@@ -129,6 +135,7 @@ public class DNSCertificateStore_lookupDNSTest extends TestCase
 		
 	}
 	
+	@Test
 	public void testLookupDNS_certNotInRRRecord_assertNoCertificate() throws Exception
 	{
 		
@@ -149,7 +156,7 @@ public class DNSCertificateStore_lookupDNSTest extends TestCase
 		assertTrue(certs.isEmpty());
 	}
 	
-	
+	@Test
 	public void testLookupDNS_certInIPKIXRecord_assertCertificate() throws Exception
 	{
 		final Certificate cert = TestUtils.loadCertificate("gm2552.der");

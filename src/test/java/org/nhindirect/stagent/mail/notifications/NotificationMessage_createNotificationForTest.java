@@ -1,17 +1,20 @@
 package org.nhindirect.stagent.mail.notifications;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
+
 import java.io.ByteArrayInputStream;
 
 import javax.mail.internet.MimeMessage;
-
-import junit.framework.TestCase;
 
 import org.nhindirect.stagent.mail.MailStandard;
 import org.nhindirect.stagent.mail.Message;
 import org.nhindirect.stagent.utils.TestUtils;
 
-public class NotificationMessage_createNotificationForTest extends TestCase
+public class NotificationMessage_createNotificationForTest
 {
+	@Test
 	public void testCreateNotificationFor_processedMDN_assertSubjectHasCorrectPrefix() throws Exception
 	{
 		final String testMessage = TestUtils.readResource("MultipartMimeMessage.txt");
@@ -25,6 +28,7 @@ public class NotificationMessage_createNotificationForTest extends TestCase
 		assertTrue(notiMsg.getHeader(MailStandard.Headers.Subject, ",").startsWith("Processed"));
 	}
 	
+	@Test
 	public void testCreateNotificationFor_dispatchedMDN_assertSubjectHasCorrectPrefix() throws Exception
 	{
 		final String testMessage = TestUtils.readResource("MultipartMimeMessage.txt");

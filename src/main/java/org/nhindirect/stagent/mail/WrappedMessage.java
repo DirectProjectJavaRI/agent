@@ -44,7 +44,6 @@ import org.nhindirect.stagent.parser.EntitySerializer;
  */
 public class WrappedMessage 
 {
-	@SuppressWarnings("unchecked")
 	/*
 	 * Copy the requested headers from the original message into a new header collection.
 	 */

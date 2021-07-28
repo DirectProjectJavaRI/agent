@@ -1,32 +1,36 @@
 package org.nhindirect.stagent.cert.impl;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 import java.io.OutputStream;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.nhindirect.common.options.OptionsManagerUtils;
 import org.nhindirect.stagent.cert.CertCacheFactory;
 
-import junit.framework.TestCase;
-
-public class LDAPCertificateStore_getDefaultCachePolicyTest extends TestCase
+public class LDAPCertificateStore_getDefaultCachePolicyTest
 {
-	@Override
+	@BeforeEach
 	public void setUp()
 	{
 		OptionsManagerUtils.clearOptionsManagerInstance();
 		CertCacheFactory.getInstance().flushAll();
 	}
 	
-	@Override
+	@AfterEach
 	public void tearDown()
 	{
 		OptionsManagerUtils.clearOptionsManagerOptions();
 		CertCacheFactory.getInstance().flushAll();
 	}
 	
-	
+	@Test
 	public void testGetDefaultCachePolicyTest_useDefaultSettings_assertSettings() throws Exception
 	{
 		LDAPCertificateStore store = new LDAPCertificateStore();
@@ -36,6 +40,7 @@ public class LDAPCertificateStore_getDefaultCachePolicyTest extends TestCase
 		assertEquals(LDAPCertificateStore.DEFAULT_LDAP_TTL, store.cachePolicy.getSubjectTTL());
 	}
 	
+	@Test
 	public void testGetDefaultCachePolicyTest_useSettingsFromJVMParams_assertSettings() throws Exception
 	{
 		System.setProperty("org.nhindirect.stagent.cert.ldapresolver.MaxCacheSize", "500");
@@ -56,7 +61,7 @@ public class LDAPCertificateStore_getDefaultCachePolicyTest extends TestCase
 
 	}	
 	
-	@SuppressWarnings("deprecation")
+	@Test
 	public void testGetDefaultCachePolicyTest_useSettingsFromPropertiesFile_assertSettings() throws Exception
 	{	
 		File propFile = new File("./target/props/agentSettings.properties");
@@ -65,11 +70,9 @@ public class LDAPCertificateStore_getDefaultCachePolicyTest extends TestCase
 	
 		System.setProperty("org.nhindirect.stagent.PropertiesFile", "./target/props/agentSettings.properties");
 		
-		OutputStream outStream = null;
 	
-		try
+		try(OutputStream outStream = FileUtils.openOutputStream(propFile))
 		{
-			outStream = FileUtils.openOutputStream(propFile);
 			outStream.write("org.nhindirect.stagent.cert.ldapresolver.MaxCacheSize=1200\r\n".getBytes());
 			outStream.write("org.nhindirect.stagent.cert.ldapresolver.CacheTTL=900".getBytes());
 			outStream.flush();
@@ -77,7 +80,6 @@ public class LDAPCertificateStore_getDefaultCachePolicyTest extends TestCase
 		}
 		finally
 		{
-			IOUtils.closeQuietly(outStream);
 		}
 		
 		try

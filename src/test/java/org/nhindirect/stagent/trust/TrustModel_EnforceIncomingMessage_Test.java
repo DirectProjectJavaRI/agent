@@ -1,9 +1,15 @@
 package org.nhindirect.stagent.trust;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.security.cert.CertStore;
-import java.security.cert.CollectionCertStoreParameters;
+import java.nio.charset.StandardCharsets;
+
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,14 +22,12 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 
-import junit.framework.TestCase;
 
-import org.apache.commons.codec.Charsets;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.ASN1EncodableVector;
-import org.bouncycastle.asn1.DERObjectIdentifier;
-import org.bouncycastle.asn1.cms.AttributeTable;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.smime.SMIMECapabilitiesAttribute;
 import org.bouncycastle.asn1.smime.SMIMECapability;
@@ -36,10 +40,10 @@ import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.SignerInformationStore;
 import org.bouncycastle.cms.jcajce.JcaSignerInfoGeneratorBuilder;
 import org.bouncycastle.mail.smime.CMSProcessableBodyPartInbound;
-import org.bouncycastle.mail.smime.SMIMESignedGenerator;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
+import org.junit.jupiter.api.Test;
 import org.nhindirect.common.crypto.CryptoExtensions;
 import org.nhindirect.stagent.AgentError;
 import org.nhindirect.stagent.AgentException;
@@ -53,7 +57,6 @@ import org.nhindirect.stagent.cryptography.DigestAlgorithm;
 import org.nhindirect.stagent.mail.Message;
 import org.nhindirect.stagent.mail.MimeEntity;
 import org.nhindirect.stagent.parser.EntitySerializer;
-import org.nhindirect.stagent.trust.TrustModel;
 import org.nhindirect.stagent.utils.BaseTestPlan;
 import org.nhindirect.stagent.utils.SecondaryMimeMessage;
 import org.nhindirect.stagent.utils.TestUtils;
@@ -62,7 +65,8 @@ import org.nhindirect.stagent.utils.TestUtils;
  * Generated test case.
  * @author junit_generate
  */
-public class TrustModel_EnforceIncomingMessage_Test extends TestCase {
+public class TrustModel_EnforceIncomingMessage_Test  
+{
 	abstract class TestPlan extends BaseTestPlan {
 		@Override
 		protected void performInner() throws Exception {
@@ -164,6 +168,7 @@ public class TrustModel_EnforceIncomingMessage_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testIncomingMessageIsNull_ThrowsIllegalArgumentException() throws Exception {
 		new TestPlan() {
 			protected IncomingMessage createMessage() throws Exception {
@@ -172,7 +177,7 @@ public class TrustModel_EnforceIncomingMessage_Test extends TestCase {
 			}
 
 			protected void doAssertions() throws Exception {
-				fail();
+				fail("");
 			}
 
 			@Override
@@ -189,6 +194,7 @@ public class TrustModel_EnforceIncomingMessage_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testMessageDoesNotHaveSignatures_ThrowsAgentException() throws Exception {
 		new TestPlan() {
 			
@@ -198,7 +204,7 @@ public class TrustModel_EnforceIncomingMessage_Test extends TestCase {
 			}
 
 			protected void doAssertions() throws Exception {
-				fail();
+				fail("");
 			}
 
 			@Override
@@ -217,6 +223,7 @@ public class TrustModel_EnforceIncomingMessage_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCorrectMessageParamIsPassedToFindSenderSignatures() throws Exception {
 		new TestPlan() {
 			
@@ -245,6 +252,7 @@ public class TrustModel_EnforceIncomingMessage_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testMessageDoesNotHaveSenderSignatures_ThrowsAgentException() throws Exception {
 		new TestPlan() {
 			
@@ -259,7 +267,7 @@ public class TrustModel_EnforceIncomingMessage_Test extends TestCase {
 			}
 
 			protected void doAssertions() throws Exception {
-				fail();
+				fail("");
 			}
 
 			@Override
@@ -343,7 +351,7 @@ public class TrustModel_EnforceIncomingMessage_Test extends TestCase {
 			caps.addCapability(SMIMECapability.dES_EDE3_CBC);
 			caps.addCapability(SMIMECapability.rC2_CBC, 128);
 			caps.addCapability(SMIMECapability.dES_CBC);
-			caps.addCapability(new DERObjectIdentifier("1.2.840.113549.1.7.1"));
+			caps.addCapability(new ASN1ObjectIdentifier("1.2.840.113549.1.7.1"));
 			caps.addCapability(PKCSObjectIdentifiers.x509Certificate);
 			signedAttrs.add(new SMIMECapabilitiesAttribute(caps));
 
@@ -372,7 +380,7 @@ public class TrustModel_EnforceIncomingMessage_Test extends TestCase {
 	        final String  header = "signed; protocol=\"application/pkcs7-signature\"; micalg=" + 
 	        		CryptoAlgorithmsHelper.toDigestAlgorithmMicalg(DigestAlgorithm.SHA256WITHRSA);           
 	        
-	        final String encodedSig = StringUtils.toEncodedString(Base64.encodeBase64(signedData.getEncoded(), true), Charsets.UTF_8);
+	        final String encodedSig = StringUtils.toEncodedString(Base64.encodeBase64(signedData.getEncoded(), true), StandardCharsets.UTF_8);
 	        
 	        retVal = new MimeMultipart(header.toString());
 	        
@@ -418,7 +426,7 @@ public class TrustModel_EnforceIncomingMessage_Test extends TestCase {
 				};
 			} catch (Exception e) {
 				e.printStackTrace();
-				fail();
+				fail("");
 			}
 			return theFindTrustedSignature;
 		}
@@ -435,6 +443,7 @@ public class TrustModel_EnforceIncomingMessage_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testRecipientsTrustedSignatureIsNull_SetsTrustEnforcementStatusAsFailed() throws Exception {
 		new MessageHasSenderSignatures() {
 			
@@ -456,6 +465,7 @@ public class TrustModel_EnforceIncomingMessage_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testThumbprintIsNotVerified_SetsTrustEnforcementStatusAsSuccess_ThumbprintMismatch() throws Exception {
 		new MessageHasSenderSignatures() {
 			

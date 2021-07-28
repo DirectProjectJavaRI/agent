@@ -25,12 +25,14 @@ import java.io.ByteArrayInputStream;
 import java.net.UnknownHostException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -43,8 +45,6 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.nhindirect.stagent.cert.impl.util.Lookup;
 import org.nhindirect.stagent.cert.impl.util.LookupFactory;
 import org.xbill.DNS.ExtendedResolver;
@@ -53,6 +53,8 @@ import org.xbill.DNS.Record;
 import org.xbill.DNS.ResolverConfig;
 import org.xbill.DNS.SRVRecord;
 import org.xbill.DNS.Type;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Certificate utility for looking up certificates in a public LDAP server.
@@ -69,9 +71,9 @@ import org.xbill.DNS.Type;
  * @since 1.2
  *
  */
+@Slf4j
 public class LdapPublicCertUtilImpl implements LdapCertUtil{
 
-	private static final Log LOGGER = LogFactory.getLog(LdapPublicCertUtilImpl.class);
 	
 	private static final String DEFAULT_LDAP_TIMEOUT = "5000";
 	private static final String DEFAULT_LDAP_CONNECT_TIMEOUT = "10000";
@@ -91,11 +93,12 @@ public class LdapPublicCertUtilImpl implements LdapCertUtil{
 	 * Constructor
 	 */
 	public LdapPublicCertUtilImpl(){
-		String[] configedServers = ResolverConfig.getCurrentConfig().servers();
+		List<String> configedServers = ResolverConfig.getCurrentConfig().servers().stream()
+				.map(addr -> addr.getHostString()).collect(Collectors.toList());
 		
 		if (configedServers != null)
 		{
-			this.servers.addAll(Arrays.asList(configedServers));
+			this.servers.addAll(configedServers);
 		}
 	}
 	
@@ -153,7 +156,7 @@ public class LdapPublicCertUtilImpl implements LdapCertUtil{
 							}
 							catch (Exception e)
 							{
-								LOGGER.warn("Exception when looking up LDAP certificates using alternative search filter: " + e.getMessage());
+								log.warn("Exception when looking up LDAP certificates using alternative search filter: {}", e.getMessage());
 							}
 						}
 						
@@ -209,7 +212,7 @@ public class LdapPublicCertUtilImpl implements LdapCertUtil{
 			 * certificate resolution process stopping.  Return null so the process
 			 * continues.
 			 */
-			LOGGER.warn("Failure to lookup certificate through LDAP resolver.  Returning default value of null.", e);
+			log.warn("Failure to lookup certificate through LDAP resolver.  Returning default value of null.", e);
 			return null;
 		}
 		finally
@@ -296,7 +299,7 @@ public class LdapPublicCertUtilImpl implements LdapCertUtil{
 		try{
 			retVal = new ExtendedResolver(servers);
 			retVal.setRetries(retries);
-			retVal.setTimeout(timeout);
+			retVal.setTimeout(Duration.ofSeconds(timeout));
 			retVal.setTCP(false);
 		}catch (UnknownHostException e) {/* no-op */}
 		
@@ -337,12 +340,12 @@ public class LdapPublicCertUtilImpl implements LdapCertUtil{
 			}
 			
 			if (dNs.isEmpty())
-				LOGGER.warn("No base DNs could be located for LDAP context");
+				log.warn("No base DNs could be located for LDAP context");
 		}
 		catch (Exception e)
 		{
 			// no naming contexts could be located or query error
-			LOGGER.warn("ERROR looking up base DNs for LDAP context", e);
+			log.warn("ERROR looking up base DNs for LDAP context", e);
 		}
 		return dNs;
 	}

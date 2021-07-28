@@ -25,12 +25,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jcs.JCS;
 import org.apache.jcs.access.exception.CacheException;
 import org.apache.jcs.engine.behavior.ICompositeCacheAttributes;
 import org.apache.jcs.engine.behavior.IElementAttributes;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Factory class for creating instances of JCS based certificate caches.  Caches are keyed by name (case sensitive).
@@ -39,11 +39,9 @@ import org.apache.jcs.engine.behavior.IElementAttributes;
  * @author Greg Meyer
  * @since 1.3
  */
+@Slf4j
 public class CertCacheFactory 
-{
-	@SuppressWarnings("deprecation")
-	private static final Log LOGGER = LogFactory.getFactory().getInstance(CertCacheFactory.class);
-	
+{	
 	protected static CertCacheFactory INSTANCE;
 	
 	protected final Map<String, JCS> certCacheMap;
@@ -93,7 +91,7 @@ public class CertCacheFactory
 			}
 			catch (CacheException e)
 			{
-				LOGGER.warn("Failed to create JCS cache " + cacheName, e);
+				log.warn("Failed to create JCS cache {}", cacheName, e);
 				throw e;
 			}
 		}
@@ -107,7 +105,7 @@ public class CertCacheFactory
 		{
 			try
 			{
-				LOGGER.info("Flushing cache " + entry.getKey());
+				log.info("Flushing cache {}", entry.getKey());
 				entry.getValue().clear();
 			}
 			catch (CacheException e) {/* no-op */}

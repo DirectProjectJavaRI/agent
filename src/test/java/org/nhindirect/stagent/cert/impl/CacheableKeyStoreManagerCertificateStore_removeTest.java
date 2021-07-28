@@ -1,5 +1,11 @@
 package org.nhindirect.stagent.cert.impl;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 
@@ -9,6 +15,7 @@ import org.nhindirect.stagent.utils.TestUtils;
 
 public class CacheableKeyStoreManagerCertificateStore_removeTest extends BaseKeyStoreManagerCertStoreTest
 {
+	@Test
 	public void testRemove_removingExistingCert_assertRemoved() throws Exception
 	{
 		if (store != null)
@@ -30,6 +37,7 @@ public class CacheableKeyStoreManagerCertificateStore_removeTest extends BaseKey
 		}
 	}
 	
+	@Test
 	public void testRemove_removingNonExistantCert_assertNotRemoved() throws Exception
 	{
 		if (store != null)
@@ -52,6 +60,7 @@ public class CacheableKeyStoreManagerCertificateStore_removeTest extends BaseKey
 		}
 	}
 	
+	@Test
 	public void testRemove_nonMutableStore_assertException() throws Exception
 	{
 		if (store != null)

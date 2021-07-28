@@ -76,6 +76,16 @@ public class NotificationHelper
     }
     
     /**
+     * Tests if this message is an DSN
+     * @param message The message to test.
+     * @return true if this message in an DSN.  false otherwise
+     */
+    public static boolean isDSN(Message message)
+    {
+        return DSNStandard.isReport(message);
+    }
+    
+    /**
      * Returns true if the user agent should issue a notification for this message.
      * <p>
      * Tests the message to see if it has a message disposition notification

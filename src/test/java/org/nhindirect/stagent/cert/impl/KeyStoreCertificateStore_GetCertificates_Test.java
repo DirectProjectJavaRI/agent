@@ -1,5 +1,12 @@
 package org.nhindirect.stagent.cert.impl;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,10 +20,9 @@ import org.nhindirect.stagent.NHINDException;
 import org.nhindirect.stagent.cert.CertificateResolver;
 import org.nhindirect.stagent.utils.BaseTestPlan;
 
-import junit.framework.TestCase;
 
 @SuppressWarnings("deprecation")
-public class KeyStoreCertificateStore_GetCertificates_Test extends TestCase 
+public class KeyStoreCertificateStore_GetCertificates_Test
 {
 	abstract class TestPlan extends BaseTestPlan 
 	{
@@ -71,6 +77,7 @@ public class KeyStoreCertificateStore_GetCertificates_Test extends TestCase
 
 	}
 	
+	@Test
 	public void testKeyStoreSearch_GetWithAltName_AssertCertsFoundUsingAltSubject() throws Exception
 	{
 		new TestPlan()
@@ -93,6 +100,7 @@ public class KeyStoreCertificateStore_GetCertificates_Test extends TestCase
 		
 	}
 	
+	@Test
 	public void testKeyStoreSearch_GetUserCertByDomain_AssertCertsNotFound() throws Exception
 	{
 		new TestPlan()
@@ -113,6 +121,7 @@ public class KeyStoreCertificateStore_GetCertificates_Test extends TestCase
 		
 	}	
 	
+	@Test
 	public void testKeyStoreSearch_GetUnknownUserCert_AssertCertsNotFound() throws Exception
 	{
 		new TestPlan()
@@ -133,7 +142,7 @@ public class KeyStoreCertificateStore_GetCertificates_Test extends TestCase
 		
 	}	
 	
-	
+	@Test
 	public void testKeyStoreSearch_GetOrgCertAltName_AssertCertsFoundUsingAltSubject() throws Exception
 	{
 		new TestPlan()
@@ -156,28 +165,7 @@ public class KeyStoreCertificateStore_GetCertificates_Test extends TestCase
 		
 	}	
 	
-	public void testKeyStoreSearch_GetWithDN_AssertCertsFoundNotUsingAltSubject() throws Exception
-	{
-		new TestPlan()
-		{
-			@Override
-			protected String getSubjectToSearch()
-			{
-				return "gm2552@securehealthemail.com";
-			}
-			
-			@Override
-			protected void doAssertions(Collection<X509Certificate> certs) throws Exception
-			{
-				assertNotNull(certs);
-				assertEquals(1, certs.size());		
-				assertFalse(certFoundInAltSubject);
-			}
-			
-		}.perform();
-		
-	}	
-	
+	@Test
 	public void testKeyStoreSearch_GetExpiredCert_AssertCertsNotFound() throws Exception
 	{
 		new TestPlan()
