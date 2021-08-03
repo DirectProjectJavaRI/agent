@@ -1,5 +1,12 @@
 package org.nhindirect.stagent.mail.notifications;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,10 +23,9 @@ import org.nhindirect.stagent.utils.TestUtils;
 
 import com.sun.mail.dsn.DispositionNotification;
 
-import junit.framework.TestCase;
-
-public class NotificationTest extends TestCase 
+public class NotificationTest
 {
+	@Test
 	public void testCreateNotification_AssertMultipart() throws Exception
 	{
 		Notification noti = new Notification(NotificationType.Processed);
@@ -43,6 +49,7 @@ public class NotificationTest extends TestCase
 		assertTrue(content.contains("automatic-action/MDN-sent-automatically;processed"));
 	}
 	
+	@Test
 	public void testCreateNotification_AssertGetParts() throws Exception
 	{
 		Notification noti = new Notification(NotificationType.Processed);
@@ -59,6 +66,7 @@ public class NotificationTest extends TestCase
 		assertEquals(notification.getNotifications().getHeader("disposition", ","), "automatic-action/MDN-sent-automatically;processed");	
 	}
 	
+	@Test
 	public void testCreateNotification_AssertDispatched() throws Exception
 	{
 		Notification noti = new Notification(NotificationType.Dispatched);
@@ -75,6 +83,7 @@ public class NotificationTest extends TestCase
 		assertEquals(notification.getNotifications().getHeader("disposition", ","), "automatic-action/MDN-sent-automatically;dispatched");	
 	}
 	
+	@Test
 	public void testCreateNotification_AssertInputStream() throws Exception
 	{
 		Notification noti = new Notification(NotificationType.Processed);
@@ -96,6 +105,7 @@ public class NotificationTest extends TestCase
 		assertEquals(notification.getNotifications().getHeader("disposition", ","), "automatic-action/MDN-sent-automatically;processed");	
 	}	
 	
+	@Test
 	public void testSetExplanation_AssertExplanation() throws Exception
 	{
 		Notification noti = new Notification(NotificationType.Processed);
@@ -131,7 +141,7 @@ public class NotificationTest extends TestCase
 		assertTrue(content.contains("automatic-action/MDN-sent-automatically;processed"));		
 	}		
 	
-	
+	@Test
 	public void testSetUserAgent_AssertUseragent() throws Exception
 	{
 		Notification noti = new Notification(NotificationType.Processed);
@@ -161,6 +171,7 @@ public class NotificationTest extends TestCase
 		assertEquals(headers.getHeader(MDNStandard.Headers.ReportingAgent, ","), noti.getReportingAgent().toString());
 	}		
 	
+	@Test
 	public void testGateway_AssertGateway() throws Exception
 	{
 		Notification noti = new Notification(NotificationType.Processed);
@@ -192,6 +203,7 @@ public class NotificationTest extends TestCase
 		
 	}		
 	
+	@Test
 	public void testOriginalMessageId_AssertOriginalMessageId() throws Exception
 	{
 		Notification noti = new Notification(NotificationType.Processed);
@@ -223,6 +235,7 @@ public class NotificationTest extends TestCase
 		
 	}		
 	
+	@Test
 	public void testFinalRecip_AssertFinalRecip() throws Exception
 	{
 		Notification noti = new Notification(NotificationType.Processed);
@@ -254,6 +267,7 @@ public class NotificationTest extends TestCase
 		
 	}		
 	
+	@Test
 	public void testError_AssertError() throws Exception
 	{
 		Notification noti = new Notification(NotificationType.Processed);
@@ -285,6 +299,7 @@ public class NotificationTest extends TestCase
 		
 	}		
 	
+	@Test
 	public void testParseFieldsFromMimeMessage() throws Exception
 	{
 		String testMessage = TestUtils.readResource("MDNMessage.txt");
@@ -306,6 +321,7 @@ public class NotificationTest extends TestCase
 		assertEquals("<9501051053.aa04167@IETF.CNR I.Reston.VA.US>", headers.getHeader(MDNStandard.Headers.OriginalMessageID, ","));			
 	}
 	
+	@Test
 	public void testParseFieldsFromMimeMessage_NonMDNMessage_AssertExecption() throws Exception
 	{
 		String testMessage = TestUtils.readResource("MessageWithAttachment.txt");
@@ -327,6 +343,7 @@ public class NotificationTest extends TestCase
 				
 	}
 	
+	@Test
 	public void testWarning_AssertWarning() throws Exception
 	{
 		Notification noti = new Notification(NotificationType.Processed);
@@ -357,6 +374,7 @@ public class NotificationTest extends TestCase
 		
 	}		
 	
+	@Test
 	public void testFailure_AssertFailure() throws Exception
 	{
 		Notification noti = new Notification(NotificationType.Processed);
@@ -387,6 +405,7 @@ public class NotificationTest extends TestCase
 		
 	}		
 	
+	@Test
 	public void testExtensions_AssertExtensions() throws Exception
 	{
 		Notification noti = new Notification(NotificationType.Processed);
@@ -419,6 +438,7 @@ public class NotificationTest extends TestCase
 		assertEquals("value", headers.getHeader("X-TEST2", ","));		
 	}
 	
+	@Test
     public void testFailedNotification() throws Exception
     {
         Notification noti = new Notification(NotificationType.Failed);

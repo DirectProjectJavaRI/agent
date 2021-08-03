@@ -24,8 +24,6 @@ package org.nhindirect.stagent.cert.impl;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jcs.JCS;
 import org.apache.jcs.access.exception.CacheException;
 import org.apache.jcs.engine.behavior.ICompositeCacheAttributes;
@@ -37,11 +35,14 @@ import org.nhindirect.stagent.cert.CacheableCertStore;
 import org.nhindirect.stagent.cert.CertCacheFactory;
 import org.nhindirect.stagent.cert.CertStoreCachePolicy;
 import org.nhindirect.stagent.cert.CertificateStore;
+
+import lombok.extern.slf4j.Slf4j;
 /**
  * Implementation of certificate store where certificate and keys are stored in a KeyStoreProtectionManager.
  * @author Greg Meyer
  * @since 2.1
  */
+@Slf4j
 public class CacheableKeyStoreManagerCertificateStore extends AbstractKeyStoreManagerCertificateStore implements CacheableCertStore
 {
 	private static final String CACHE_NAME = "CACHEABLE_PKCS11_STORE_CERT_CACHE";
@@ -51,9 +52,6 @@ public class CacheableKeyStoreManagerCertificateStore extends AbstractKeyStoreMa
 	
 	protected JCS cache;
 	protected CertStoreCachePolicy cachePolicy;
-	
-	@SuppressWarnings("deprecation")
-	private static final Log LOGGER = LogFactory.getFactory().getInstance(CacheableKeyStoreManagerCertificateStore.class);
 	
 	/**
 	 * Constructor
@@ -142,7 +140,7 @@ public class CacheableKeyStoreManagerCertificateStore extends AbstractKeyStoreMa
 		///CLOVER:OFF
 		catch (CacheException e)
 		{
-			LOGGER.warn("CacheablePKCS11CertificateStore - Could not create certificate cache " + CACHE_NAME, e);
+			log.warn("CacheablePKCS11CertificateStore - Could not create certificate cache {}",  CACHE_NAME, e);
 		}
 		///CLOVER:ON
 	}
@@ -201,7 +199,7 @@ public class CacheableKeyStoreManagerCertificateStore extends AbstractKeyStoreMa
     	
 		if (retVal == null || retVal.size() == 0)
 		{
-			LOGGER.info("getCertificates(String subjectName) - Could not find a PKCS11 certificate for subject " + subjectName);
+			log.info("getCertificates(String subjectName) - Could not find a PKCS11 certificate for subject {}",  subjectName);
 		}
 		else
 		{

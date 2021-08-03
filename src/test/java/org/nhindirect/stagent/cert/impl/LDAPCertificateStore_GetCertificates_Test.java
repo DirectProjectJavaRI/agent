@@ -1,20 +1,22 @@
 package org.nhindirect.stagent.cert.impl;
 
+import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.apache.jcs.JCS;
 import org.apache.jcs.access.exception.CacheException;
 import org.nhindirect.stagent.cert.CertStoreCachePolicy;
 import org.nhindirect.stagent.cert.CertificateStore;
 import org.nhindirect.stagent.cert.X509CertificateEx;
-import org.nhindirect.stagent.cert.impl.LDAPCertificateStore;
-import org.nhindirect.stagent.cert.impl.LdapCertUtilImpl;
 import org.nhindirect.stagent.utils.BaseTestPlan;
 import org.nhindirect.stagent.utils.TestUtils;
 
@@ -23,7 +25,8 @@ import org.nhindirect.stagent.utils.TestUtils;
  * Generated test case.
  * @author junit_generate
  */
-public class LDAPCertificateStore_GetCertificates_Test extends TestCase {
+public class LDAPCertificateStore_GetCertificates_Test
+{
 	abstract class TestPlan extends BaseTestPlan {
 		@Override
 		protected void performInner() throws Exception {
@@ -64,7 +67,7 @@ public class LDAPCertificateStore_GetCertificates_Test extends TestCase {
 				theGetCache = JCS.getInstance("");
 			} catch (CacheException e) {
 				e.printStackTrace();
-				fail();
+				fail("");
 			}
 			return theGetCache;
 		}
@@ -149,6 +152,7 @@ public class LDAPCertificateStore_GetCertificates_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCacheIsNull_CertififcateIsRetrievedFromLdapServer() throws Exception {
 		new CacheIsNull() {
 			
@@ -163,6 +167,7 @@ public class LDAPCertificateStore_GetCertificates_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCacheIsNull_CorrectSubjectNameParamIsPassedToLdapSearchMethod() throws Exception {
 		new CacheIsNull() {
 			
@@ -183,6 +188,7 @@ public class LDAPCertificateStore_GetCertificates_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testLdapSearchReturnsNonEmptyCollection_AddOrUpdateLocalStoreDelegateMethodIsCalled() throws Exception {
 		new CacheIsNull() {
 			
@@ -194,7 +200,7 @@ public class LDAPCertificateStore_GetCertificates_Test extends TestCase {
 					theLdapSearch.add(internalCert);
 				} catch (Exception e) {
 					e.printStackTrace();
-					fail();
+					fail("");
 				}
 				return theLdapSearch;
 			}
@@ -216,6 +222,7 @@ public class LDAPCertificateStore_GetCertificates_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testLdapGetWildcardReturnsNonEmptyCollection_AddOrUpdateLocalStoreDelegateMethodNoCalled() throws Exception {
 		new CacheIsNull() {
 			
@@ -227,7 +234,7 @@ public class LDAPCertificateStore_GetCertificates_Test extends TestCase {
 					theLdapSearch.add(internalCert);
 				} catch (Exception e) {
 					e.printStackTrace();
-					fail();
+					fail("");
 				}
 				return theLdapSearch;
 			}
@@ -254,6 +261,7 @@ public class LDAPCertificateStore_GetCertificates_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testLdapSearchReturnsEmptyCollection_GetsCertificatesFromBootstrapStore() throws Exception {
 		new CacheIsNull() {
 			
@@ -282,6 +290,7 @@ public class LDAPCertificateStore_GetCertificates_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testBootstrapStoreIsNull_AddOrUpdateLocalStoreDelegateIsNotCalled() throws Exception {
 		new CacheIsNull() {
 			
@@ -303,7 +312,7 @@ public class LDAPCertificateStore_GetCertificates_Test extends TestCase {
 					theLdapSearch.add(internalCert);
 				} catch (Exception e) {
 					e.printStackTrace();
-					fail();
+					fail("");
 				}
 				return theLdapSearch;
 			}
@@ -339,7 +348,7 @@ public class LDAPCertificateStore_GetCertificates_Test extends TestCase {
 				theGet.add(internalCert);
 			} catch (Exception e) {
 				e.printStackTrace();
-				fail();
+				fail("");
 			}		  
 			return theGet;
 		}
@@ -349,6 +358,7 @@ public class LDAPCertificateStore_GetCertificates_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCacheIsNotNull_AttemptsToGetCertificatesFromCache() throws Exception {
 		new CacheIsNotNull() {
 			
@@ -395,13 +405,14 @@ public class LDAPCertificateStore_GetCertificates_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCertificateIsNotInCache_CertififcateIsRetrievedFromLdapServer() throws Exception {
 		new CertificateIsNotPresentInCache() {
 			
 			protected void doAssertions(Collection<X509Certificate> getCertificates)
 			throws Exception {
 				assertEquals(1, ldapSearchCalls);
-				assertNotSame(theGet, getCertificates);
+				Assertions.assertNotSame(theGet, getCertificates);
 			}
 			
 		}.perform();
@@ -411,6 +422,7 @@ public class LDAPCertificateStore_GetCertificates_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCertificateIsRetrievedFromLdapServerAndAddedToCache() throws Exception {
 		new CertificateIsNotPresentInCache() {
 			
@@ -422,7 +434,7 @@ public class LDAPCertificateStore_GetCertificates_Test extends TestCase {
 					theLdapSearch.add(internalCert);
 				} catch (Exception e) {
 					e.printStackTrace();
-					fail();
+					fail("");
 				}
 				return theLdapSearch;
 			}
@@ -447,6 +459,7 @@ public class LDAPCertificateStore_GetCertificates_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCertificateIsRetrievedFromLdapServerAddOrUpdateLocalStoreDelegateMethodIsCalled() throws Exception {
 		new CertificateIsNotPresentInCache() {
 			
@@ -462,7 +475,7 @@ public class LDAPCertificateStore_GetCertificates_Test extends TestCase {
 					theLdapSearch.add(internalCert);
 				} catch (Exception e) {
 					e.printStackTrace();
-					fail();
+					fail("");
 				}
 				return theLdapSearch;
 			}
@@ -471,7 +484,7 @@ public class LDAPCertificateStore_GetCertificates_Test extends TestCase {
 				throws Exception {
 				assertEquals(1, putSafeCalls);
 				assertEquals(1, ldapSearchCalls);
-				assertNotSame(theGet, getCertificates);
+				Assertions.assertNotSame(theGet, getCertificates);
 			}
 			
 		}.perform();
@@ -481,6 +494,7 @@ public class LDAPCertificateStore_GetCertificates_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testLocalStoreDelegateIsNull_AddOrUpdateLocalStoreDelegateIsNotCalled() throws Exception {
 		new CertificateIsNotPresentInCache() {
 			
@@ -506,7 +520,7 @@ public class LDAPCertificateStore_GetCertificates_Test extends TestCase {
 					theLdapSearch.add(internalCert);
 				} catch (Exception e) {
 					e.printStackTrace();
-					fail();
+					fail("");
 				}
 				return theLdapSearch;
 			}
@@ -525,6 +539,7 @@ public class LDAPCertificateStore_GetCertificates_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testLdapSearchReturnsNullCollection_GetsCertificatesFromBootstrapStore() throws Exception {
 		new CertificateIsNotPresentInCache() {
 			

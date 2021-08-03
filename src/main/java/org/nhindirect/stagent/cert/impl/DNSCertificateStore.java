@@ -32,6 +32,7 @@ import java.net.UnknownHostException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,13 +40,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jcs.JCS;
 import org.apache.jcs.access.exception.CacheException;
 import org.apache.jcs.engine.behavior.ICompositeCacheAttributes;
@@ -71,6 +70,8 @@ import org.xbill.DNS.ResolverConfig;
 import org.xbill.DNS.SimpleResolver;
 import org.xbill.DNS.Type;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Certificate store backed by DNS CERT records (RFC 4398) for dynamic lookup and a configurable local cache of off line lookup. 
  * By default the service uses the local node's DNS server configuration for initial DNS queries and a key store implementation for 
@@ -87,6 +88,7 @@ import org.xbill.DNS.Type;
  * @author Greg Meyer
  *
  */
+@Slf4j
 public class DNSCertificateStore extends CertificateStore implements CacheableCertStore
 {
 	private static final String CACHE_NAME = "DNS_REMOTE_CERT_CACHE";
@@ -110,8 +112,6 @@ public class DNSCertificateStore extends CertificateStore implements CacheableCe
 	protected int retries;
 	protected boolean useTCP;
 	
-	@SuppressWarnings("deprecation")
-	private static final Log LOGGER = LogFactory.getFactory().getInstance(DNSCertificateStore.class);
 	static 
 	{
 		Cache ch = Lookup.getDefaultCache(DClass.IN);
@@ -211,7 +211,7 @@ public class DNSCertificateStore extends CertificateStore implements CacheableCe
 		///CLOVER:OFF
 		catch (CacheException e)
 		{
-			LOGGER.warn("DNSCertificateStore - Could not create certificate cache " + CACHE_NAME, e);
+			log.warn("DNSCertificateStore - Could not create certificate cache {}", CACHE_NAME, e);
 		}
 		///CLOVER:ON
 	}
@@ -239,7 +239,14 @@ public class DNSCertificateStore extends CertificateStore implements CacheableCe
 				configedServers = serverOptions.getParamValue().split(",");
 			}
 			else // no servers in the options manager, fall back to the local machine's settings
-				configedServers = ResolverConfig.getCurrentConfig().servers();
+			{
+				List<String> holdServer = ResolverConfig.getCurrentConfig().servers().stream().map(addr -> {
+					return addr.getHostString();
+				}).collect(Collectors.toList());
+				
+				configedServers = holdServer.toArray(new String[holdServer.size()]);
+				
+			}
 
 			if (configedServers != null)
 			{
@@ -306,7 +313,7 @@ public class DNSCertificateStore extends CertificateStore implements CacheableCe
     			retVal = this.lookupDNS(realSubjectName);
     			if (retVal == null || retVal.size() == 0)
     			{
-    				LOGGER.info("getCertificates(String subjectName) - Could not find a DNS certificate for subject " + subjectName);
+    				log.info("getCertificates(String subjectName) - Could not find a DNS certificate for subject {}", subjectName);
     			}
     		}
     	}
@@ -320,11 +327,11 @@ public class DNSCertificateStore extends CertificateStore implements CacheableCe
 	    			retVal = localStoreDelegate.getCertificates(realSubjectName); // last ditch effort is to go to the bootstrap cache
 	    			if (retVal == null || retVal.size() == 0)
 	    			{
-	    				LOGGER.info("getCertificates(String subjectName) - Could not find a DNS certificate for subject " + subjectName);
+	    				log.info("getCertificates(String subjectName) - Could not find a DNS certificate for subject {}", subjectName);
 	    			}
     			}
     			else 
-    				LOGGER.info("getCertificates(String subjectName) - Could not find a DNS certificate for subject " + subjectName);
+    				log.info("getCertificates(String subjectName) - Could not find a DNS certificate for subject {}", subjectName);
     		}
     	}
     	
@@ -368,8 +375,8 @@ public class DNSCertificateStore extends CertificateStore implements CacheableCe
 			}
 			catch (Exception e)
 			{
-				LOGGER.warn("Error using recusive DNS CERT lookup for name " + lookupName + 
-						"\r\nFalling back to looking up NS record for a targeted search", e);
+				log.warn("Error using recusive DNS CERT lookup for name {}" +
+						"\r\nFalling back to looking up NS record for a targeted search", lookupName  , e);
 			}
 			
 			if (retRecords == null || retRecords.length == 0)
@@ -466,7 +473,7 @@ public class DNSCertificateStore extends CertificateStore implements CacheableCe
 							}
 							default:
 							{
-								LOGGER.warn("Unknown CERT type " + certRec.getCertType() + " encountered for lookup name" + lookupName);
+								log.warn("Unknown CERT type {} encountered for lookup name {}",  certRec.getCertType(),  lookupName);
 							}
 						}
 					}
@@ -649,13 +656,8 @@ public class DNSCertificateStore extends CertificateStore implements CacheableCe
 	protected ExtendedResolver createExResolver(String[] servers, int retries, int timeout)
 	{
 		// create a default ExtendedResolver
-		ExtendedResolver extendedResolver;
-		try {
-			extendedResolver = new ExtendedResolver();
-		} catch (UnknownHostException e) {
-			LOGGER.error("", e);
-			throw new IllegalStateException("unable to create default ExtendedResolver", e);
-		}
+		ExtendedResolver extendedResolver = new ExtendedResolver();
+
 
 		// remove all resolvers from default ExtendedResolver
 		Resolver[] resolvers = extendedResolver.getResolvers();
@@ -676,12 +678,12 @@ public class DNSCertificateStore extends CertificateStore implements CacheableCe
 					SimpleResolver simpleResolver = new SimpleResolver(server);
 					extendedResolver.addResolver(simpleResolver);
 				} catch (UnknownHostException e) {
-					LOGGER.debug("unable to add resolver for " + server, e);
+					log.debug("unable to add resolver for {}", server, e);
 					continue;
 				}
 			}
 			extendedResolver.setRetries(retries);
-			extendedResolver.setTimeout(timeout);
+			extendedResolver.setTimeout(Duration.ofSeconds(timeout));
 			extendedResolver.setTCP(useTCP);
 		}
 
@@ -704,7 +706,7 @@ public class DNSCertificateStore extends CertificateStore implements CacheableCe
 		}
 		catch (Exception e)
 		{
-			LOGGER.warn("Failed to convert certificate from DNS byte data.", e);
+			log.warn("Failed to convert certificate from DNS byte data.", e);
 		}
 		finally
 		{
@@ -741,7 +743,7 @@ public class DNSCertificateStore extends CertificateStore implements CacheableCe
 		}
 		catch (Exception e)
 		{
-			LOGGER.warn("Failed to get cert recrod from IPKIX location.", e);
+			log.warn("Failed to get cert recrod from IPKIX location.", e);
 		}
 		finally
 		{

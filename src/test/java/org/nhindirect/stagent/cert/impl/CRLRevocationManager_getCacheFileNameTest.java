@@ -1,13 +1,20 @@
 package org.nhindirect.stagent.cert.impl;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.nhindirect.common.crypto.CryptoExtensions;
 
-import junit.framework.TestCase;
 
-public class CRLRevocationManager_getCacheFileNameTest extends TestCase
+public class CRLRevocationManager_getCacheFileNameTest
 {
-	@Override
+	@BeforeEach
 	public void setUp()
 	{
     	CryptoExtensions.registerJCEProviders();
@@ -17,13 +24,14 @@ public class CRLRevocationManager_getCacheFileNameTest extends TestCase
 		CRLRevocationManager.crlCacheLocation = null;
 	}
 	
-	@Override
+	@AfterEach
 	public void tearDown()
 	{
 		CRLRevocationManager.getInstance().flush();
 		CRLRevocationManager.initCRLCacheLocation();
 	}
 	
+	@Test
 	public void testGetCacheName_uniqueNames() throws Exception
 	{
 		CRLRevocationManager.initCRLCacheLocation();
@@ -38,6 +46,7 @@ public class CRLRevocationManager_getCacheFileNameTest extends TestCase
 		assertFalse(uriName1.equals(uriName2));
 	}
 	
+	@Test
 	public void testGetCacheName_sameNames() throws Exception
 	{
 		CRLRevocationManager.initCRLCacheLocation();
@@ -52,6 +61,7 @@ public class CRLRevocationManager_getCacheFileNameTest extends TestCase
 		assertEquals(uriName1, uriName2);
 	}
 	
+	@Test
 	public void testGetCacheName_nullCacheLocation_assertEmptyName() throws Exception
 	{
 		String uriName1 = CRLRevocationManager.getCacheFileName("http://localhost:8080/master.crl");

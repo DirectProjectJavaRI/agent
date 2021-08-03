@@ -129,28 +129,6 @@ public class SMIMEStandard extends MailStandard
     {
         return (SMIMEStandard.isContentDetachedSignature(getContentType(entity)) && SMIMEStandard.verifyEncoding(entity));
     } 
-    
-    private static ContentType getContentType(MimeEntity entity)
-    {
-    	try
-    	{
-    		return new ContentType(entity.getContentType());
-    	}
-    	catch (MessagingException e) {/* no-op */}
-    	
-    	return null;
-    }    
-    
-    private static ContentType getContentType(MimeMessage entity)
-    {
-    	try
-    	{
-    		return new ContentType(entity.getContentType());
-    	}
-    	catch (MessagingException e) {/* no-op */}
-    	
-    	return null;
-    }
    
     static boolean verifyEncoding(MimeEntity entity)
     {

@@ -1,14 +1,19 @@
 package org.nhindirect.stagent;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import java.io.ByteArrayOutputStream;
 
 import javax.mail.Message.RecipientType;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import junit.framework.TestCase;
-
-import org.nhindirect.stagent.DefaultNHINDAgent;
 import org.nhindirect.stagent.cert.impl.KeyStoreCertificateStore;
 import org.nhindirect.stagent.trust.DefaultTrustAnchorResolver;
 import org.nhindirect.stagent.utils.BaseTestPlan;
@@ -19,8 +24,8 @@ import org.nhindirect.stagent.utils.SecondaryMimeMessage;
  * 
  * @author junit_generate
  */
-public class DefaultNHINDAgent_ProcessIncoming_AsRawString_Test extends
-		TestCase {
+public class DefaultNHINDAgent_ProcessIncoming_AsRawString_Test
+{
 	abstract class TestPlan extends BaseTestPlan {
 		@Override
 		protected void performInner() throws Exception {
@@ -67,6 +72,7 @@ public class DefaultNHINDAgent_ProcessIncoming_AsRawString_Test extends
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testMessageTxtIsNull_ThrowsException() throws Exception {
 		new TestPlan() {
 			protected String createMessageText() throws Exception {
@@ -76,7 +82,7 @@ public class DefaultNHINDAgent_ProcessIncoming_AsRawString_Test extends
 
 			protected void doAssertions(IncomingMessage processIncoming)
 					throws Exception {
-				fail();
+				fail("");
 			}
 
 			@Override
@@ -93,6 +99,7 @@ public class DefaultNHINDAgent_ProcessIncoming_AsRawString_Test extends
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testMessageTxtIsBlank_ThrowsException() throws Exception {
 		new TestPlan() {
 			protected String createMessageText() throws Exception {
@@ -102,7 +109,7 @@ public class DefaultNHINDAgent_ProcessIncoming_AsRawString_Test extends
 
 			protected void doAssertions(IncomingMessage processIncoming)
 					throws Exception {
-				fail();
+				fail("");
 			}
 
 			@Override
@@ -119,6 +126,7 @@ public class DefaultNHINDAgent_ProcessIncoming_AsRawString_Test extends
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testMessageTxtIsValid_ProcessIncomingMethodIsCalled()
 			throws Exception {
 		new TestPlan() {
@@ -126,7 +134,7 @@ public class DefaultNHINDAgent_ProcessIncoming_AsRawString_Test extends
 				MimeMessage mimeMsg = new SecondaryMimeMessage();
 				mimeMsg.setText("");
 				mimeMsg.setRecipients(RecipientType.TO, "some");
-				mimeMsg.setSender(new InternetAddress());
+				mimeMsg.setSender(new InternetAddress("some"));
 				ByteArrayOutputStream bos = new ByteArrayOutputStream();
 				mimeMsg.writeTo(bos);
 				theCreateMessageText = new String(bos.toByteArray());

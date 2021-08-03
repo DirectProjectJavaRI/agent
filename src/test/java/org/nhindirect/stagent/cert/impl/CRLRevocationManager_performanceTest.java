@@ -1,21 +1,16 @@
 package org.nhindirect.stagent.cert.impl;
 
-import junit.framework.TestCase;
-
+import org.junit.jupiter.api.Test;
 /*
  * This class may not fully run as part of a general build as it is intended to be a performance checker and requires
  * heap memory to be increased (-Xmx1024m).  There are no assertions handled, so exceptions in the revocation manager
  * should not affect general builds.
  */
-public class CRLRevocationManager_performanceTest extends TestCase
+public class CRLRevocationManager_performanceTest
 {
-	
-	public void testDummy()
-	{
-		
-	}
 
 	/*
+	@Test
 	public void testGetCRL_performanceTest() throws Exception
 	{
 		X509Certificate cert = TestUtils.loadCertificate("uhin.cer");

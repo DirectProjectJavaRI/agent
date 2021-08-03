@@ -1,10 +1,15 @@
 package org.nhindirect.stagent;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import javax.mail.Message.RecipientType;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import junit.framework.TestCase;
-import org.nhindirect.stagent.DefaultNHINDAgent;
 import org.nhindirect.stagent.cert.impl.KeyStoreCertificateStore;
 import org.nhindirect.stagent.mail.MimeError;
 import org.nhindirect.stagent.mail.MimeException;
@@ -16,7 +21,8 @@ import org.nhindirect.stagent.utils.SecondaryMimeMessage;
  * Generated test case.
  * @author junit_generate
  */
-public class DefaultNHINDAgent_ProcessIncoming_AsMimeMessage_Test extends TestCase {
+public class DefaultNHINDAgent_ProcessIncoming_AsMimeMessage_Test 
+{
 	abstract class TestPlan extends BaseTestPlan {
 		@Override
 		protected void performInner() throws Exception {
@@ -51,7 +57,7 @@ public class DefaultNHINDAgent_ProcessIncoming_AsMimeMessage_Test extends TestCa
 			theCreateMsg = new SecondaryMimeMessage();
 			theCreateMsg.setText("");
 			theCreateMsg.setRecipients(RecipientType.TO, "some");
-			theCreateMsg.setSender(new InternetAddress());
+			theCreateMsg.setSender(new InternetAddress("some@some.com"));
 			return theCreateMsg;
 		}
 
@@ -64,6 +70,7 @@ public class DefaultNHINDAgent_ProcessIncoming_AsMimeMessage_Test extends TestCa
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testNullMessageParam_ThrowsException() throws Exception {
 		new TestPlan() {
 			protected MimeMessage createMsg() throws Exception {
@@ -73,7 +80,7 @@ public class DefaultNHINDAgent_ProcessIncoming_AsMimeMessage_Test extends TestCa
 			
 			protected void doAssertions(IncomingMessage processIncoming)
 				throws Exception {
-				fail();
+				fail("");
 			}
 
 			@Override
@@ -91,6 +98,7 @@ public class DefaultNHINDAgent_ProcessIncoming_AsMimeMessage_Test extends TestCa
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testNonNullMessageParam_ProcessIncomingIsCalled() throws Exception {
 		new TestPlan() {
 			
@@ -108,6 +116,7 @@ public class DefaultNHINDAgent_ProcessIncoming_AsMimeMessage_Test extends TestCa
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testInvalidMessage_ThrowsMimeException() throws Exception {
 		new TestPlan() {
 			
@@ -120,7 +129,7 @@ public class DefaultNHINDAgent_ProcessIncoming_AsMimeMessage_Test extends TestCa
 			
 			protected void doAssertions(IncomingMessage processIncoming)
 				throws Exception {
-				fail();
+				fail("");
 			}
 
 			@Override

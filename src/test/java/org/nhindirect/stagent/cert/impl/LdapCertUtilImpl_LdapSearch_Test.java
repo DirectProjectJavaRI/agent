@@ -1,5 +1,13 @@
 package org.nhindirect.stagent.cert.impl;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -24,19 +32,16 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
-import org.nhindirect.stagent.cert.impl.LdapCertUtilImpl;
-import org.nhindirect.stagent.cert.impl.LdapEnvironment;
 import org.nhindirect.stagent.utils.BaseTestPlan;
 
 /**
  * Generated test case.
  * @author junit_generate
  */
-public class LdapCertUtilImpl_LdapSearch_Test extends TestCase {
+public class LdapCertUtilImpl_LdapSearch_Test
+{
 	abstract class TestPlan extends BaseTestPlan {
 		@Override
 		protected void performInner() throws Exception {
@@ -389,6 +394,7 @@ public class LdapCertUtilImpl_LdapSearch_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testNoValuesForCertAttribute_ReturnsEmptyListofCertificates() throws Exception {
 		new TestPlan() {
 			
@@ -414,6 +420,7 @@ public class LdapCertUtilImpl_LdapSearch_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testSearchResultIsNull_ReturnsEmptyListofCertificates() throws Exception {
 		new TestPlan() {
 			protected NamingEnumeration<SearchResult> search_Internal(String name,String filter,SearchControls cons) throws NamingException {
@@ -432,6 +439,7 @@ public class LdapCertUtilImpl_LdapSearch_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCertificateFormatIsPKCS12_processPKCS12FileFormatAndAddToCertificatesIsCalled() throws Exception {
 		new TestPlan() {
 			protected String createCertificateFormat() {
@@ -450,6 +458,7 @@ public class LdapCertUtilImpl_LdapSearch_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testValueRetrievedFromLDAPIsDecoded() throws Exception {
 		new TestPlan() {
 			
@@ -476,7 +485,7 @@ public class LdapCertUtilImpl_LdapSearch_Test extends TestCase {
 			    inputStream.read(bytes, 0, size);
 			    String input = new String(bytes);
 			    assertEquals(value, input);
-			    assertNotSame(theNextElement, input);
+			    Assertions.assertNotSame(theNextElement, input);
 			}
 			
 			protected void doAssertions(Collection<X509Certificate> ldapSearch)
@@ -490,6 +499,7 @@ public class LdapCertUtilImpl_LdapSearch_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCertificateFormatIsX509_CertificateIsAddedCorrectly() throws Exception {
 		new TestPlan() {
 			
@@ -509,7 +519,7 @@ public class LdapCertUtilImpl_LdapSearch_Test extends TestCase {
 						
 				} catch (Exception e) {
 					e.printStackTrace();
-					fail();
+					fail("");
 					IOUtils.closeQuietly(f);
 				}	
 			  return theNextElement;

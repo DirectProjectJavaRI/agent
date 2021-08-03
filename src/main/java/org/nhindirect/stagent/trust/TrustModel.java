@@ -24,14 +24,13 @@ package org.nhindirect.stagent.trust;
 
 
 import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
 import javax.mail.internet.InternetAddress;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.nhindirect.common.cert.SignerCertPair;
 import org.nhindirect.common.crypto.CryptoExtensions;
 import org.nhindirect.policy.PolicyExpression;
@@ -51,6 +50,8 @@ import org.nhindirect.stagent.cert.RevocationManager;
 import org.nhindirect.stagent.cert.impl.CRLRevocationManager;
 import org.nhindirect.stagent.policy.PolicyResolver;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Default implementation of the trust model.
  * <p>
@@ -63,14 +64,12 @@ import org.nhindirect.stagent.policy.PolicyResolver;
  * @author Umesh Madan
  *
  */
+@Slf4j
 public class TrustModel 
 {
     public static final TrustModel Default = new TrustModel();
     
     private final TrustChainValidator certChainValidator;
-
-    @SuppressWarnings("deprecation")
-	private static final Log LOGGER = LogFactory.getFactory().getInstance(TrustModel.class);
     
 	private PolicyResolver trustPolicyResolver;
     
@@ -196,12 +195,12 @@ public class TrustModel
 	        	}
 	        	else
 	        	{
-	        		LOGGER.warn("enforce(IncomingMessage message) - could not find a trusted certificate for recipient " + recipient.getAddress());
+	        		log.warn("enforce(IncomingMessage message) - could not find a trusted certificate for recipient {}", recipient.getAddress());
 	        	}
         	}
         	else
         	{
-        		LOGGER.warn("enforce(IncomingMessage message) - recipient " + recipient.getAddress() + " does not have a bound certificate");
+        		log.warn("enforce(IncomingMessage message) - recipient {} does not have a bound certificate", recipient.getAddress());
         	}
         }
     }
@@ -225,13 +224,13 @@ public class TrustModel
             
             Collection<X509Certificate> certs = recipient.getCertificates();
             if (certs == null || certs.size() == 0)
-            	LOGGER.warn("enforce(OutgoingMessage message) - recipient " + recipient.getAddress() + " has no bound certificates");
+            	log.warn("enforce(OutgoingMessage message) - recipient {} has no bound certificates", recipient.getAddress());
 
         	recipient.setCertificates(findTrustedCerts(certs, sender.getTrustAnchors()));
         	if (recipient.hasCertificates())
         		recipient.setStatus(TrustEnforcementStatus.Success);
         	else
-        		LOGGER.warn("enforce(OutgoingMessage message) - could not trust any certificates for recipient " + recipient.getAddress());
+        		log.warn("enforce(OutgoingMessage message) - could not trust any certificates for recipient {}", recipient.getAddress());
 
         }
     }
@@ -308,6 +307,10 @@ public class TrustModel
     		if (revocationManager.isRevoked(signature.getSignerCert()))
     			continue;
     		
+    		// Also need to ensure that the certificate key is allowed.
+    		if (!this.isAllowedCertKey(signature.getSignerCert()))
+    			continue;
+    		
         	boolean certTrustedAndInPolicy = certChainValidator.isTrusted(signature.getSignerCert(), anchors) && signature.checkSignature();
         	if (certTrustedAndInPolicy && recipient != null)
         	{
@@ -370,5 +373,23 @@ public class TrustModel
     	}
     	
     	return isCompliant;
+    }
+    
+    /**
+     * Determines if a certificate has a key of acceptable size/strength.
+     * RSA keys MUST be at 2048 bits in length.
+     * @param cert The certificate to validate.
+     * @return True if the certificate has a valid size/strength.
+     */
+    protected boolean isAllowedCertKey(X509Certificate cert)
+    {
+    	// Check if it's an RSA key
+    	if (cert.getPublicKey().getAlgorithm().contains("RSA"))
+    	{
+    		final RSAPublicKey rsaPk = (RSAPublicKey) cert.getPublicKey();
+    		return rsaPk.getModulus().bitLength() >= 2048;
+    	}
+    	
+    	return true;
     }
 }

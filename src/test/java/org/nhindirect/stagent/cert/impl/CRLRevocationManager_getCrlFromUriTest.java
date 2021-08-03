@@ -1,7 +1,17 @@
 package org.nhindirect.stagent.cert.impl;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.lang.ref.SoftReference;
@@ -20,11 +30,10 @@ import org.bouncycastle.x509.X509V2CRLGenerator;
 import org.nhindirect.common.crypto.CryptoExtensions;
 import org.nhindirect.stagent.utils.TestUtils;
 
-import junit.framework.TestCase;
 
-public class CRLRevocationManager_getCrlFromUriTest extends TestCase
+public class CRLRevocationManager_getCrlFromUriTest
 {
-	@Override
+	@BeforeEach
 	public void setUp()
 	{
     	CryptoExtensions.registerJCEProviders();
@@ -34,25 +43,28 @@ public class CRLRevocationManager_getCrlFromUriTest extends TestCase
 		CRLRevocationManager.crlCacheLocation = null;
 	}
 	
-	@Override
+	@AfterEach
 	public void tearDown()
 	{
 		CRLRevocationManager.getInstance().flush();
 		CRLRevocationManager.initCRLCacheLocation();
 	}
 	
+	@Test
 	public void testGetCrlFromUri_emptyURI_assertNull()
 	{
 		CRL crl = CRLRevocationManager.getInstance().getCrlFromUri("");
 		assertNull(crl);
 	}
 	
+	@Test
 	public void testGetCrlFromUri_nullURI_assertNull()
 	{
 		CRL crl = CRLRevocationManager.getInstance().getCrlFromUri(null);
 		assertNull(crl);
 	}
 	
+	@Test
 	public void testGetCrlFromUri_existsInCache_assertCRLFound()
 	{
 		String uri = "http://localhost:8080/master.crl";
@@ -70,6 +82,7 @@ public class CRLRevocationManager_getCrlFromUriTest extends TestCase
 		
 	}
 	
+	@Test
 	public void testGetCrlFromUri_existsInCache_crlExpire_assertCRLNotFound()
 	{
 		String uri = "http://localhost:8080/master.crl";
@@ -89,6 +102,7 @@ public class CRLRevocationManager_getCrlFromUriTest extends TestCase
 		
 	}
 	
+	@Test
 	@SuppressWarnings("unchecked")
 	public void testGetCrlFromUri_existsInCache_softRefRemoved_assertCRLNotFound()
 	{
@@ -108,6 +122,7 @@ public class CRLRevocationManager_getCrlFromUriTest extends TestCase
 		
 	}
 	
+	@Test
 	public void testGetCrlFromUri_notInCache_assertCRLNotFound()
 	{
 		String uri = "http://localhost:8080/master.crl";
@@ -118,6 +133,7 @@ public class CRLRevocationManager_getCrlFromUriTest extends TestCase
 		
 	}
 
+	@Test
 	public void testGetCrlFromUri_notInCache_noCacheFile_assertCRLNotFound()
 	{
 		CRLRevocationManager.initCRLCacheLocation();
@@ -129,6 +145,7 @@ public class CRLRevocationManager_getCrlFromUriTest extends TestCase
 		
 	}
 	
+	@Test
 	public void testGetCrlFromUri_notInCache_loadFromCacheFile_assertCRLFound() throws Exception
 	{
 		CRLRevocationManager.initCRLCacheLocation();
@@ -155,6 +172,7 @@ public class CRLRevocationManager_getCrlFromUriTest extends TestCase
 		assertEquals(crl, retCrl);
 	}
 	
+	@Test
 	public void testGetCrlFromUri_notInCache_loadFromCacheFile_expiredCRL_assertCRLFound() throws Exception
 	{
 		CRLRevocationManager.initCRLCacheLocation();
@@ -175,6 +193,7 @@ public class CRLRevocationManager_getCrlFromUriTest extends TestCase
 		assertFalse(writeFile.exists());
 	}
 	
+	@Test
 	public void testGetCrlFromUri_notInCache_loadFromCacheFile_corruptFile_assertCRLNotFound() throws Exception
 	{
 		CRLRevocationManager.initCRLCacheLocation();
@@ -193,6 +212,7 @@ public class CRLRevocationManager_getCrlFromUriTest extends TestCase
 		
 	}
 	
+	@Test
 	public void testGetCrlFromUri_fromURL_assertCRLFound() throws Exception
 	{
 		CRLRevocationManager.initCRLCacheLocation();
@@ -233,6 +253,7 @@ public class CRLRevocationManager_getCrlFromUriTest extends TestCase
 		assertTrue(cacheFile.exists());
 	}
 	
+	@Test
 	public void testGetCrlFromUri_fromURL_corruptEncoding_assertCRLNotFound() throws Exception
 	{
 		CRLRevocationManager.initCRLCacheLocation();
@@ -260,6 +281,7 @@ public class CRLRevocationManager_getCrlFromUriTest extends TestCase
 		assertFalse(cacheFile.exists());
 	}
 	
+	@Test
 	public void testGetCrlFromUri_fromURL_uriNotAvailable_assertCRLNotFound() throws Exception
 	{
 		CRLRevocationManager.initCRLCacheLocation();

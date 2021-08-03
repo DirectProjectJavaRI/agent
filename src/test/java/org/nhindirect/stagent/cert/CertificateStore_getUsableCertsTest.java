@@ -1,5 +1,10 @@
 package org.nhindirect.stagent.cert;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,12 +15,10 @@ import org.nhindirect.stagent.AgentError;
 import org.nhindirect.stagent.NHINDException;
 import org.nhindirect.stagent.utils.TestUtils;
 
-import junit.framework.TestCase;
-
-public class CertificateStore_getUsableCertsTest extends TestCase
+public class CertificateStore_getUsableCertsTest
 {
 	
-	
+	@Test
 	public void testGetUsableCerts_inValidUserCert_noCertsRetrieved() throws Exception
 	{
 		final X509CertificateEx userCert = TestUtils.getInternalCert("user1");
@@ -54,6 +57,7 @@ public class CertificateStore_getUsableCertsTest extends TestCase
 		assertTrue(exceptionOccured);
 	}
 
+	@Test
 	public void testGetUsableCerts_allCertsInvalid_assertNoCerts() throws Exception
 	{
 		final X509CertificateEx userCert = TestUtils.getInternalCert("user1");
@@ -90,6 +94,7 @@ public class CertificateStore_getUsableCertsTest extends TestCase
 		assertTrue(exceptionOccured);			
 	}
 	
+	@Test
 	public void testGetUsableCerts_getUserCert() throws Exception
 	{
 		final X509CertificateEx userCert = TestUtils.getInternalCert("user1");

@@ -1,18 +1,22 @@
 package org.nhindirect.stagent.trust;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.mail.internet.MimeMessage;
 
-import junit.framework.TestCase;
-
 import org.nhindirect.stagent.NHINDAddress;
 import org.nhindirect.stagent.NHINDAddressCollection;
 import org.nhindirect.stagent.OutgoingMessage;
 import org.nhindirect.stagent.mail.Message;
-import org.nhindirect.stagent.trust.TrustModel;
 import org.nhindirect.stagent.utils.BaseTestPlan;
 import org.nhindirect.stagent.utils.SecondaryMimeMessage;
 
@@ -20,7 +24,8 @@ import org.nhindirect.stagent.utils.SecondaryMimeMessage;
  * Generated test case.
  * @author junit_generate
  */
-public class TrustModel_EnforceOutgoingMessage_Test extends TestCase {
+public class TrustModel_EnforceOutgoingMessage_Test 
+{
 	abstract class TestPlan extends BaseTestPlan {
 		@Override
 		protected void performInner() throws Exception {
@@ -135,6 +140,7 @@ public class TrustModel_EnforceOutgoingMessage_Test extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testOutgoingMessageIsNull_ThrowsIllegalArgumentException() throws Exception {
 		new TestPlan() {
 			protected OutgoingMessage createMessage() throws Exception {
@@ -143,7 +149,7 @@ public class TrustModel_EnforceOutgoingMessage_Test extends TestCase {
 			}
 
 			protected void doAssertions() throws Exception {
-				fail();
+				fail("");
 			}
 
 			@Override

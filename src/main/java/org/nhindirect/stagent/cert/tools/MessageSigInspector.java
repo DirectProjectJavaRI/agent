@@ -29,6 +29,7 @@ import org.bouncycastle.mail.smime.CMSProcessableBodyPart;
 import org.bouncycastle.util.Store;
 import org.nhindirect.common.crypto.CryptoExtensions;
 import org.nhindirect.policy.PolicyProcessException;
+import org.nhindirect.stagent.cert.impl.CRLRevocationManager;
 
 public class MessageSigInspector 
 {
@@ -124,7 +125,9 @@ public class MessageSigInspector
 	            	
 	            	X509Certificate cert = (X509Certificate)certFactory.generateCertificate(new ByteArrayInputStream(certCollection.iterator().next().getEncoded()));
 	            	System.out.println("\r\nInfo for certificate " + cnt++);
-	            	System.out.println("\tSubject " + cert.getSubjectDN());
+	            	System.out.println("\tSubject: " + cert.getSubjectDN());
+	            	System.out.println("\tSerial Number: " + cert.getSerialNumber().toString(16));
+	            	
 	            	
 	            	FileUtils.writeByteArrayToFile(new File("SigCert.der"), cert.getEncoded());
 	            	
@@ -145,6 +148,9 @@ public class MessageSigInspector
 	            	}
 	            	else 
 	            		System.out.println("\tKey Usage: NONE");
+	            	
+	            	if (CRLRevocationManager.getInstance().isRevoked(cert))
+	            		System.out.println("\tHas been marked as revoked");
 	            	
 	            	//verify and get the digests
 		        	final Attribute digAttr = signer.getSignedAttributes().get(CMSAttributes.messageDigest);

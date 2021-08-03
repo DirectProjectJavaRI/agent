@@ -32,7 +32,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPublicKey;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.ContentType;
@@ -45,7 +47,6 @@ import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1OctetString;
-import org.bouncycastle.asn1.DEREncodableVector;
 import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.cms.AttributeTable;
 import org.bouncycastle.asn1.cms.CMSAttributes;
@@ -85,12 +86,12 @@ import org.nhindirect.stagent.mail.MimeError;
 import org.nhindirect.stagent.mail.MimeException;
 import org.nhindirect.stagent.mail.MimeStandard;
 import org.nhindirect.stagent.parser.EntitySerializer;
-import org.apache.commons.codec.Charsets;
+
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Executes the cryptography operations.  This include encryption, decryption, and signature generation. 
@@ -98,12 +99,9 @@ import org.apache.commons.logging.LogFactory;
  * @author Umesh Madan
  *
  */
+@Slf4j
 public class SMIMECryptographerImpl implements Cryptographer
-{
-
-	@SuppressWarnings("deprecation")
-	private static final Log LOGGER = LogFactory.getFactory().getInstance(SMIMECryptographerImpl.class);
-	
+{	
 	// Using the BC PKCSObjectIdentifiers type is not compatible across versions of the BC library
 	public final static ASN1ObjectIdentifier x509CertificateObjectsIdent = new ASN1ObjectIdentifier("1.2.840.113549.1.9.22.1");
 	
@@ -128,6 +126,9 @@ public class SMIMECryptographerImpl implements Cryptographer
         param = OptionsManager.getInstance().getParameter(OptionsParameter.CRYPTOGRAHPER_SMIME_DIGEST_ALGORITHM);
         this.m_digestAlgorithm = (param == null) ? DigestAlgorithm.SHA256WITHRSA : DigestAlgorithm.fromString(param.getParamValue(), DigestAlgorithm.SHA256WITHRSA);
         
+        if (!isAllowedDigestAlgorithm(m_digestAlgorithm.getOID()))
+        	throw new IllegalArgumentException("The digest algorithm " + m_digestAlgorithm.getAlgName() + " is not allowed");
+        
         param = OptionsManager.getInstance().getParameter(OptionsParameter.ENFORCE_STRONG_DIGESTS);
         this.enforceStrongDigests = OptionsParameter.getParamValueAsBoolean(param, true);
         
@@ -149,6 +150,9 @@ public class SMIMECryptographerImpl implements Cryptographer
         
         OptionsParameter param = OptionsManager.getInstance().getParameter(OptionsParameter.ENFORCE_STRONG_DIGESTS);
         this.enforceStrongDigests = OptionsParameter.getParamValueAsBoolean(param, true);
+        
+        if (!isAllowedDigestAlgorithm(m_digestAlgorithm.getOID()))
+        	throw new IllegalArgumentException("The digest algorith " + m_digestAlgorithm.getAlgName() + " is not allowed");
         
         param = OptionsManager.getInstance().getParameter(OptionsParameter.ENFORCE_STRONG_ENCRYPTION);
         this.enforceStrongEncryption = OptionsParameter.getParamValueAsBoolean(param, true);
@@ -189,6 +193,9 @@ public class SMIMECryptographerImpl implements Cryptographer
      */   
     public void setDigestAlgorithm(DigestAlgorithm value)
     {
+        if (!isAllowedDigestAlgorithm(value.getOID()))
+        	throw new IllegalArgumentException("The digest algorithm " + m_digestAlgorithm.getAlgName() + " is not allowed");
+    	
         this.m_digestAlgorithm = value;
     }
     
@@ -351,7 +358,7 @@ public class SMIMECryptographerImpl implements Cryptographer
         	ByteArrayInputStream inStream = new ByteArrayInputStream(EntitySerializer.Default.serializeToBytes(encryptedPart));
         	encryptedEntity = new MimeEntity(inStream);
         	
-            if (LOGGER.isDebugEnabled())
+            if (log.isDebugEnabled())
             {	
             	writePostEncypt(encBytes);
             }        
@@ -379,12 +386,12 @@ public class SMIMECryptographerImpl implements Cryptographer
             throw new IllegalArgumentException();
         }
         
-        if (LOGGER.isDebugEnabled())
+        if (log.isDebugEnabled())
         {	
         	writePreEncypt(EntitySerializer.Default.serializeToBytes(bodyPart));
         }          
         
-        SMIMEEnvelopedGenerator gen = new SMIMEEnvelopedGenerator();
+        final SMIMEEnvelopedGenerator gen = new SMIMEEnvelopedGenerator();
 
         
         MimeBodyPart retVal = null;
@@ -392,8 +399,12 @@ public class SMIMECryptographerImpl implements Cryptographer
         try
         {
             for(X509Certificate cert : encryptingCertificates)
-            	gen.addRecipientInfoGenerator(new JceKeyTransRecipientInfoGenerator(cert).setProvider(CryptoExtensions.getJCEProviderName()));
-        	
+            {
+            	// ensure the certificates key is allowed
+            	if (isAllowedCertKey(cert))
+            		gen.addRecipientInfoGenerator(new JceKeyTransRecipientInfoGenerator(cert).setProvider(CryptoExtensions.getJCEProviderName()));
+            }
+            
         	final ASN1ObjectIdentifier encryAlgOID = new ASN1ObjectIdentifier(this.m_encryptionAlgorithm.getOID());
         	final OutputEncryptor encryptor = new JceCMSContentEncryptorBuilder(encryAlgOID).
         			setProvider(CryptoExtensions.getJCEProviderNameForTypeAndAlgorithm("Cipher", this.m_encryptionAlgorithm.getOID())).build();
@@ -477,7 +488,7 @@ public class SMIMECryptographerImpl implements Cryptographer
         MimeEntity retEntity = null;
         try
         {        	                	
-            if (LOGGER.isDebugEnabled())
+            if (log.isDebugEnabled())
             {	
             	final byte[] encryptedContent = encryptedEntity.getContentAsBytes();
             	writePreDecrypt(encryptedContent);
@@ -491,6 +502,10 @@ public class SMIMECryptographerImpl implements Cryptographer
             
             for (X509CertificateEx decryptCert : decryptingCertificates)
             {   
+            	// ensure they key strength/size is allowed
+            	if (!this.isAllowedCertKey(decryptCert))
+            		continue;
+            	
 	            final RecipientId recId = generateRecipientSelector(decryptCert);
 		
 		        final RecipientInformationStore recipients = m.getRecipientInfos();
@@ -503,7 +518,7 @@ public class SMIMECryptographerImpl implements Cryptographer
 		        recip.setContentProvider(CryptoExtensions.getJCEProviderName());
 		        
 		        final byte[] decryptedPayload = recipient.getContent(recip);
-	            if (LOGGER.isDebugEnabled())
+	            if (log.isDebugEnabled())
 	            {	
 	            	writePostDecrypt(decryptedPayload);
 	            }   
@@ -544,11 +559,11 @@ public class SMIMECryptographerImpl implements Cryptographer
     	}
     	catch (Throwable e)
     	{
-    		if (LOGGER.isDebugEnabled())
+    		if (log.isDebugEnabled())
     		{
     			StringBuilder builder = new StringBuilder("bcmail-jdk15-146 org.bouncycastle.cms.jcajce.JceKeyTransRecipientId class not found.");
     			builder.append("\r\n\tAttempt to fall back to bcmail-jdk15-140 org.bouncycastle.cms.RecipientId");
-    			LOGGER.debug(builder.toString());
+    			log.debug(builder.toString());
     		}
     	}
 
@@ -639,7 +654,7 @@ public class SMIMECryptographerImpl implements Cryptographer
 	    	CMSSignedDataGenerator gen = new CMSSignedDataGenerator();
 	    	for (X509Certificate signer : signingCertificates)
 	    	{
-	    		if (signer instanceof X509CertificateEx)
+	    		if (signer instanceof X509CertificateEx && isAllowedCertKey(signer))
 	    		{	    			
 	    			ContentSigner digestSigner = new JcaContentSignerBuilder(this.m_digestAlgorithm.getAlgName())
 	    					.setProvider(CryptoExtensions.getJCESensitiveProviderName()).build(((X509CertificateEx) signer).getPrivateKey());
@@ -662,7 +677,7 @@ public class SMIMECryptographerImpl implements Cryptographer
 	        final String  header = "signed; protocol=\"application/pkcs7-signature\"; micalg=" + 
 	        		CryptoAlgorithmsHelper.toDigestAlgorithmMicalg(this.m_digestAlgorithm);           
 	        
-	        final String encodedSig = StringUtils.toEncodedString(Base64.encodeBase64(signedData.getEncoded(), true), Charsets.UTF_8);
+	        final String encodedSig = StringUtils.toEncodedString(Base64.encodeBase64(signedData.getEncoded(), true), StandardCharsets.UTF_8);
 	        
 	        retVal = new MimeMultipart(header.toString());
 	        
@@ -701,23 +716,6 @@ public class SMIMECryptographerImpl implements Cryptographer
     	
     	AttributeTable retVal = null;
     	
-    	try
-    	{
-    		/*
-    		 * 140 version first
-    		 */
-    		Constructor<AttributeTable> constr = AttributeTable.class.getConstructor(DEREncodableVector.class);
-    		retVal = constr.newInstance(signedAttrs);
-    	}
-    	catch (Throwable t)
-    	{
-    		if (LOGGER.isDebugEnabled())
-    		{
-    			StringBuilder builder = new StringBuilder("bcmail-jdk15-140 AttributeTable(DERObjectIdentifier) constructor could not be loaded..");
-    			builder.append("\r\n\tAttempt to use to bcmail-jdk15-146 DERObjectIdentifier(ASN1EncodableVector)");
-    			LOGGER.debug(builder.toString());
-    		}
-    	}
     	
     	if (retVal == null)
     	{
@@ -731,7 +729,7 @@ public class SMIMECryptographerImpl implements Cryptographer
         	}
         	catch (Throwable t)
         	{
-    			LOGGER.error("Attempt to use to bcmail-jdk15-146 DERObjectIdentifier(ASN1EncodableVector constructor failed.", t);
+    			log.error("Attempt to use to bcmail-jdk15-146 DERObjectIdentifier(ASN1EncodableVector constructor failed.", t);
         	}
     	}
     	
@@ -752,6 +750,9 @@ public class SMIMECryptographerImpl implements Cryptographer
      */
     public void checkSignature(SignedEntity signedEntity, X509Certificate signerCertificate, Collection<X509Certificate> anchors) throws SignatureValidationException
     {
+    	if (!isAllowedCertKey(signerCertificate))
+    		throw new SignatureValidationException("Signing certificate key size/strength is not allowed");
+    	
     	CMSSignedData signatureEnvelope = deserializeSignatureEnvelope(signedEntity);
     	    	
         SignerInformation logSigInfo = null;
@@ -764,6 +765,7 @@ public class SMIMECryptographerImpl implements Cryptographer
     			logSigInfo = sigInfo;
     			// make sure the sender did not send the message with an explicitly disallowed digest algorithm
     			// such as MD5
+    			
     			if (!isAllowedDigestAlgorithm(sigInfo.getDigestAlgOID()))
     				throw new SignatureValidationException("Digest algorithm " + sigInfo.getDigestAlgOID() + " is not allowed.");
     				
@@ -793,19 +795,22 @@ public class SMIMECryptographerImpl implements Cryptographer
  	
     /**
      * Determines if a specific digest algorithm is allowed by policy and in conformance with the applicability statement.
-     * This check can be turned off with the ENFORCE_STRONG_DIGESTS options parameter.
+     * This check can be turned off with the ENFORCE_STRONG_DIGESTS options parameter.  
+     * As of ANSI/DS 2019-01-100-2021 approved on May 13, 2021, certain digests are explicitly disallowed.
+     * The ENFORCE_STRONG_DIGESTS options parameter is only relevant of optional or digests listed as SHOULD NOT
+     * be used.  This parameter DOES NOT apply to explicitly disallowed algorithms.
      * @return
      */
     protected boolean isAllowedDigestAlgorithm(String digestOID)
     {
-    	if (!this.isStrongDigestEnforced())
-    		return true;
+
     	/*
-    	 * Dis-allow MD5 explicitly
+    	 * Dis-allow MD5 explicitly and SHA1
     	 * may include other algorithms in further implementations
     	 */
     	return (digestOID.equalsIgnoreCase(DigestAlgorithm.MD5.getOID()) || digestOID.equalsIgnoreCase(DigestAlgorithm.SHA1.getOID()) ||
     			digestOID.equalsIgnoreCase(DigestAlgorithm.SHA1WITHRSA.getOID())) ? false: true;
+    	
 
     }
     
@@ -826,6 +831,24 @@ public class SMIMECryptographerImpl implements Cryptographer
     	return encryptionOID.equalsIgnoreCase(EncryptionAlgorithm.DES_EDE3_CBC.getOID()) ? false : true;
     }
     
+    /**
+     * Determines if a certificate has a key of acceptable size/strength.
+     * RSA keys MUST be at 2048 bits in length.
+     * @param cert The certificate to validate.
+     * @return True if the certificate has a valid size/strength.
+     */
+    protected boolean isAllowedCertKey(X509Certificate cert)
+    {
+    	// Check if it's an RSA key
+    	if (cert.getPublicKey().getAlgorithm().contains("RSA"))
+    	{
+    		final RSAPublicKey rsaPk = (RSAPublicKey) cert.getPublicKey();
+    		return rsaPk.getModulus().bitLength() >= 2048;
+    	}
+    	
+    	return true;
+    }
+    
 	protected void logDigests(SignerInformation sigInfo)
     {
     	// it is assumed that the verify function has already been called, other wise the getContentDigest function
@@ -840,12 +863,12 @@ public class SMIMECryptographerImpl implements Cryptographer
 		        final byte[] signedDigest = ((ASN1OctetString)hashObj).getOctets();
 		        final String signedDigestHex = org.apache.commons.codec.binary.Hex.encodeHexString(signedDigest);
 		        
-		        LOGGER.info("Signed Message Digest: " + signedDigestHex);
+		        log.info("Signed Message Digest: {}",  signedDigestHex);
 		           
 		        // should have the computed digest now
 		        final byte[] digest = sigInfo.getContentDigest();
 		        final String digestHex = org.apache.commons.codec.binary.Hex.encodeHexString(digest);
-		        LOGGER.info("Computed Message Digest: " + digestHex);
+		        log.info("Computed Message Digest: {}", digestHex);
     		}
     		catch (Throwable t)
     		{  /* no-op.... logging digests is a quiet operation */}

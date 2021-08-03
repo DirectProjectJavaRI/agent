@@ -1,10 +1,16 @@
 package org.nhindirect.stagent.trust;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
+
+import org.junit.jupiter.api.Test;
+
 
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
@@ -13,15 +19,15 @@ import java.util.Collection;
 import org.nhindirect.stagent.NHINDException;
 import org.nhindirect.stagent.utils.TestUtils;
 
-import junit.framework.TestCase;
 
-public class TrustChainValidator_getIntermediateCertsByAIATest extends TestCase
+public class TrustChainValidator_getIntermediateCertsByAIATest
 {
 	static class TrustChainValidatorWrapper extends TrustChainValidator
 	{
 		public String retrievedURL;
 	}
 	
+	@Test
 	public void testGetIntermediateCertsByAIA_AIAExists_validateResolved() throws Exception
 	{
 	
@@ -49,6 +55,7 @@ public class TrustChainValidator_getIntermediateCertsByAIATest extends TestCase
 		verify(spyValidator, times(1)).downloadCertsFromAIA((String)any());
 	}
 	
+	@Test
 	public void testGetIntermediateCertsByAIA_emptyAIA_validateNotResolved() throws Exception
 	{
 	
@@ -75,6 +82,7 @@ public class TrustChainValidator_getIntermediateCertsByAIATest extends TestCase
 		verify(spyValidator, never()).downloadCertsFromAIA((String)any());
 	}
 	
+	@Test
 	public void testGetIntermediateCertsByAIA_errorInDownload_validateEmpty() throws Exception
 	{
 	

@@ -1,9 +1,15 @@
 package org.nhindirect.stagent;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import javax.mail.internet.MimeMessage;
 
-import junit.framework.TestCase;
-import org.nhindirect.stagent.DefaultNHINDAgent;
 import org.nhindirect.stagent.cert.impl.KeyStoreCertificateStore;
 import org.nhindirect.stagent.mail.Message;
 import org.nhindirect.stagent.trust.DefaultTrustAnchorResolver;
@@ -14,7 +20,8 @@ import org.nhindirect.stagent.utils.SecondaryMimeMessage;
  * Generated test case.
  * @author junit_generate
  */
-public class DefaultNHINDAgent_ProcessOutgoing_AsMessageEnvelope_Test extends TestCase {
+public class DefaultNHINDAgent_ProcessOutgoing_AsMessageEnvelope_Test 
+{
 	abstract class TestPlan extends BaseTestPlan {
 		@Override
 		protected void performInner() throws Exception {
@@ -75,6 +82,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_AsMessageEnvelope_Test extends Te
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testMessageEnvelopeIsNull_ThrowsException() throws Exception {
 		new TestPlan() {
 			protected MessageEnvelope createEnvelope() throws Exception {
@@ -84,7 +92,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_AsMessageEnvelope_Test extends Te
 			
 			protected void doAssertions(OutgoingMessage processOutgoing)
 				throws Exception {
-				fail();
+				fail("");
 			}
 
 			@Override
@@ -101,6 +109,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_AsMessageEnvelope_Test extends Te
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testCorrectMessageEnvelopeIsPassedToCheckEnvelopeAddressesMethod() throws Exception {
 		new TestPlan() {
 			protected void checkEnvelopeAddresses_Internal(MessageEnvelope envelope) {
@@ -119,6 +128,7 @@ public class DefaultNHINDAgent_ProcessOutgoing_AsMessageEnvelope_Test extends Te
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testMessageEnvelopeIsNotNull_ProcessOutgoingMethodIsCalled() throws Exception {
 		new TestPlan() {
 			

@@ -1,5 +1,11 @@
 package org.nhindirect.stagent.trust;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.security.Key;
@@ -10,7 +16,6 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Enumeration;
 
-import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.nhindirect.common.crypto.CryptoExtensions;
@@ -20,9 +25,9 @@ import org.nhindirect.stagent.cert.X509CertificateEx;
 import org.nhindirect.stagent.cert.impl.KeyStoreCertificateStore;
 import org.nhindirect.stagent.cert.impl.UniformCertificateStore;
 
-public class TrustChainValidator_IntermidiateCert_Test extends TestCase
+public class TrustChainValidator_IntermidiateCert_Test
 {
-	@Override
+	@BeforeEach
 	public void setUp()
 	{
     	CryptoExtensions.registerJCEProviders();
@@ -91,7 +96,7 @@ public class TrustChainValidator_IntermidiateCert_Test extends TestCase
         return retVal;
     }
     
-    
+    @Test
     public void testValidateCertAgainstNonRootCA_OpenSSLCerts() throws Exception
     {
     	X509Certificate anchor = certFromData(getCertificateFileData("cert-b.der"));
@@ -109,7 +114,7 @@ public class TrustChainValidator_IntermidiateCert_Test extends TestCase
     	assertTrue(isTrusted);
     }    
     
-    
+    @Test
     public void testValidateCertAgainstNonRootCA_CAInPublicResolver_OpenSSLCerts() throws Exception
     {
     	X509Certificate anchor = certFromData(getCertificateFileData("cert-b.der"));
@@ -130,32 +135,9 @@ public class TrustChainValidator_IntermidiateCert_Test extends TestCase
     	catch (Exception e) {}
     	
     	assertTrue(isTrusted);
-    }  
+    }   
     
-    public void testValidateChain_IntermediatePublicResolver_OpenSSLCerts() throws Exception
-    {
-    	X509Certificate anchor = certFromData(getCertificateFileData("cert-c.der"));
-    	X509Certificate certToValidate = certFromData(getCertificateFileData("cert-a.der"));
-    	
-    	// uniform cert store that will just spit out whatever we put in it
-    	// will put the anchor in the public resolver... validator should hit it
-    	
-    	X509Certificate intermediateCert = certFromData(getCertificateFileData("cert-b.der"));
-    	CertificateResolver publicResolver = new UniformCertificateStore(intermediateCert);
-    	
-    	TrustChainValidator validator = new TrustChainValidator();
-    	validator.setCertificateResolver(Arrays.asList(publicResolver));
-    	
-    	boolean isTrusted = false;
-    	try
-    	{	
-    		isTrusted = validator.isTrusted(certToValidate, Arrays.asList(anchor));
-    	}
-    	catch (Exception e) {}
-    	
-    	assertTrue(isTrusted);
-    }     
-    
+    @Test
     public void testValidateCertMissingIntermediateCert_OpenSSLCerts() throws Exception
     {
     	X509Certificate anchor = certFromData(getCertificateFileData("cert-c.der"));
@@ -173,6 +155,7 @@ public class TrustChainValidator_IntermidiateCert_Test extends TestCase
     	assertFalse(isTrusted);
     }       
     
+    @Test
     public void testValidateCertAgainstSelf_NotSelfSigned_CertGenToolCerts() throws Exception
     {
     	X509Certificate anchor = certFromData(getCertificateFileData("greg@messaging.cerner.com.p12"));
@@ -185,6 +168,7 @@ public class TrustChainValidator_IntermidiateCert_Test extends TestCase
     	assertTrue(isTrusted);
     }
     
+    @Test
     public void testValidateCertAgainstSelf_NotSelfSigned_OpenSSLCerts() throws Exception
     {
     	X509Certificate anchor = certFromData(getCertificateFileData("cert-a.der"));
@@ -196,6 +180,7 @@ public class TrustChainValidator_IntermidiateCert_Test extends TestCase
     	assertTrue(isTrusted);
     }        
     
+    @Test
     public void testValidateCertAgainstSelf_SelfSigned_OpenSSLCerts() throws Exception
     {
     	X509Certificate anchor = certFromData(getCertificateFileData("cert-c.der"));
@@ -213,6 +198,7 @@ public class TrustChainValidator_IntermidiateCert_Test extends TestCase
     	assertTrue(isTrusted);
     }        
     
+    @Test
     public void testValidateCert_FindIntermediateByAltName_AssertValidated() throws Exception
     {
     	X509Certificate anchor = certFromData(getCertificateFileData("Test Alt Name CA ROO.der"));

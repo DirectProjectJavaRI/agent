@@ -36,6 +36,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.mail.Address;
 import javax.mail.Header;
+import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
 import javax.mail.internet.ContentType;
 import javax.mail.internet.InternetAddress;
@@ -44,8 +45,6 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.cms.CMSSignedData;
 import org.nhindirect.common.crypto.CryptoExtensions;
 import org.nhindirect.common.options.OptionsManager;
@@ -78,6 +77,8 @@ import org.nhindirect.stagent.trust.TrustError;
 import org.nhindirect.stagent.trust.TrustException;
 import org.nhindirect.stagent.trust.TrustModel;
 
+import lombok.extern.slf4j.Slf4j;
+
 
 /**
  * Default agent implementation.  Implements {@l MutableAgent} to support updating agent properties at runtime.
@@ -85,10 +86,9 @@ import org.nhindirect.stagent.trust.TrustModel;
  * @author Umesh Madan
  * @since 1.0
  */
+@Slf4j
 public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
 {	
-	@SuppressWarnings("deprecation")
-	private static final Log LOGGER = LogFactory.getFactory().getInstance(DefaultNHINDAgent.class);
 	
 	private static boolean initialConstruct = true;
 	
@@ -112,7 +112,6 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
     protected PolicyFilter policyFilter;
     
     private boolean encryptionEnabled = true;
-    private boolean wrappingEnabled = true;
     
     static
     {
@@ -187,7 +186,7 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
 	    	for (String domain : domains)
 	    		domainLogInfo.append("\r\n\t" + domain);
 	    			
-	    	LOGGER.info(domainLogInfo);
+	    	log.info(domainLogInfo.toString());
 	    	initialConstruct = false;
     	}
     	
@@ -333,33 +332,21 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
 
     /**
      * {@inheritDoc}
+     * @deprecated As of version ANSI/DS 2019-01-100-2021 released on May 13, 2021, 
+     * message wrapping is required.  This method will always return true;
      */
     public boolean isWrappingEnabled() 
     {
-    	Lock lock = readWriteLock.readLock();
-    	lock.lock();
-    	try
-    	{       	
-    		return wrappingEnabled;
-    	}
-    	finally
-    	{
-    		lock.unlock();
-    	}
-    		
+    	return true;		
 	}
 
     /**
      * {@inheritDoc}
+     * * @deprecated As of version ANSI/DS 2019-01-100-2021 released on May 13, 2021, 
+     * message wrapping is required.  This method results in a no-op.
      */
 	public void setWrappingEnabled(boolean wrappingEnabled) 
 	{
-    	Lock lock = readWriteLock.writeLock();
-    	lock.lock();
- 
-    	this.wrappingEnabled = wrappingEnabled;
-
-    	lock.unlock();
 
 	}
 
@@ -769,8 +756,8 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
 	            throw new IllegalArgumentException();
 	        }    	
 	
-	    	if (LOGGER.isDebugEnabled())
-	    		LOGGER.debug("Processing incoming message:\r\n" + message.toString() + "\r\n");    	
+	    	if (log.isDebugEnabled())
+	    		log.debug("Processing incoming message:\r\n  {} \r\n", message.toString());    	
 	    	    	
 	        try
 	        {
@@ -785,8 +772,8 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
 	            if (m_listener != null)
 	            	m_listener.postProcessIncoming(message);                
 	            
-	        	if (LOGGER.isDebugEnabled())
-	        		LOGGER.debug("Completed processing incoming message.  Result message:\r\n" + EntitySerializer.Default.serialize(message.getMessage()) + "\r\n");              
+	        	if (log.isDebugEnabled())
+	        		log.debug("Completed processing incoming message.  Result message:\r\n {} \r\n", EntitySerializer.Default.serialize(message.getMessage()));              
 	            
 	            return message;
 	        }
@@ -872,7 +859,7 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
                     }
                     catch (Exception e)
                     {
-                    	LOGGER.warn("Exception getting anchors for inbound notification policy.", e);
+                    	log.warn("Exception getting anchors for inbound notification policy.", e);
                     }
                 }
         	}
@@ -914,20 +901,30 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
     	// each recipient and sender in the envelope should be found in the authoritative headers of the
     	// unwrapped message
     	
-    	// retrieve the policy... fall back to false for behavioral passivity
-        final boolean rejectOnRoutingTamper =
+    	// retrieve the policy... 
+    	// as of version ANSI/DS 2019-01-100-202 approved on May 13, 2021,  the MAIL FROM SMTP address
+    	// MUST match either the FROM or SENDER header in the RFC5322 MIME message.
+    	// In addition, all addresses in the RCTP TO SMTP address list MUST be present in either
+    	// the TO or CC header of the RFC5322 MIME message.
+        final boolean rejectOnRoutingTamper = 
         		OptionsParameter.getParamValueAsBoolean(OptionsManager.getInstance().
-        				getParameter(OptionsParameter.REJECT_ON_ROUTING_TAMPER), false);
+        				getParameter(OptionsParameter.REJECT_ON_ROUTING_TAMPER), true);
     	
     	try
     	{
     		// use a for loop and normalize the email addresses
+    		// need to explicitly get the TO and CC addresses and NOT the BCC addresses
     		final List<String> authRecips = new ArrayList<String>();
-    		if (env.getMessage().getAllRecipients() != null)
-    			for (Address toRecip : env.getMessage().getAllRecipients())
-    				authRecips.add(((InternetAddress)toRecip).getAddress().toLowerCase());
+    		if (env.getMessage().getRecipients(RecipientType.TO) != null)	
+    			Arrays.stream(env.getMessage().getRecipients(RecipientType.TO))
+    				.forEach(toRecip -> authRecips.add(((InternetAddress)toRecip).getAddress().toLowerCase()));
 
-    		// now iterate through all enveloped recipient and ensure that they exist in the authoritative list
+    		if (env.getMessage().getRecipients(RecipientType.CC) != null)	
+    			Arrays.stream(env.getMessage().getRecipients(RecipientType.CC))
+    				.forEach(toRecip -> authRecips.add(((InternetAddress)toRecip).getAddress().toLowerCase()));
+    		
+    		// now iterate through all enveloped recipient (i.e recips that are populated from the RCPT TO SMTP command)
+    		// and ensure that they exist in the authoritative list
     		if (env.getRecipients() != null)
     		{
 	    		for (NHINDAddress envRecips : env.getRecipients())
@@ -942,13 +939,44 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
 	    					throw new AgentException(AgentError.MessageTamperDectection, exceptionMessage);
 	    				else
 	    					// log a warning
-	    					LOGGER.warn(exceptionMessage);
+	    					log.warn(exceptionMessage);
 	    			}
 	    		}
     		}
     		// checking the Mail From or From headers is redundant in that it must already bind to
-    		// certification in the message signature... there may also be differences between the SMTP Mail From header
-    		// and the From header for legitimate reasons
+    		// certification in the message signature... for sanity reasons, we will go ahead an make an
+    		// explicit check of the MAIL FROM SMTP header against the RFC5322 FROM and SENDER headers to make 
+    		// sure there is a match
+    		final NHINDAddress envFrom = env.getSender();
+    		if (envFrom != null)
+    		{	
+    			boolean found = false;
+    			if (env.getMessage().getFrom() != null)
+    				for (Address addr : env.getMessage().getFrom())
+    				{
+    					if (((InternetAddress)addr).getAddress().equalsIgnoreCase(envFrom.getAddress()))
+    					{
+    						found = true;
+    						break;
+    					}
+    				}
+    			
+    			if (!found && env.getMessage().getSender() != null)
+					if (((InternetAddress)env.getMessage().getSender()).getAddress().equalsIgnoreCase(envFrom.getAddress()))
+						found = true;
+    			
+    			if (!found)
+    			{
+					final String exceptionMessage = "Sender " + envFrom.getAddress() + " was not found in the authoritative headers";
+    				if (rejectOnRoutingTamper)
+  
+    					// throw an exception and reject the message
+    					throw new AgentException(AgentError.MessageTamperDectection, exceptionMessage);
+    				else
+    					// log a warning
+    					log.warn(exceptionMessage);
+    			}
+    		}
     		
     	}
     	catch (MessagingException e)
@@ -990,7 +1018,7 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
         	privateCerts = filterCertificatesByPolicy(recipient, privatePolicyResolver, privateCerts, true);
         	
         	if (privateCerts == null || privateCerts.size() == 0)
-        		LOGGER.warn("bindAddresses(IncomingMessage message) - Could not resolve a private certificate for recipient " + recipient.getAddress());
+        		log.warn("bindAddresses(IncomingMessage message) - Could not resolve a private certificate for recipient {} ", recipient.getAddress());
         		
             recipient.setCertificates(privateCerts);
             
@@ -1002,10 +1030,10 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
             }
             catch (Exception e)
             {
-            	LOGGER.warn("Exception getting incoming anchors for recipient " + recipient.getAddress());
+            	log.warn("Exception getting incoming anchors for recipient {} ", recipient.getAddress());
             }
             if (anchors == null || anchors.size() == 0)
-            	LOGGER.warn("bindAddresses(IncomingMessage message) - Could not obtain incoming trust anchors for recipient " + recipient.getAddress());
+            	log.warn("bindAddresses(IncomingMessage message) - Could not obtain incoming trust anchors for recipient {}",  recipient.getAddress());
             recipient.setTrustAnchors(anchors);
         }
     }
@@ -1013,7 +1041,6 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
     /*
      * Decrypts the signed message
      */
-    @SuppressWarnings("unchecked")
     protected void decryptSignedContent(IncomingMessage message)
     {
         
@@ -1113,8 +1140,8 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
                 }
                 catch (Exception e)
                 {
-                	LOGGER.info("Could not decrypt with message private cert subject " + cert.getSubjectDN().getName() + " and serial number "
-                			+ cert.getSerialNumber().toString(16), e);
+                	log.info("Could not decrypt with message private cert subject {} and serial number {}",
+                			cert.getSubjectDN().getName(), cert.getSerialNumber().toString(16), e);
                 }
             }
         }
@@ -1329,7 +1356,7 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
     	privateCerts = filterCertificatesByPolicy(message.getSender(), privatePolicyResolver, privateCerts, false);
     	
     	if (privateCerts == null || privateCerts.size() == 0)
-    		LOGGER.warn("bindAddresses(OutgoingMessage message) - Could not resolve a private certificate for sender " + message.getSender().getAddress());
+    		log.warn("bindAddresses(OutgoingMessage message) - Could not resolve a private certificate for sender {}", message.getSender().getAddress());
     	message.getSender().setCertificates(privateCerts);
     	
     	Collection<X509Certificate> anchors = null;
@@ -1339,11 +1366,11 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
     	}
     	catch (Exception e)
     	{
-    		LOGGER.warn("Exception getting outbound anchors for sender " + message.getSender());
+    		log.warn("Exception getting outbound anchors for sender {}",  message.getSender());
     	}
     	
     	if (anchors == null || anchors.size() == 0)
-        	LOGGER.warn("bindAddresses(OutgoingMessage message) - Could not obtain outgoing trust anchors for sender " + message.getSender().getAddress());    	
+    		log.warn("bindAddresses(OutgoingMessage message) - Could not obtain outgoing trust anchors for sender {}", message.getSender().getAddress());    	
         message.getSender().setTrustAnchors(anchors);
 
         //
@@ -1357,7 +1384,7 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
         	publicCerts = filterCertificatesByPolicy(message.getSender(), this.publicPolicyResolver, publicCerts, false);
         	
         	if (publicCerts == null || publicCerts.size() == 0)
-        		LOGGER.warn("bindAddresses(OutgoingMessage message) - Could not resolve a public certificate for recipient " + recipient.getAddress());
+        		log.warn("bindAddresses(OutgoingMessage message) - Could not resolve a public certificate for recipient {}",  recipient.getAddress());
             recipient.setCertificates(publicCerts);
         }
     }
@@ -1370,10 +1397,10 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
     	Message retVal = null;
     	try
     	{
-    		if (!wrappingEnabled)
-    		{
-    			return new Message(EntitySerializer.Default.deserialize(messageText));
-    		}
+    		/*
+    		 * As of version ANSI/DS 2019-01-100-2021 released on May 13, 2021, 
+    		 * message wrapping is required.
+    	     */ 
         
     		retVal  = WrappedMessage.create(messageText, NHINDStandard.MailHeadersUsed);
     	}
@@ -1394,10 +1421,10 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
     	Message retVal = null;
     	try
     	{
-	        if (!wrappingEnabled)
-	        {
-	            return message;
-	        }
+    		/*
+    		 * As of version ANSI/DS 2019-01-100-2021 released on May 13, 2021, 
+    		 * message wrapping is required.
+    	     */ 
 	        
 	        if (WrappedMessage.isWrapped(message))
 	        {
@@ -1419,10 +1446,11 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
      */
     protected Message unwrapMessage(Message message)
     {
-        if (!wrappingEnabled)
-        {
-            return message;
-        }
+		/*
+		 * As of version ANSI/DS 2019-01-100-2021 released on May 13, 2021, 
+		 * message wrapping is required.  We passivity to previous versions of the
+		 * spec, we can still accept unwrapped messages.
+	     */ 
         
         Message retMessage = null;
                 
@@ -1446,7 +1474,6 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
     //
     // First sign, THEN encrypt the message
     //
-    @SuppressWarnings("unchecked")
     protected void signAndEncryptMessage(OutgoingMessage message)
     {
 
@@ -1531,7 +1558,7 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
         }
         catch (AgentException ex)
         {
-        	LOGGER.warn("Exception thrown resolving private certs for address " + address.getAddress(), ex);
+        	log.warn("Exception thrown resolving private certs for address {}", address.getAddress(), ex);
         	if (required)
         		throw ex;
         }
@@ -1541,7 +1568,7 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
         }
         catch (Exception ex)
         {
-        	LOGGER.warn("Exception thrown resolving private certs for address " + address.getAddress(), ex);
+        	log.warn("Exception thrown resolving private certs for address {}", address.getAddress(), ex);
             if (required)
             {
             	// for logging, tracking etc...
@@ -1591,7 +1618,7 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
         }
         catch (AgentException ex)
         {
-        	LOGGER.warn("Exception thrown resolving public certs for address " + address.getAddress(), ex);
+        	log.warn("Exception thrown resolving public certs for address {}", address.getAddress(), ex);
             if (required)
             	throw ex;
         }
@@ -1601,7 +1628,7 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
 		}
         catch (Exception ex)
         {
-        	LOGGER.warn("Exception thrown resolving public certs for address " + address.getAddress(), ex);
+        	log.warn("Exception thrown resolving public certs for address {}", address.getAddress(), ex);
             if (required)
             {
             	// for logging, tracking etc...

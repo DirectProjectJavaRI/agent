@@ -1,5 +1,10 @@
 package org.nhindirect.stagent.cryptography;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.io.ByteArrayInputStream;
 import java.security.cert.X509Certificate;
 
@@ -10,9 +15,7 @@ import org.nhindirect.stagent.utils.TestUtils;
 
 import java.util.Arrays;
 
-import junit.framework.TestCase;
-
-public class SMIMECryptographerImpl_checkSignature_Test extends TestCase 
+public class SMIMECryptographerImpl_checkSignature_Test
 {
 	private X509Certificate sigCertA;
 	private X509Certificate sigCertAPrivate;
@@ -24,7 +27,7 @@ public class SMIMECryptographerImpl_checkSignature_Test extends TestCase
 	private SignedEntity signedEntity;
 	private SMIMECryptographerImpl cryptographer;
 	
-	@Override
+	@BeforeEach
 	public void setUp() throws Exception
 	{
     	CryptoExtensions.registerJCEProviders();
@@ -57,12 +60,14 @@ public class SMIMECryptographerImpl_checkSignature_Test extends TestCase
 		
 	}
 	
+	@Test
 	public void testValidateSig_sameSignAndValidationCert_assertValidSignature() throws Exception
 	{
 		cryptographer.checkSignature(signedEntity, sigCertA, Arrays.asList(sigCertAnchor));
 
 	}
 	
+	@Test
 	public void testValidateSig_differentSignAndValidationCert_sameCA_assertInValidSignature() throws Exception
 	{
 		boolean exceptionOccured = false;
@@ -78,6 +83,7 @@ public class SMIMECryptographerImpl_checkSignature_Test extends TestCase
 		assertTrue(exceptionOccured);
 	}
 	
+	@Test
 	public void testValidateSig_diffSignAndValidationCert_assertInvalidSignature() throws Exception
 	{
 		boolean exceptionOccured = false;
@@ -93,6 +99,7 @@ public class SMIMECryptographerImpl_checkSignature_Test extends TestCase
 		assertTrue(exceptionOccured);
 	}
 
+	@Test
 	public void testMutlipleSigs_sameSignAndValidationCert_assertValidSignature() throws Exception
 	{
 		// load the message that will be encrypted

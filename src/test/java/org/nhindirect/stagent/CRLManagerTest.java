@@ -1,7 +1,8 @@
 package org.nhindirect.stagent;
 
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.Test;
 import org.nhindirect.stagent.cert.RevocationManager;
 import org.nhindirect.stagent.cert.impl.CRLRevocationManager;
 import org.nhindirect.stagent.cert.impl.KeyStoreCertificateStore;
@@ -14,7 +15,7 @@ import org.nhindirect.stagent.cert.impl.KeyStoreCertificateStore;
  * 
  * @author beau
  */
-public class CRLManagerTest extends TestCase 
+public class CRLManagerTest 
 {
     private static final String KEY_STORE_PASSWORD = "h3||0 wor|d";
     private static final String PRIVATE_KEY_PASSWORD = "pKpa$$wd";
@@ -22,6 +23,7 @@ public class CRLManagerTest extends TestCase
     /**
      * Test the CRLManager class with normal and non-normal input.
      */
+    @Test
     public void testCrlManager() 
     {
         String tmp = this.getClass().getClassLoader().getResource("crl/certs.crl").getPath();
@@ -41,17 +43,17 @@ public class CRLManagerTest extends TestCase
             }
         };
         
-        assertEquals("Output does not match expected", false, crlManager.isRevoked(null));
-        assertEquals("Output does not match expected", false, crlManager.isRevoked(service.getByAlias("valid")));
-        assertEquals("Output does not match expected", true, crlManager.isRevoked(service.getByAlias("revoked")));
-        assertEquals("Output does not match expected", false, crlManager.isRevoked(service.getByAlias("gm2552")));
-        assertEquals("Output does not match expected", false, crlManager.isRevoked(service.getByAlias("missing")));        
+        assertEquals(false, crlManager.isRevoked(null));
+        assertEquals(false, crlManager.isRevoked(service.getByAlias("valid")));
+        assertEquals(true, crlManager.isRevoked(service.getByAlias("revoked")));
+        assertEquals(false, crlManager.isRevoked(service.getByAlias("gm2552")));
+        assertEquals(false, crlManager.isRevoked(service.getByAlias("missing")));        
 
         // Hit cache
-        assertEquals("Output does not match expected", false, crlManager.isRevoked(null));
-        assertEquals("Output does not match expected", false, crlManager.isRevoked(service.getByAlias("valid")));
-        assertEquals("Output does not match expected", true, crlManager.isRevoked(service.getByAlias("revoked")));
-        assertEquals("Output does not match expected", false, crlManager.isRevoked(service.getByAlias("gm2552")));
-        assertEquals("Output does not match expected", false, crlManager.isRevoked(service.getByAlias("missing")));
+        assertEquals(false, crlManager.isRevoked(null));
+        assertEquals(false, crlManager.isRevoked(service.getByAlias("valid")));
+        assertEquals(true, crlManager.isRevoked(service.getByAlias("revoked")));
+        assertEquals(false, crlManager.isRevoked(service.getByAlias("gm2552")));
+        assertEquals(false, crlManager.isRevoked(service.getByAlias("missing")));
     }
 }

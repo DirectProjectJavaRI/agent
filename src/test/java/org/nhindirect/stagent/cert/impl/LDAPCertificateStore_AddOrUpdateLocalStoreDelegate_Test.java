@@ -1,21 +1,23 @@
 package org.nhindirect.stagent.cert.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
-import junit.framework.TestCase;
+
 import org.nhindirect.stagent.cert.CertStoreCachePolicy;
 import org.nhindirect.stagent.cert.CertificateStore;
-import org.nhindirect.stagent.cert.impl.LDAPCertificateStore;
 import org.nhindirect.stagent.utils.BaseTestPlan;
 
 /**
  * Generated test case.
  * @author junit_generate
  */
-public class LDAPCertificateStore_AddOrUpdateLocalStoreDelegate_Test extends
-		TestCase {
+public class LDAPCertificateStore_AddOrUpdateLocalStoreDelegate_Test 
+{
 	abstract class TestPlan extends BaseTestPlan {
 		@Override
 		protected void performInner() throws Exception {
@@ -86,6 +88,7 @@ public class LDAPCertificateStore_AddOrUpdateLocalStoreDelegate_Test extends
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testLocalStoreDelegateIsNull_LocalStoreIsNotUpdated() throws Exception {
 		new TestPlan() {
 			protected CertificateStore createBootstrapStore() {

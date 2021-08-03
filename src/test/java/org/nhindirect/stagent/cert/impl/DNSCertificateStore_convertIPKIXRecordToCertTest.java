@@ -1,7 +1,13 @@
 package org.nhindirect.stagent.cert.impl;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.security.cert.Certificate;
@@ -9,13 +15,12 @@ import java.security.cert.Certificate;
 import org.nhindirect.stagent.cert.CertCacheFactory;
 import org.xbill.DNS.CERTRecord;
 
-import junit.framework.TestCase;
 
-public class DNSCertificateStore_convertIPKIXRecordToCertTest extends TestCase
+public class DNSCertificateStore_convertIPKIXRecordToCertTest
 {
 	protected String filePrefix;
 	
-	@Override
+	@BeforeEach
 	public void setUp()
 	{
 		// flush the caches
@@ -30,6 +35,7 @@ public class DNSCertificateStore_convertIPKIXRecordToCertTest extends TestCase
 		
 	}
 	
+	@Test
 	public void testConvertIPKIXRecordToCert_validCERTData_assertCertificate() throws Exception
 	{
 		File file = new File("./src/test/resources/certs/certCheckA.der");
@@ -45,6 +51,7 @@ public class DNSCertificateStore_convertIPKIXRecordToCertTest extends TestCase
 		assertNotNull(cert);
 	}
 	
+	@Test
 	public void testConvertIPKIXRecordToCert_invalidCERTData_assertNoCertificate() throws Exception
 	{
 		File file = new File("./src/test/resources/log4j.properties");
@@ -62,6 +69,7 @@ public class DNSCertificateStore_convertIPKIXRecordToCertTest extends TestCase
 		assertNull(cert);
 	}
 	
+	@Test
 	public void testConvertIPKIXRecordToCert_invalidURL_assertNoCertificate() throws Exception
 	{
 		

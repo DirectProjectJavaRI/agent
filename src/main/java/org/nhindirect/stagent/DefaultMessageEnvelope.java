@@ -48,7 +48,6 @@ public class DefaultMessageEnvelope implements MessageEnvelope
 	protected NHINDAddress sender;
 	protected NHINDAddressCollection to;
 	protected NHINDAddressCollection cc;
-	protected NHINDAddressCollection bcc;
 	protected NHINDAddressCollection recipients;
 	protected NHINDAddressCollection rejectedRecipients;
 	protected NHINDAddressCollection domainRecipients;
@@ -343,15 +342,12 @@ public class DefaultMessageEnvelope implements MessageEnvelope
 	/**
 	 * Gets a collection of addresses specified in the message's BCC header.
 	 * @return Addresses specified in the message's BCC header.
+	 * @deprecated As of version ANSI/DS 2019-01-100-202 released on May 13, 2021, 
+	 * BCC is explicitly not allowed.  This method will always return null.
 	 */	
 	protected NHINDAddressCollection getBCC()
 	{
-		if (bcc == null)
-		{
-			bcc = NHINDAddressCollection.parse(message.getBCCHeader(), AddressSource.BCC);
-		}
-		
-		return bcc;
+		return null;
 	}	
 	
 	/**
@@ -372,7 +368,6 @@ public class DefaultMessageEnvelope implements MessageEnvelope
     	sender = null;
     	to = null;
     	cc = null;
-    	bcc = null;
     	recipients = null;
     	rejectedRecipients = null;
     	domainRecipients = null;
@@ -393,10 +388,6 @@ public class DefaultMessageEnvelope implements MessageEnvelope
         if (this.getCC() != null)
         {
             addresses.addAll(this.getCC());
-        }
-        if (this.getBCC() != null)
-        {
-            addresses.addAll(this.getBCC());
         }
         return addresses;
 	}

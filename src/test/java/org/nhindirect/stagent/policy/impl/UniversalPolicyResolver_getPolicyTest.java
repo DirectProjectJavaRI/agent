@@ -1,6 +1,11 @@
 package org.nhindirect.stagent.policy.impl;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static org.mockito.Mockito.mock;
+
+import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 
@@ -8,10 +13,10 @@ import javax.mail.internet.InternetAddress;
 
 import org.nhindirect.policy.PolicyExpression;
 
-import junit.framework.TestCase;
 
-public class UniversalPolicyResolver_getPolicyTest extends TestCase
+public class UniversalPolicyResolver_getPolicyTest
 {
+	@Test
 	public void testGetOutgoingPolicy_assertPolicyRetrieved() throws Exception
 	{
 		final PolicyExpression expression = mock(PolicyExpression.class);
@@ -24,6 +29,7 @@ public class UniversalPolicyResolver_getPolicyTest extends TestCase
 		assertEquals(expression, policies.iterator().next());
 	}
 	
+	@Test
 	public void testGetOutgoingPolicy_nullAddress_assertException() throws Exception
 	{
 		final PolicyExpression expression = mock(PolicyExpression.class);
@@ -44,6 +50,7 @@ public class UniversalPolicyResolver_getPolicyTest extends TestCase
 		assertTrue(execptionOccured);
 	}	
 	
+	@Test
 	public void testGetIncomingPolicy_assertPolicyRetrieved() throws Exception
 	{
 		final PolicyExpression expression = mock(PolicyExpression.class);
@@ -56,6 +63,7 @@ public class UniversalPolicyResolver_getPolicyTest extends TestCase
 		assertEquals(expression, policies.iterator().next());
 	}
 	
+	@Test
 	public void testGetIncomingPolicy_nullAddress_assertException() throws Exception
 	{
 		final PolicyExpression expression = mock(PolicyExpression.class);

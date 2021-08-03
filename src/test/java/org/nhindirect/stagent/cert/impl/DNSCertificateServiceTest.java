@@ -1,15 +1,19 @@
 package org.nhindirect.stagent.cert.impl;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import java.net.InetAddress;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 
 import org.xbill.DNS.Options;
 
-import junit.framework.TestCase;
-
-public class DNSCertificateServiceTest extends TestCase
+public class DNSCertificateServiceTest
 {
+	@Test
 	public void testRemoteCertLookup() throws Exception
 	{
 		/*

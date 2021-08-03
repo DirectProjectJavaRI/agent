@@ -1,5 +1,11 @@
 package org.nhindirect.stagent.trust;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.io.ByteArrayInputStream;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
@@ -15,9 +21,8 @@ import org.nhindirect.stagent.cryptography.SignedEntity;
 import org.nhindirect.stagent.mail.Message;
 import org.nhindirect.stagent.utils.TestUtils;
 
-import junit.framework.TestCase;
 
-public class TrustModel_findTrustedSignatureTest extends TestCase
+public class TrustModel_findTrustedSignatureTest
 {
 	private X509Certificate sigUser1;
 	private X509Certificate sigUser1CA;
@@ -28,7 +33,7 @@ public class TrustModel_findTrustedSignatureTest extends TestCase
 	private SignedEntity signedEntity;
 	private SMIMECryptographerImpl cryptographer;
 	
-	@Override
+	@BeforeEach
 	public void setUp() throws Exception
 	{
     	CryptoExtensions.registerJCEProviders();
@@ -58,6 +63,7 @@ public class TrustModel_findTrustedSignatureTest extends TestCase
 
 	}
 	
+	@Test
 	public void testFindTrustedSignatureTest_singleRecipSignature_nullRecip_assertMessageSignatureNotNull() throws Exception
 	{
 		final TrustModel trustModel = new TrustModel();
@@ -68,6 +74,7 @@ public class TrustModel_findTrustedSignatureTest extends TestCase
 		assertNotNull(impl);
 	}
 	
+	@Test
 	public void testFindTrustedSignatureTest_singleRecipSignature_nonNullRecip_assertMessageSignatureNotNull() throws Exception
 	{
 		final TrustModel trustModel = new TrustModel();
@@ -79,6 +86,7 @@ public class TrustModel_findTrustedSignatureTest extends TestCase
 		assertNotNull(impl);
 	}
 	
+	@Test
 	public void testFindTrustedSignatureTest_singleRecipSignature_senderHasCert_assertMessageSignatureNotNull() throws Exception
 	{
 		final TrustModel trustModel = new TrustModel();
@@ -91,6 +99,7 @@ public class TrustModel_findTrustedSignatureTest extends TestCase
 		assertNotNull(impl);
 	}
 	
+	@Test
 	public void testFindTrustedSignatureTest_singleRecipSignature_senderHasNonMatchingCert_assertMessageSignatureNotNull() throws Exception
 	{
 		final TrustModel trustModel = new TrustModel();
@@ -103,6 +112,7 @@ public class TrustModel_findTrustedSignatureTest extends TestCase
 		assertNotNull(impl);
 	}
 	
+	@Test
 	public void testFindTrustedSignatureTest_singleRecipSignature_notPolicyCompliant_assertMessageSignatureNull() throws Exception
 	{
 		final TrustModel trustModel = new TrustModel()

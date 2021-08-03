@@ -31,12 +31,12 @@ import java.util.GregorianCalendar;
 
 import javax.mail.internet.InternetAddress;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.nhindirect.common.crypto.CryptoExtensions;
 import org.nhindirect.stagent.AgentError;
 import org.nhindirect.stagent.NHINDException;
 import org.nhindirect.stagent.cert.impl.CRLRevocationManager;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Abstract base class for a certificate store implementation.  It does not implement any specific certificate storage functions
@@ -46,11 +46,9 @@ import org.nhindirect.stagent.cert.impl.CRLRevocationManager;
  * @author Umesh Madan
  *
  */
+@Slf4j
 public abstract class CertificateStore implements X509Store, CertificateResolver
 {	
-	@SuppressWarnings("deprecation")
-	private static final Log LOGGER = LogFactory.getFactory().getInstance(CertificateStore.class);
-	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -148,7 +146,7 @@ public abstract class CertificateStore implements X509Store, CertificateResolver
     	}
     	catch (Exception e)
     	{
-    		LOGGER.warn("Exception attempting to update cert in certificate store: " + e.getMessage());
+    		log.warn("Exception attempting to update cert in certificate store: {}", e.getMessage());
     	}
     }
     
@@ -263,18 +261,18 @@ public abstract class CertificateStore implements X509Store, CertificateResolver
         		final StringBuilder builder = new StringBuilder("Certificate has expired.\r\n\tExpiration: ").append(cert.getNotAfter());
         		builder.append("\r\n\tDN: ").append(cert.getSubjectDN());
         		builder.append("\r\n\tSerial Number: ").append(cert.getSerialNumber().toString(16));
-        		LOGGER.warn(builder.toString());
+        		log.warn(builder.toString());
         	}
         	catch (CertificateNotYetValidException e)
         	{
         		final StringBuilder builder = new StringBuilder("Certificate is not yet valid.\r\n\nNot Before: ").append(cert.getNotBefore());
         		builder.append("\r\n\tDN: ").append(cert.getSubjectDN());
         		builder.append("\r\n\tSerial Number: ").append(cert.getSerialNumber().toString(16));
-        		LOGGER.warn(builder.toString());
+        		log.warn(builder.toString());
         	}        	
             catch (Exception e) 
             {
-            	LOGGER.warn("filterUsable(Collection<X509Certificate> certs) - Certificate with DN " + cert.getSubjectDN() + " is not valid.", e);
+            	log.warn("filterUsable(Collection<X509Certificate> certs) - Certificate with DN {} is not valid.", cert.getSubjectDN() , e);
             }
         }
         

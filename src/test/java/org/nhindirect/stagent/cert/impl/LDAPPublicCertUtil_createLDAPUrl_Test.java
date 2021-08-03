@@ -1,14 +1,18 @@
 package org.nhindirect.stagent.cert.impl;
 
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 import org.xbill.DNS.DClass;
 import org.xbill.DNS.Name;
 import org.xbill.DNS.Record;
 import org.xbill.DNS.SRVRecord;
 
-public class LDAPPublicCertUtil_createLDAPUrl_Test extends TestCase
+public class LDAPPublicCertUtil_createLDAPUrl_Test
 {
+	@Test
 	public void testCreateLDAPUrl_singleSRVRecord() throws Exception
 	{
 		LdapPublicCertUtilImpl impl = new LdapPublicCertUtilImpl();
@@ -24,6 +28,7 @@ public class LDAPPublicCertUtil_createLDAPUrl_Test extends TestCase
 		assertTrue(urls[0].startsWith("ldap://ldap.test.com"));
 	}
 	
+	@Test
 	public void testCreateLDAPUrl_multipleSRVRecord_descendingPriority_assertPriorityOrderDesc() throws Exception
 	{
 		LdapPublicCertUtilImpl impl = new LdapPublicCertUtilImpl();
@@ -43,6 +48,7 @@ public class LDAPPublicCertUtil_createLDAPUrl_Test extends TestCase
 		assertTrue(urls[1].startsWith("ldap://ldap2.test.com"));		
 	}	
 	
+	@Test
 	public void testCreateLDAPUrl_multipleSRVRecord_ascendingPriority_assertPriorityOrderDesc() throws Exception
 	{
 		LdapPublicCertUtilImpl impl = new LdapPublicCertUtilImpl();

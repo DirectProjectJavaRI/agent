@@ -25,8 +25,6 @@ import java.io.File;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jcs.JCS;
 import org.apache.jcs.access.exception.CacheException;
 import org.apache.jcs.engine.behavior.ICompositeCacheAttributes;
@@ -39,6 +37,8 @@ import org.nhindirect.stagent.cert.CertCacheFactory;
 import org.nhindirect.stagent.cert.CertStoreCachePolicy;
 import org.nhindirect.stagent.cert.CertificateStore;
 import org.nhindirect.stagent.cert.Thumbprint;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Certificate store backed by LDAP-based provider directories (RFC 4398) for dynamic lookup and a configurable local cache of off line lookup. 
@@ -56,11 +56,10 @@ import org.nhindirect.stagent.cert.Thumbprint;
  * @author Greg Meyer
  *
  */
+@Slf4j
 public class LDAPCertificateStore extends CertificateStore implements
 		CacheableCertStore {
 	
-	@SuppressWarnings("deprecation")
-	private static final Log LOGGER = LogFactory.getFactory().getInstance(LDAPCertificateStore.class);
 	private static final String CACHE_NAME = "LDAP_REMOTE_CERT_CACHE";
 	
 	protected static final int DEFAULT_LDAP_MAX_CAHCE_ITEMS = 1000;
@@ -139,7 +138,7 @@ public class LDAPCertificateStore extends CertificateStore implements
 		///CLOVER:OFF
 		catch (CacheException e)
 		{
-			LOGGER.warn("LDAPCertificateStore - Could not create certificate cache " + CACHE_NAME, e);
+			log.warn("LDAPCertificateStore - Could not create certificate cache {}", CACHE_NAME, e);
 		}
 		///CLOVER:ON
 	}
@@ -259,7 +258,7 @@ public class LDAPCertificateStore extends CertificateStore implements
 	    				catch (CacheException e)
 	    				{
 	    					// TODO: handle exception
-	    					LOGGER.error("Error adding certificates to the cache: " + e.getMessage(), e);
+	    					log.error("Error adding certificates to the cache: {}", e.getMessage(), e);
 	    				}
 	    				
 	    				// now add or update the local cert store
@@ -278,7 +277,7 @@ public class LDAPCertificateStore extends CertificateStore implements
     			}
     			if (retVal == null || retVal.size() == 0)
     			{
-    				LOGGER.info("getCertificates(String subjectName) - Could not find an LDAP certificate for subject " + subjectName);
+    				log.info("getCertificates(String subjectName) - Could not find an LDAP certificate for subject {}", subjectName);
     			}    			
     		}
     	}
@@ -299,7 +298,7 @@ public class LDAPCertificateStore extends CertificateStore implements
     		}
 			if (retVal == null || retVal.size() == 0)
 			{
-				LOGGER.info("getCertificates(String subjectName) - Could not find an LDAP certificate for subject " + subjectName);
+				log.info("getCertificates(String subjectName) - Could not find an LDAP certificate for subject {}", subjectName);
 			}       		
     	}
     	return retVal;
@@ -349,7 +348,7 @@ public class LDAPCertificateStore extends CertificateStore implements
 			}
 			catch (CacheException e)
 			{
-				LOGGER.warn("Failed to clear cache " + CACHE_NAME);
+				log.warn("Failed to clear cache {}" + CACHE_NAME);
 			}
 		}
 	}

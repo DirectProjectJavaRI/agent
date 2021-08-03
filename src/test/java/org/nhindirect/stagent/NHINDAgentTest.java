@@ -1,6 +1,16 @@
 package org.nhindirect.stagent;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static org.mockito.Mockito.mock;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -9,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Map.Entry;
 
 import javax.mail.Header;
 import javax.mail.internet.MimeMessage;
@@ -17,7 +26,6 @@ import javax.mail.internet.MimeMessage;
 import org.nhindirect.common.options.OptionsManager;
 import org.nhindirect.common.options.OptionsManagerUtils;
 import org.nhindirect.common.options.OptionsParameter;
-import org.nhindirect.stagent.DefaultNHINDAgent;
 import org.nhindirect.stagent.cert.CertificateResolver;
 import org.nhindirect.stagent.mail.MailStandard;
 import org.nhindirect.stagent.mail.Message;
@@ -26,9 +34,7 @@ import org.nhindirect.stagent.trust.DefaultTrustAnchorResolver;
 import org.nhindirect.stagent.trust.TrustError;
 import org.nhindirect.stagent.utils.TestUtils;
 
-import junit.framework.TestCase;
-
-public class NHINDAgentTest extends TestCase 
+public class NHINDAgentTest
 {	
 	static
 	{
@@ -36,25 +42,21 @@ public class NHINDAgentTest extends TestCase
 		// Need to make sure debug logging is tested to check for possible null reference errors
 		System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog");
 		System.setProperty("org.apache.commons.logging.simplelog.defaultlog", "trace");
-		
-		for (Entry<Object, Object> entry : System.getProperties().entrySet())
-		{
-			System.out.println("Name: " + entry.getKey() + " Value: " + entry.getValue());
-		}
 	}
 	
-	@Override
+	@BeforeEach
 	public void setUp()
 	{
 		OptionsManagerUtils.clearOptionsManagerInstance();
 	}
 	
-	@Override
+	@AfterEach
 	public void tearDown()
 	{
 		OptionsManagerUtils.clearOptionsManagerOptions();
 	}
 	
+	@Test
 	public void testEndToEndMessageWithCertKeyStore() throws Exception
 	{				
 		DefaultNHINDAgent agent = TestUtils.getStockAgent(Arrays.asList(new String[]{"cerner.com"}));
@@ -194,9 +196,9 @@ public class NHINDAgentTest extends TestCase
 				
 	}
 	
-	
+	@Test
 	public void testDecryptProvidedMessage() throws Exception
-	{
+	{	
 		/*
 		 * EncryptedMessage2
 		 */		
@@ -212,8 +214,10 @@ public class NHINDAgentTest extends TestCase
 		
 		assertNotNull(strippedAndVerifiesMessage);
 		assertTrue(strippedAndVerifiesMessage.getMessage().toString().length() > 0);
+
 	}
 	
+	@Test
 	public void testRejectMessageOnRoutingTamper_policyTrue_assertMessageRejected() throws Exception
 	{
 		OptionsManager.getInstance().setOptionsParameter(new OptionsParameter(OptionsParameter.REJECT_ON_ROUTING_TAMPER, "true"));
@@ -248,8 +252,11 @@ public class NHINDAgentTest extends TestCase
 		OptionsManager.destroyInstance();
 	}
 	
+	@Test
 	public void testRejectMessageOnRoutingTamper_policyFalse_assertDecrtyped() throws Exception
 	{
+		OptionsManager.getInstance().setOptionsParameter(new OptionsParameter(OptionsParameter.REJECT_ON_ROUTING_TAMPER, "false"));
+		
 		/*
 		 * EncryptedMessage2
 		 */		
@@ -270,6 +277,7 @@ public class NHINDAgentTest extends TestCase
 		assertTrue(strippedAndVerifiesMessage.getMessage().toString().length() > 0);
 	}
 	
+	@Test
 	public void testDecryptAttachmentMessage() throws Exception
 	{
 		
@@ -293,7 +301,7 @@ public class NHINDAgentTest extends TestCase
 		assertTrue(strippedAndVerifiesMessage.getMessage().toString().length() > 0);	
 	}	
 	
-	
+	@Test
 	public void testEndToEndMessageBase64AttachmentOnly() throws Exception
 	{
 
@@ -341,7 +349,7 @@ public class NHINDAgentTest extends TestCase
 		
 	}
 	
-	@SuppressWarnings("unchecked")
+	@Test
 	public void testOutgoingMessageIsWrappedCorrectly() throws Exception
 	{
 
@@ -371,6 +379,7 @@ public class NHINDAgentTest extends TestCase
 		assertFalse(headers.contains("Subject"));
 	}
 	
+	@Test
 	public void testMessageWithUntrustedRecipient_OutboundMessageHasRejectedRecips() throws Exception
 	{
 
@@ -400,6 +409,7 @@ public class NHINDAgentTest extends TestCase
 		assertNotNull(processedMsg);
 	}
 	
+	@Test
 	public void testMessageWithAllUntrustedRecipients_AgentRejectsTheMessageCompletely() throws Exception
 	{
 
@@ -418,6 +428,7 @@ public class NHINDAgentTest extends TestCase
 		assertNull(SMIMEenvMessage);
 	}
 	
+	@Test
 	public void testIncomingMDN_incomingNotTrusted_outgoingTrusted_assertMDNMessageTrusted() throws Exception
 	{
 
@@ -450,6 +461,7 @@ public class NHINDAgentTest extends TestCase
 		
 	}
 	
+	@Test
 	public void testIncomingDSN_incomingNotTrusted_outgoingTrusted_assertMDNMessageTrusted() throws Exception
 	{
 		OptionsManager.getInstance().setOptionsParameter(
@@ -481,6 +493,7 @@ public class NHINDAgentTest extends TestCase
 		
 	}
 	
+	@Test
 	public void testIncomingNormalMessage_incomingNotTrusted_outgoingTrusted_assertMessageNotTrusted() throws Exception
 	{
 
@@ -516,6 +529,7 @@ public class NHINDAgentTest extends TestCase
 		
 	}	
 	
+	@Test
 	public void testIncomingMDN_incomingNotTrusted_outgoingTrusted_useIncomingSettingFalse_assertMDNMessageNotTrusted() throws Exception
 	{
 
@@ -554,6 +568,7 @@ public class NHINDAgentTest extends TestCase
 		
 	}	
 	
+	@Test
 	public void testIncomingDSN_incomingNotTrusted_outgoingTrusted_useIncomingSettingFalse_assertMDNMessageNotTrusted() throws Exception
 	{
 

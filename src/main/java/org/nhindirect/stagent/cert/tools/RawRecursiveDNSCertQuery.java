@@ -1,9 +1,11 @@
 package org.nhindirect.stagent.cert.tools;
 
 import java.net.UnknownHostException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.xbill.DNS.Cache;
 import org.xbill.DNS.DClass;
@@ -134,11 +136,12 @@ public class RawRecursiveDNSCertQuery
 	{
 		if (servers == null || servers.length == 0)
 		{
-			String[] configedServers = ResolverConfig.getCurrentConfig().servers();
+			List<String> configedServers = ResolverConfig.getCurrentConfig().servers().stream()
+					.map(addr -> addr.getHostString()).collect(Collectors.toList());
 			
 			if (configedServers != null)
 			{
-				dnsServers.addAll(Arrays.asList(configedServers));
+				dnsServers.addAll(configedServers);
 			}		
 		}		
 		else
@@ -162,7 +165,7 @@ public class RawRecursiveDNSCertQuery
 		{
 			retVal = new ExtendedResolver(servers);
 			retVal.setRetries(retries);
-			retVal.setTimeout(timeout);
+			retVal.setTimeout(Duration.ofSeconds(timeout));
 			retVal.setTCP(true);
 		}
 		catch (UnknownHostException e) {/* no-op */}

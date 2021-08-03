@@ -1,25 +1,28 @@
 package org.nhindirect.stagent.cryptography;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.PrivateKey;
-import java.security.cert.CertStore;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Enumeration;
 
 import javax.mail.internet.ContentType;
 import javax.mail.internet.InternetHeaders;
 import javax.mail.internet.MimeMultipart;
 
-
-
-import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,53 +37,53 @@ import org.nhindirect.common.crypto.impl.BootstrappedPKCS11Credential;
 import org.nhindirect.common.crypto.impl.StaticPKCS11TokenKeyStoreProtectionManager;
 import org.nhindirect.common.options.OptionsManager;
 import org.nhindirect.stagent.NHINDException;
-import org.nhindirect.stagent.SignatureValidationException;
 import org.nhindirect.stagent.cert.X509CertificateEx;
 import org.nhindirect.stagent.cert.impl.CacheableKeyStoreManagerCertificateStore;
-import org.nhindirect.stagent.cryptography.DigestAlgorithm;
-import org.nhindirect.stagent.cryptography.EncryptionAlgorithm;
-import org.nhindirect.stagent.cryptography.SMIMECryptographerImpl;
-import org.nhindirect.stagent.cryptography.SignedEntity;
 import org.nhindirect.stagent.mail.MimeEntity;
 import org.nhindirect.stagent.mail.MimeError;
 import org.nhindirect.stagent.mail.MimeStandard;
 import org.nhindirect.stagent.parser.EntitySerializer;
 import org.nhindirect.stagent.utils.TestUtils;
 
-public class CryptographerTest extends TestCase
+public class CryptographerTest
 {	
-	@Override
+	@BeforeEach
 	public void setUp()
 	{
     	CryptoExtensions.registerJCEProviders();
 	}
 	
+	@Test
 	public void testEncryptAndDecryptMimeEntityAES128() throws Exception
 	{
 		testEncryptAndDecryptMimeEntity(EncryptionAlgorithm.AES128, true, false);
 	}
 	
+	@Test
 	public void testEncryptAndDecryptMimeEntityAES256() throws Exception
 	{
 		testEncryptAndDecryptMimeEntity(EncryptionAlgorithm.AES256, true, false);
 	}	
 	
+	@Test
 	public void testEncryptAndDecryptMimeEntityRSA_3DES() throws Exception
 	{
 		testEncryptAndDecryptMimeEntity(EncryptionAlgorithm.RSA_3DES, false, false);
 	}		
 	
-	
+	@Test
 	public void testEncryptAndDecryptMimeEntityAES192() throws Exception
 	{
 		testEncryptAndDecryptMimeEntity(EncryptionAlgorithm.AES192, true, false);
 	}	
 
+	@Test
 	public void testEncryptAndDecryptMimeEntityRSA_3DES_enforceStrongEncr_assertException() throws Exception
 	{
 		testEncryptAndDecryptMimeEntity(EncryptionAlgorithm.RSA_3DES, true, true);
 	}	
 	
+	@Test
 	public void testEncryptAndDecryptMimeEntityDefaultAlg() throws Exception
 	{
 		testEncryptAndDecryptMimeEntity(null, true, false);
@@ -142,6 +145,7 @@ public class CryptographerTest extends TestCase
 	
 	protected String pkcs11ProviderName;
 	
+	@Test
 	public void testEncryptAndDecryptMimeEntity_hsmDecryption() throws Exception
 	{
 		pkcs11ProviderName = TestUtils.setupSafeNetToken();
@@ -222,21 +226,25 @@ public class CryptographerTest extends TestCase
 		}
 	}
 	
+	@Test
 	public void testEncryptAndDecryptMultipartEntityAES128() throws Exception
 	{
 		testEncryptAndDecryptMultipartEntity(EncryptionAlgorithm.AES128, true);
 	}
 	
+	@Test
 	public void testEncryptAndDecryptMultipartEntityAES192() throws Exception
 	{
 		testEncryptAndDecryptMultipartEntity(EncryptionAlgorithm.AES192, true);
 	}
 	
+	@Test
 	public void testEncryptAndDecryptMultipartEntityAES256() throws Exception
 	{
 		testEncryptAndDecryptMultipartEntity(EncryptionAlgorithm.AES256, true);
 	}	
 	
+	@Test
 	public void testEncryptAndDecryptMultipartEntityRSA_3DES() throws Exception
 	{
 		testEncryptAndDecryptMultipartEntity(EncryptionAlgorithm.RSA_3DES, false);
@@ -293,16 +301,19 @@ public class CryptographerTest extends TestCase
 	
 	}	
 	
+	@Test
 	public void testSignMimeEntitySHA256() throws Exception
 	{
 		testSignMimeEntity(DigestAlgorithm.SHA256WITHRSA);
 	}	
 	
+	@Test
 	public void testSignMimeEntitySHA384() throws Exception
 	{
 		testSignMimeEntity(DigestAlgorithm.SHA384WITHRSA);
 	}	
 	
+	@Test
 	public void testSignMimeEntitySHA512() throws Exception
 	{
 		testSignMimeEntity(DigestAlgorithm.SHA512WITHRSA);
@@ -336,43 +347,18 @@ public class CryptographerTest extends TestCase
 		cryptographer.checkSignature(signedEnt, cert, new ArrayList<X509Certificate>());
 	}
 
-	public void testSignMimeEntity_SHA1Digest_forceStrongDigest_assertRejectValidation() throws Exception
+	@Test
+	public void testSignMimeEntity_SHA1Digest_assertNotAllowedAlgorithm() throws Exception
 	{	
-		X509CertificateEx certex = TestUtils.getInternalCert("user1");
 		
 		SMIMECryptographerImpl cryptographer = new SMIMECryptographerImpl();
-		cryptographer.setDigestAlgorithm(DigestAlgorithm.SHA1WITHRSA);
-		
-		MimeEntity entity = new MimeEntity();
-		entity.setText("Hello world.");
-		entity.setHeader(MimeStandard.ContentTypeHeader, "text/plain");
-		entity.setHeader(MimeStandard.ContentTransferEncodingHeader, "7bit");
-		
-		SignedEntity signedEnt = cryptographer.sign(entity, certex);
-		
-		assertNotNull(signedEnt);
-		
-		byte[] signedEntityBytes = EntitySerializer.Default.serializeToBytes(signedEnt.getContent());
-		byte[] entityBytes = EntitySerializer.Default.serializeToBytes(entity);		
-		
-		assertTrue(Arrays.equals(signedEntityBytes, entityBytes));
-		assertNotNull(signedEnt.getSignature());
-		
-		X509Certificate cert = TestUtils.getExternalCert("user1");
-			
-		boolean exceptionOccured = false;
-		try
-		{
-			cryptographer.checkSignature(signedEnt, cert, new ArrayList<X509Certificate>());
-		}
-		catch (SignatureValidationException e)
-		{
-			exceptionOccured = true;
-		}
-		assertTrue(exceptionOccured);
+		Assertions.assertThrows(IllegalArgumentException.class, () ->{
+			cryptographer.setDigestAlgorithm(DigestAlgorithm.SHA1WITHRSA);
+		});
 		
 	}
 	
+	@Test
 	public void testSignMimeEntity_SHA256Digest_forceStrongDigest_assertValidation() throws Exception
 	{	
 		X509CertificateEx certex = TestUtils.getInternalCert("user1");
@@ -402,35 +388,20 @@ public class CryptographerTest extends TestCase
 		
 	}
 	
-	public void testSignMimeEntity_SHA1Digest_doNotforceStrongDigest_assertValidation() throws Exception
+	@Test
+	public void testSignMimeEntity_SHA1Digest_assertNotAllowedDigestAlgorithm() throws Exception
 	{	
-		X509CertificateEx certex = TestUtils.getInternalCert("user1");
-		
 		SMIMECryptographerImpl cryptographer = new SMIMECryptographerImpl();
-		cryptographer.setDigestAlgorithm(DigestAlgorithm.SHA1WITHRSA);
-		cryptographer.setStrongDigestEnforced(false);
 		
-		MimeEntity entity = new MimeEntity();
-		entity.setText("Hello world.");
-		entity.setHeader(MimeStandard.ContentTypeHeader, "text/plain");
-		entity.setHeader(MimeStandard.ContentTransferEncodingHeader, "7bit");
+		Assertions.assertThrows(IllegalArgumentException.class, () ->{
+			cryptographer.setDigestAlgorithm(DigestAlgorithm.SHA1WITHRSA);
+		});
+
 		
-		SignedEntity signedEnt = cryptographer.sign(entity, certex);
-		
-		assertNotNull(signedEnt);
-		
-		byte[] signedEntityBytes = EntitySerializer.Default.serializeToBytes(signedEnt.getContent());
-		byte[] entityBytes = EntitySerializer.Default.serializeToBytes(entity);		
-		
-		assertTrue(Arrays.equals(signedEntityBytes, entityBytes));
-		assertNotNull(signedEnt.getSignature());
-		
-		X509Certificate cert = TestUtils.getExternalCert("user1");
-			
-		cryptographer.checkSignature(signedEnt, cert, new ArrayList<X509Certificate>());
 		
 	}
 	
+	@Test
 	public void testEncryptAndSignMimeEntity() throws Exception
 	{	
 		X509Certificate cert = TestUtils.getInternalCACert("user1");
@@ -456,6 +427,7 @@ public class CryptographerTest extends TestCase
 
 	}
 
+	@Test
 	public void testEncryptWithSingleCert_wrongDecryptCert_assertFailDecrypt() throws Exception
 	{
 		X509Certificate cert = TestUtils.getExternalCert("user1");
@@ -487,6 +459,7 @@ public class CryptographerTest extends TestCase
 		assertTrue(exceptionOccured);
 	}
 	
+	@Test
 	public void testEncryptWithSingleCert_decryptWithMutlipeCerts_onlyOneCertCorrect_assertDecrypted() throws Exception
 	{
 		X509Certificate cert = TestUtils.getExternalCert("user1");

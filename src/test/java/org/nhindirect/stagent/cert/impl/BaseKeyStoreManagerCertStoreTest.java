@@ -1,6 +1,9 @@
 package org.nhindirect.stagent.cert.impl;
 
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import org.apache.commons.lang3.StringUtils;
 import org.nhindirect.common.crypto.MutableKeyStoreProtectionManager;
@@ -10,14 +13,14 @@ import org.nhindirect.common.crypto.impl.StaticPKCS11TokenKeyStoreProtectionMana
 import org.nhindirect.stagent.cert.CertCacheFactory;
 import org.nhindirect.stagent.utils.TestUtils;
 
-public abstract class BaseKeyStoreManagerCertStoreTest extends TestCase
+public abstract class BaseKeyStoreManagerCertStoreTest
 {
 	/*
 	 * Testing these with the SafeNet token.  Only run these if the token is installed
 	 */
 	protected CacheableKeyStoreManagerCertificateStore store = null;
 	
-	@Override
+	@BeforeEach
 	public void setUp() throws Exception
 	{
 		CertCacheFactory.getInstance().flushAll();
@@ -37,7 +40,7 @@ public abstract class BaseKeyStoreManagerCertStoreTest extends TestCase
 		}
 	}
 	
-	@Override
+	@AfterEach
 	public void tearDown() throws Exception
 	{
 		if (store != null)

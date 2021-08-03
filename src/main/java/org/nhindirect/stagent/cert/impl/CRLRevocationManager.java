@@ -22,6 +22,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 
 package org.nhindirect.stagent.cert.impl;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,8 +47,6 @@ import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Object;
 import org.bouncycastle.asn1.ASN1OctetString;
@@ -61,6 +60,8 @@ import org.nhindirect.common.options.OptionsParameter;
 import org.nhindirect.stagent.NHINDException;
 import org.nhindirect.stagent.cert.RevocationManager;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Utility class for handling the storage and lookup of certificate revocation
  * lists.  CRLs are cached in memory for short term lookup an cached to file 
@@ -71,11 +72,9 @@ import org.nhindirect.stagent.cert.RevocationManager;
  * @author beau
  * @author Greg Meyer
  */
+@Slf4j
 public class CRLRevocationManager implements RevocationManager 
 {
-
-    @SuppressWarnings("deprecation")
-	private static final Log LOGGER = LogFactory.getFactory().getInstance(CRLRevocationManager.class);
 
     private static final int CRL_CONNECT_TIMEOUT = 3000;
 
@@ -103,11 +102,11 @@ public class CRLRevocationManager implements RevocationManager
         } 
         catch (CertificateException e) 
         {
-        	LOGGER.error("Failed to create certificate factory for CRL management ", e);
+        	log.error("Failed to create certificate factory for CRL management ", e);
         } 
         catch (NoSuchProviderException e) 
         {
-        	LOGGER.error("Failed to create certificate factory for CRL management ", e);
+        	log.error("Failed to create certificate factory for CRL management ", e);
 		}
         
         // initialize the cache location
@@ -200,8 +199,8 @@ public class CRLRevocationManager implements RevocationManager
         }
         catch (Exception e) 
         {
-            if (LOGGER.isWarnEnabled()) 
-                LOGGER.warn("Unable to handle CDP CRL(s): " + e.getMessage());
+            if (log.isWarnEnabled()) 
+            	log.warn("Unable to handle CDP CRL(s): {}", e.getMessage());
         }
         
         return null;
@@ -221,7 +220,7 @@ public class CRLRevocationManager implements RevocationManager
         {
     		final StringBuilder builder = new StringBuilder("Cannot find a CRL for certificate.").append("\r\n\tDN: ").append(certificate.getSubjectDN());
     		builder.append("\r\n\tSerial Number: ").append(certificate.getSerialNumber().toString(16));        
-        	LOGGER.warn(builder.toString());
+    		log.warn(builder.toString());
             return false;
         }
         
@@ -231,7 +230,7 @@ public class CRLRevocationManager implements RevocationManager
 	        {
 	        	final StringBuilder builder = new StringBuilder("Certificate is revoked by CRL ").append("\r\n\tDN: ").append(certificate.getSubjectDN());
 	     		builder.append("\r\n\tSerial Number: ").append(certificate.getSerialNumber().toString(16));  
-	     		LOGGER.warn(builder.toString());
+	     		log.warn(builder.toString());
 	            return true;
 	        }
         }
@@ -337,7 +336,7 @@ public class CRLRevocationManager implements RevocationManager
     			{
 			        synchronized(cache) 
 			        { 
-			        	LOGGER.warn("CRL cache file " + uriFileName + " appears to be corrupt.  Deleting file.", e);
+			        	log.warn("CRL cache file {} appears to be corrupt.  Deleting file.", uriFileName , e);
 	    				// have to close the file stream or else we can't delete file on windows
 	    				IOUtils.closeQuietly(fileInStream);
 			        	
@@ -346,7 +345,7 @@ public class CRLRevocationManager implements RevocationManager
     			}
     			catch (Throwable t)
     			{
-    				LOGGER.warn("Failed to load CRL from cache file " + uriFileName, t);
+    				log.warn("Failed to load CRL from cache file {}", uriFileName, t);
     			}
     			finally
     			{
@@ -371,14 +370,17 @@ public class CRLRevocationManager implements RevocationManager
                 // get the input stream
                 InputStream crlInputStream = urlConnection.getInputStream();
                 
+                byte[] crlBtyeArray = IOUtils.toByteArray(crlInputStream);
+                FileUtils.writeByteArrayToFile(new File("Crl.crl"), crlBtyeArray);
+                
                 try 
                 {
                 	// load from URI
-                   crlImpl = (X509CRL)certificateFactory.generateCRL(crlInputStream);
+                   crlImpl = (X509CRL)certificateFactory.generateCRL(new ByteArrayInputStream(crlBtyeArray));
                 } 
                 catch (Throwable t)
                 {
-                	LOGGER.warn("Failed to load CRL from URL " + crlUrlString, t);
+                	log.warn("Failed to load CRL from URL {}", crlUrlString, t);
                 }
                 finally 
                 {
@@ -398,7 +400,7 @@ public class CRLRevocationManager implements RevocationManager
             }
             catch (Exception e)
             {
-                LOGGER.warn("Unable to retrieve or parse CRL from URI " + crlUrlString);
+                log.warn("Unable to retrieve or parse CRL from URI {}", crlUrlString);
             }
         }
         
@@ -466,7 +468,7 @@ public class CRLRevocationManager implements RevocationManager
 				if (cacheFile.exists())
 					if (!cacheFile.delete())
 					{
-						LOGGER.warn("Could not delete old CRL cache file for URI " + cacheURI + "  File may become stale");
+						log.warn("Could not delete old CRL cache file for URI {}. File may become stale", cacheURI);
 						return;
 					}
 
@@ -477,7 +479,7 @@ public class CRLRevocationManager implements RevocationManager
 			}
 			catch (Throwable t)
 			{
-				LOGGER.warn("Failed to write CRL to cache file " + uriFileName, t);
+				log.warn("Failed to write CRL to cache file {}", uriFileName, t);
 			}
 			finally
 			{
@@ -505,11 +507,11 @@ public class CRLRevocationManager implements RevocationManager
 				// make sure the file exists, then try to delete it
     			if (cacheFile.exists())
     				if (!cacheFile.delete())
-    					LOGGER.warn("Could not delete CRL cache file " + cacheFile.getAbsolutePath());
+    					log.warn("Could not delete CRL cache file {}", cacheFile.getAbsolutePath());
 			}
 			catch (Throwable t)
 			{
-				LOGGER.warn("Could not delete CRL cache file " + cacheFile.getAbsolutePath(), t);
+				log.warn("Could not delete CRL cache file {}", cacheFile.getAbsolutePath(), t);
 			}
 		}
 
@@ -540,7 +542,7 @@ public class CRLRevocationManager implements RevocationManager
     	}
     	catch (Throwable t)
     	{
-    		LOGGER.warn("Failed to create cacheURI digest for URI " + cacheURI, t);
+    		log.warn("Failed to create cacheURI digest for URI {}", cacheURI, t);
     	}
     	
     	return retVal;
@@ -589,8 +591,7 @@ public class CRLRevocationManager implements RevocationManager
     			}
     			catch (IOException e)
     			{
-    				LOGGER.warn("Failed to clean CRL cache directory " + crlCacheLocation.getAbsolutePath() 
-    						+ " during flush operation.", e);
+    				log.warn("Failed to clean CRL cache directory {} during flush operation.", crlCacheLocation.getAbsolutePath(), e);
     			}
     		}
     	}
@@ -617,8 +618,8 @@ public class CRLRevocationManager implements RevocationManager
         		// then log a warning and disable caching
         		if (!crlCacheLocation.isDirectory())
         		{
-        			LOGGER.warn("Configured CRL cache location " + cacheLoc + " already exists and is not a directory. " +
-        				"CRL file caching will be disable");
+        			log.warn("Configured CRL cache location {} already exists and is not a directory. " +
+        				"CRL file caching will be disable", cacheLoc );
         		
         			crlCacheLocation = null;
         		}
@@ -631,7 +632,7 @@ public class CRLRevocationManager implements RevocationManager
         }
         catch (Throwable t)
         {
-			LOGGER.warn("Failed to initialize CRL cache location " + cacheLoc + " CRL file caching will be disable" , t);
+        	log.warn("Failed to initialize CRL cache location {} CRL file caching will be disable", cacheLoc,  t);
 			crlCacheLocation = null;
         }
         

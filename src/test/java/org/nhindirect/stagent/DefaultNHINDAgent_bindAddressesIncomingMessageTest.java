@@ -1,8 +1,13 @@
 package org.nhindirect.stagent;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
+
+import org.junit.jupiter.api.Test;
 
 import java.security.cert.X509Certificate;
 import java.io.ByteArrayInputStream;
@@ -19,9 +24,7 @@ import org.nhindirect.stagent.policy.PolicyResolver;
 import org.nhindirect.stagent.trust.TrustAnchorResolver;
 import org.nhindirect.stagent.utils.TestUtils;
 
-import junit.framework.TestCase;
-
-public class DefaultNHINDAgent_bindAddressesIncomingMessageTest extends TestCase
+public class DefaultNHINDAgent_bindAddressesIncomingMessageTest
 {
 	protected IncomingMessage buildIncomingMessage(String fileName) throws Exception
 	{
@@ -105,6 +108,8 @@ public class DefaultNHINDAgent_bindAddressesIncomingMessageTest extends TestCase
 		assertEquals(0, message.getSender().getCertificates().size());
 	}
 	*/
+	
+	@Test
 	public void testBindAddresses_noPrivateCerts_assertNoBoundPrivateCerts() throws Exception
 	{		
 		final CertificateResolver publicCertResolver = mock(CertificateResolver.class);
@@ -125,6 +130,7 @@ public class DefaultNHINDAgent_bindAddressesIncomingMessageTest extends TestCase
 			assertEquals(0, recipient.getCertificates().size());
 	}
 	
+	@Test
 	public void testBindAddresses_singlePrivateCerts_notFiltered_assertBoundPrivateCerts() throws Exception
 	{		
 		final X509Certificate cert = mock(X509Certificate.class);
@@ -147,6 +153,7 @@ public class DefaultNHINDAgent_bindAddressesIncomingMessageTest extends TestCase
 			assertEquals(1, recipient.getCertificates().size());
 	}
 	
+	@Test
 	public void testBindAddresses_singlePrivateCerts_plicyFiltered_assertNoBoundPrivateCerts() throws Exception
 	{		
 		final X509Certificate cert = mock(X509Certificate.class);
