@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>agent</artifactId>    
     <name>Direct Project Security And Trust Agent</name>
-    <version>8.0.0</version>
+    <version>8.1.0-SNAPSHOT</version>
     <description>Direct Project Security And Trust Agent</description>
     <inceptionYear>2010</inceptionYear>
     <url>https://github.com/DirectProjectJavaRI/agent</url> 
@@ -214,7 +214,18 @@
         <directory>${project.basedir}/lib</directory>
       </testResource>
     </testResources>
-    <plugins>   
+    <plugins>  
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>       
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId> 
@@ -285,8 +296,8 @@
                 </goals>
               </execution>
             </executions>	        
-	      </plugin>		
-		<!--  for release only
+	      </plugin>
+	      <!--  for releases only 	
 	      <plugin>
              <groupId>org.apache.maven.plugins</groupId>
              <artifactId>maven-gpg-plugin</artifactId>
@@ -301,7 +312,7 @@
             </executions>
             <version>3.0.1</version>
          </plugin>
-         -->
+         -->	
     </plugins>    
   </build>                        
   <reporting>
