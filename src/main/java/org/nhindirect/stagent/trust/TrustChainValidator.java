@@ -471,7 +471,7 @@ public class TrustChainValidator
 		}
 		catch (Exception e)
 		{
-			throw new NHINDException("Failed to download certificates from AIA extension (URL: " + url + ")", e);
+			throw new NHINDException("Failed to download certificates from AIA extension (URL: " + url + " )", e);
 		}
 		finally
 		{

@@ -317,7 +317,7 @@ public class SMIMECryptographerImpl implements Cryptographer
     	{
     		throw new MimeException(MimeError.InvalidMimeEntity, e);
     	}
-        
+
     	return this.encrypt(entToEncrypt, encryptingCertificates);
     }       
     
@@ -364,13 +364,13 @@ public class SMIMECryptographerImpl implements Cryptographer
             }        
 
             encryptedEntity.setHeader(MimeStandard.ContentTypeHeader, SMIMEStandard.EncryptedContentTypeHeaderValue);
-            
         }
         catch (Exception e)
         {
         	throw new MimeException(MimeError.Unexpected, e);
         }
 
+       log.debug("Message was encrypted");
         return encryptedEntity;
     }
 
@@ -542,7 +542,8 @@ public class SMIMECryptographerImpl implements Cryptographer
         {
         	throw new NHINDException(MimeError.Unexpected, "None of the the provided decryption certs were found in message's RecipientsInfo set.");
         }
-        
+
+        log.debug("Message was decrypted");
         return retEntity;
     }
 
@@ -622,14 +623,14 @@ public class SMIMECryptographerImpl implements Cryptographer
         
         try
         {
-        
-        	retVal = new SignedEntity(new ContentType(mm.getContentType()), mm);
+           retVal = new SignedEntity(new ContentType(mm.getContentType()), mm);
         }
         catch (ParseException e)
         {
         	throw new MimeException(MimeError.InvalidHeader, e);
         }
-        
+
+        log.debug("Message was signed");
         return retVal;
     }
 

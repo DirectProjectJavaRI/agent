@@ -757,7 +757,7 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
 	        }    	
 	
 	    	if (log.isDebugEnabled())
-	    		log.debug("Processing incoming message:\r\n  {} \r\n", message.toString());    	
+	    		log.debug("Processing incoming message: {} \r\n", message.toString());
 	    	    	
 	        try
 	        {
@@ -811,6 +811,8 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
     protected void processMessage(IncomingMessage message)
     {    	
     	///CLOVER:OFF
+        log.debug("Processing message trust");
+
         if (message.getSender() == null)
         {
             throw new TrustException(TrustError.UntrustedSender);
@@ -822,6 +824,8 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
         {
         	throw new AgentException(AgentError.NoTrustedRecipients);
         }
+
+        log.debug("Message is trusted");
         //
         // Map each address to its certificates/trust settings
         //
@@ -1043,7 +1047,8 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
      */
     protected void decryptSignedContent(IncomingMessage message)
     {
-        
+        log.debug("Decrypting message");
+
         MimeEntity decryptedEntity = this.decryptMessage(message);
         CMSSignedData signatures;
         MimeEntity payload;
@@ -1477,40 +1482,41 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
     protected void signAndEncryptMessage(OutgoingMessage message)
     {
 
-    	
-        SignedEntity signedEntity = cryptographer.sign(message.getMessage(), message.getSender().getCertificates());
+         log.debug("Signing message");
+         SignedEntity signedEntity = cryptographer.sign(message.getMessage(), message.getSender().getCertificates());
         
         try
         {
 	        if (encryptionEnabled)
-	        {	        	
+	        {
+               log.debug("Encrypting message");
 	            MimeEntity encryptedEntity = cryptographer.encrypt(signedEntity.getMimeMultipart(), message.getRecipients().getCertificates());
 	            //
 	            // Alter message content to contain encrypted data
 	            //
-	            
+
 	            InternetHeaders headers = new InternetHeaders();
 	            Enumeration<Header> eHeaders = message.getMessage().getAllHeaders();
 	            while (eHeaders.hasMoreElements())
 	            {
 	            	Header hdr = eHeaders.nextElement();
 	            	headers.setHeader(hdr.getName(), hdr.getValue());
-	            }    
-	              
+	            }
+
 	            eHeaders = encryptedEntity.getAllHeaders();
 	            while (eHeaders.hasMoreElements())
 	            {
 	            	Header hdr = (Header)eHeaders.nextElement();
 	            	headers.setHeader(hdr.getName(), hdr.getValue());
-	            }    	            
+	            }
 
 	            Message msg = new Message(headers, encryptedEntity.getContentAsBytes());
-	            
+
 	            message.setMessage(msg);
 	        }
 	        else
-	        {      	
-	            
+	        {
+               log.debug("Encryption disabled. Processing regular message");
 	            InternetHeaders headers = new InternetHeaders();
 	            Enumeration<Header> eHeaders = message.getMessage().getAllHeaders();
 	            while (eHeaders.hasMoreElements())
