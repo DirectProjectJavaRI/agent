@@ -47,7 +47,7 @@
       <commons-io.version>2.8.0</commons-io.version>
       <shared-ldap.version>0.9.5.5</shared-ldap.version>
       <apache-ds.version>1.0.2</apache-ds.version>
-      <mina-core.version>1.0.9</mina-core.version>
+      <mina-core.version>2.0.22</mina-core.version>
       <bcprov-jdk15on.version>1.68</bcprov-jdk15on.version>
       <bcmail-jdk15on.version>1.68</bcmail-jdk15on.version>
       <bcpkix-jdk15on.version>1.68</bcpkix-jdk15on.version>
