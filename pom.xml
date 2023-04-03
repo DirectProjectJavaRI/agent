@@ -51,7 +51,7 @@
       <bcprov-jdk15on.version>1.68</bcprov-jdk15on.version>
       <bcmail-jdk15on.version>1.68</bcmail-jdk15on.version>
       <bcpkix-jdk15on.version>1.68</bcpkix-jdk15on.version>
-      <javax-mail-extension.version>3.1.0</javax-mail-extension.version>
+      <javax-mail-extension.version>3.7.4</javax-mail-extension.version>
    </properties>   	    
   <scm>
      <url>https://github.com/DirectProjectJavaRI/agent.git</url>  
