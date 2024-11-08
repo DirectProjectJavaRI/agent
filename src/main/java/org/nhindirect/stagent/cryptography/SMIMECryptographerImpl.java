@@ -22,6 +22,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 
 package org.nhindirect.stagent.cryptography;
 
+import java.security.spec.MGF1ParameterSpec;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -36,6 +37,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPublicKey;
 
+import javax.crypto.spec.OAEPParameterSpec;
+import javax.crypto.spec.PSource;
 import javax.mail.MessagingException;
 import javax.mail.internet.ContentType;
 import javax.mail.internet.InternetHeaders;
@@ -47,12 +50,18 @@ import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1OctetString;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.DERUTF8String;
+import org.bouncycastle.asn1.DLSequence;
 import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.cms.AttributeTable;
 import org.bouncycastle.asn1.cms.CMSAttributes;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
+import org.bouncycastle.asn1.pkcs.RSAESOAEPparams;
 import org.bouncycastle.asn1.smime.SMIMECapabilitiesAttribute;
 import org.bouncycastle.asn1.smime.SMIMECapability;
 import org.bouncycastle.asn1.smime.SMIMECapabilityVector;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.cert.jcajce.JcaCertStore;
 import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
@@ -70,7 +79,9 @@ import org.bouncycastle.mail.smime.CMSProcessableBodyPart;
 import org.bouncycastle.mail.smime.SMIMEEnveloped;
 import org.bouncycastle.mail.smime.SMIMEEnvelopedGenerator;
 import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.DefaultAlgorithmNameFinder;
 import org.bouncycastle.operator.OutputEncryptor;
+import org.bouncycastle.operator.jcajce.JcaAlgorithmParametersConverter;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
 import org.nhindirect.common.crypto.CryptoExtensions;
@@ -108,6 +119,10 @@ public class SMIMECryptographerImpl implements Cryptographer
     public final static SMIMECryptographerImpl Default = new SMIMECryptographerImpl();
     
     protected EncryptionAlgorithm m_encryptionAlgorithm;
+
+    protected EncryptionAlgorithm m_keyEncryptionAlgorithm;
+
+    protected DigestAlgorithm m_keyEncryptionDigestAlgorithm;
     protected DigestAlgorithm m_digestAlgorithm;
     protected boolean m_includeEpilogue = true;
     protected boolean enforceStrongEncryption;
@@ -122,7 +137,13 @@ public class SMIMECryptographerImpl implements Cryptographer
     {
     	OptionsParameter param = OptionsManager.getInstance().getParameter(OptionsParameter.CRYPTOGRAHPER_SMIME_ENCRYPTION_ALGORITHM);
     	this.m_encryptionAlgorithm = (param == null) ? EncryptionAlgorithm.AES128 : EncryptionAlgorithm.fromString(param.getParamValue(), EncryptionAlgorithm.AES128);
-    	
+
+        param = OptionsManager.getInstance().getParameter(OptionsParameter.CRYPTOGRAHPER_KEY_ENCRYPTION_ALGORITHM);
+        this.m_keyEncryptionAlgorithm = (param == null) ? EncryptionAlgorithm.RSA_OAEP : EncryptionAlgorithm.fromString(param.getParamValue(), EncryptionAlgorithm.RSA_OAEP);
+
+        param = OptionsManager.getInstance().getParameter(OptionsParameter.CRYPTOGRAHPER_KEY_ENCRYPTION_DIGEST_ALGORITHM);
+        this.m_keyEncryptionDigestAlgorithm = (param == null) ? DigestAlgorithm.SHA256 : DigestAlgorithm.fromString(param.getParamValue(), DigestAlgorithm.SHA256);
+
         param = OptionsManager.getInstance().getParameter(OptionsParameter.CRYPTOGRAHPER_SMIME_DIGEST_ALGORITHM);
         this.m_digestAlgorithm = (param == null) ? DigestAlgorithm.SHA256WITHRSA : DigestAlgorithm.fromString(param.getParamValue(), DigestAlgorithm.SHA256WITHRSA);
         
@@ -158,8 +179,58 @@ public class SMIMECryptographerImpl implements Cryptographer
         this.enforceStrongEncryption = OptionsParameter.getParamValueAsBoolean(param, true);
 		
 		this.m_logDigest = OptionsParameter.getParamValueAsBoolean(param, false);
+
+        param = OptionsManager.getInstance().getParameter(OptionsParameter.CRYPTOGRAHPER_KEY_ENCRYPTION_ALGORITHM);
+        this.m_keyEncryptionAlgorithm = (param == null) ? EncryptionAlgorithm.RSA_OAEP : EncryptionAlgorithm.fromString(param.getParamValue(), EncryptionAlgorithm.RSA_OAEP);
+
+        param = OptionsManager.getInstance().getParameter(OptionsParameter.CRYPTOGRAHPER_KEY_ENCRYPTION_DIGEST_ALGORITHM);
+        this.m_keyEncryptionDigestAlgorithm = (param == null) ? DigestAlgorithm.SHA256 : DigestAlgorithm.fromString(param.getParamValue(), DigestAlgorithm.SHA256);
+
     }
-    
+
+    public SMIMECryptographerImpl(EncryptionAlgorithm encryptionAlgorithm, DigestAlgorithm digestAlgorithm, EncryptionAlgorithm keyEncryptionAlgorithm)
+    {
+        this.m_encryptionAlgorithm = encryptionAlgorithm;
+        this.m_digestAlgorithm = digestAlgorithm;
+
+        OptionsParameter param = OptionsManager.getInstance().getParameter(OptionsParameter.ENFORCE_STRONG_DIGESTS);
+        this.enforceStrongDigests = OptionsParameter.getParamValueAsBoolean(param, true);
+
+        if (!isAllowedDigestAlgorithm(m_digestAlgorithm.getOID()))
+            throw new IllegalArgumentException("The digest algorith " + m_digestAlgorithm.getAlgName() + " is not allowed");
+
+        param = OptionsManager.getInstance().getParameter(OptionsParameter.ENFORCE_STRONG_ENCRYPTION);
+        this.enforceStrongEncryption = OptionsParameter.getParamValueAsBoolean(param, true);
+
+        this.m_logDigest = OptionsParameter.getParamValueAsBoolean(param, false);
+
+        this.m_keyEncryptionAlgorithm = keyEncryptionAlgorithm;
+
+        param = OptionsManager.getInstance().getParameter(OptionsParameter.CRYPTOGRAHPER_KEY_ENCRYPTION_DIGEST_ALGORITHM);
+        this.m_keyEncryptionDigestAlgorithm = (param == null) ? DigestAlgorithm.SHA256 : DigestAlgorithm.fromString(param.getParamValue(), DigestAlgorithm.SHA256);
+
+    }
+    public SMIMECryptographerImpl(EncryptionAlgorithm encryptionAlgorithm, DigestAlgorithm digestAlgorithm, EncryptionAlgorithm keyEncryptionAlgorithm, DigestAlgorithm keyEncryptionDigestAlgorithm)
+    {
+        this.m_encryptionAlgorithm = encryptionAlgorithm;
+        this.m_digestAlgorithm = digestAlgorithm;
+
+        OptionsParameter param = OptionsManager.getInstance().getParameter(OptionsParameter.ENFORCE_STRONG_DIGESTS);
+        this.enforceStrongDigests = OptionsParameter.getParamValueAsBoolean(param, true);
+
+        if (!isAllowedDigestAlgorithm(m_digestAlgorithm.getOID()))
+            throw new IllegalArgumentException("The digest algorith " + m_digestAlgorithm.getAlgName() + " is not allowed");
+
+        param = OptionsManager.getInstance().getParameter(OptionsParameter.ENFORCE_STRONG_ENCRYPTION);
+        this.enforceStrongEncryption = OptionsParameter.getParamValueAsBoolean(param, true);
+
+        this.m_logDigest = OptionsParameter.getParamValueAsBoolean(param, false);
+
+        this.m_keyEncryptionAlgorithm = keyEncryptionAlgorithm;
+
+        this.m_keyEncryptionDigestAlgorithm = keyEncryptionDigestAlgorithm;
+
+    }
     /**
      * Gets the EncryptionAlgorithm.
      * @return The EncryptionAlgorithm used to encrypt messages.
@@ -167,6 +238,24 @@ public class SMIMECryptographerImpl implements Cryptographer
     public EncryptionAlgorithm getEncryptionAlgorithm()
     {
         return this.m_encryptionAlgorithm;
+    }
+
+    /**
+     * Gets the KeyEncryptionAlgorithm.
+     * @return The KeyEncryptionAlgorithm used to encrypt message key.
+     */
+    public EncryptionAlgorithm getKeyEncryptionAlgorithm()
+    {
+        return this.m_keyEncryptionAlgorithm;
+    }
+
+    /**
+     * Gets the KeyEncryptionDigestAlgorithm.
+     * @return The KeyEncryptionDigestAlgorithm used to encrypt message key.
+     */
+    public DigestAlgorithm getKeyEncryptionDigestAlgorithm()
+    {
+        return this.m_keyEncryptionDigestAlgorithm;
     }
     
     /**
@@ -176,6 +265,24 @@ public class SMIMECryptographerImpl implements Cryptographer
     public void setEncryptionAlgorithm(EncryptionAlgorithm value)
     {
         this.m_encryptionAlgorithm = value;
+    }
+
+    /**
+     * Sets the KeyEncryptionAlgorithm
+     * @param value The KeyEncryptionAlgorithm used to encrypt message key.
+     */
+    public void setKeyEncryptionAlgorithm(EncryptionAlgorithm value)
+    {
+        this.m_keyEncryptionAlgorithm = value;
+    }
+
+    /**
+     * Sets the KeyEncryptionDigestAlgorithm
+     * @param value The KeyEncryptionAlgorithm used to encrypt message key.
+     */
+    public void setKeyEncryptionDigestAlgorithm(DigestAlgorithm value)
+    {
+        this.m_keyEncryptionDigestAlgorithm = value;
     }
 
     /**
@@ -393,23 +500,71 @@ public class SMIMECryptographerImpl implements Cryptographer
         
         final SMIMEEnvelopedGenerator gen = new SMIMEEnvelopedGenerator();
 
-        
+        if (!this.isAllowedKeyEncryptionAlgorithm(m_keyEncryptionAlgorithm.getOID()))
+            throw new NHINDException(MimeError.DisallowedEncryptionAlgorithm, "The key encryption algorithm " + m_keyEncryptionAlgorithm.algName + "("+ m_keyEncryptionAlgorithm.getOID()
+                    + ") is not allowed");
+
+        if (!this.isAllowedKeyEncryptionDigestAlgorithm(m_keyEncryptionDigestAlgorithm.getOID()))
+            throw new NHINDException(MimeError.DisallowedEncryptionAlgorithm, "The key encryption algorithm " + m_keyEncryptionDigestAlgorithm.algName + "("+ m_keyEncryptionDigestAlgorithm.getOID()
+                    + ") is not allowed");
+
         MimeBodyPart retVal = null;
-        
+
         try
         {
             for(X509Certificate cert : encryptingCertificates)
             {
             	// ensure the certificates key is allowed
-            	if (isAllowedCertKey(cert))
-            		gen.addRecipientInfoGenerator(new JceKeyTransRecipientInfoGenerator(cert).setProvider(CryptoExtensions.getJCEProviderName()));
+            	if (isAllowedCertKey(cert)) {
+                    if (log.isDebugEnabled()) {
+                        log.info("Encrypting: Encryption algorithm is " + this.m_encryptionAlgorithm.algName + "(" + m_encryptionAlgorithm.getOID().toString() + ")");
+                        log.info("Encrypting: Key encryption algorithm is " + this.m_keyEncryptionAlgorithm.algName + "(" + this.m_keyEncryptionAlgorithm.getOID().toString() + ")");
+                    }
+                    JcaAlgorithmParametersConverter paramsConverter = new JcaAlgorithmParametersConverter();
+                    if( m_keyEncryptionAlgorithm == EncryptionAlgorithm.RSA_OAEP) {
+                        OAEPParameterSpec oaepSpec = null;
+                        if( m_keyEncryptionDigestAlgorithm == DigestAlgorithm.SHA256){
+                            oaepSpec = new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
+                        }
+                        if( m_keyEncryptionDigestAlgorithm == DigestAlgorithm.SHA384){
+                            oaepSpec = new OAEPParameterSpec("SHA-384", "MGF1", MGF1ParameterSpec.SHA384, PSource.PSpecified.DEFAULT);
+                        }
+                        if( m_keyEncryptionDigestAlgorithm == DigestAlgorithm.SHA512){
+                            oaepSpec = new OAEPParameterSpec("SHA-512", "MGF1", MGF1ParameterSpec.SHA512, PSource.PSpecified.DEFAULT);
+                        }
+                        if( m_keyEncryptionDigestAlgorithm == DigestAlgorithm.SHA1){
+                            oaepSpec = new OAEPParameterSpec("SHA-1", "MGF1", MGF1ParameterSpec.SHA1, PSource.PSpecified.DEFAULT);
+                        }
+
+                        AlgorithmIdentifier algorithmIdentifier = paramsConverter.getAlgorithmIdentifier(PKCSObjectIdentifiers.id_RSAES_OAEP, oaepSpec);
+                        if (log.isDebugEnabled()) {
+                            ASN1Encodable asn1Encodable = algorithmIdentifier.getParameters();
+                            RSAESOAEPparams rsaesoaePparams = (RSAESOAEPparams)asn1Encodable;
+                            log.info("Encrypting: Key encryption algorithm parameters: Hash Algorithm: " + rsaesoaePparams.getHashAlgorithm().getAlgorithm().getId() +  " Mask Gen Algorithm: " + rsaesoaePparams.getMaskGenAlgorithm().getAlgorithm().getId() + " P Source Algorithm: " + rsaesoaePparams.getPSourceAlgorithm().getAlgorithm().getId());
+                        }
+                        // JceKeyTransRecipientInfoGenerator has at least 2 constructors
+                        // with just a cert as the arg, the algorithm defaults to new JceAsymmetricKeyWrapper(recipientCert) for the AsymmetricKeyWrapper, which is RSA PKCS15
+                        // you can also pass in the wrapper, RSA OAEP for example
+                        JceKeyTransRecipientInfoGenerator jceKey = new JceKeyTransRecipientInfoGenerator(cert, algorithmIdentifier).setProvider(CryptoExtensions.getJCEProviderName());
+
+                        // KeyEncryption set to RSA OAEP
+                        gen.addRecipientInfoGenerator(jceKey);
+                    }
+                    if( m_keyEncryptionAlgorithm == EncryptionAlgorithm.RSA_PKCS1_V15) {
+                        // Original version - KeyEncryption defaults to PKCS#1 v1.5 padding
+                        gen.addRecipientInfoGenerator(new JceKeyTransRecipientInfoGenerator(cert).setProvider(CryptoExtensions.getJCEProviderName()));
+                    }
+
+
+                }
             }
             
         	final ASN1ObjectIdentifier encryAlgOID = new ASN1ObjectIdentifier(this.m_encryptionAlgorithm.getOID());
         	final OutputEncryptor encryptor = new JceCMSContentEncryptorBuilder(encryAlgOID).
         			setProvider(CryptoExtensions.getJCEProviderNameForTypeAndAlgorithm("Cipher", this.m_encryptionAlgorithm.getOID())).build();
-        	
-        	retVal =  gen.generate(bodyPart, encryptor);
+
+
+            retVal =  gen.generate(bodyPart, encryptor);
         			
         			
         			//encryAlgOID, 
@@ -499,7 +654,8 @@ public class SMIMECryptographerImpl implements Cryptographer
             if (!this.isAllowedEncryptionAlgorithm(m.getEncryptionAlgOID()))
             	throw new NHINDException(MimeError.DisallowedEncryptionAlgorithm, "The encryption algorithm " + m.getEncryptionAlgOID() 
             			+ " is not allowed");
-            
+
+
             for (X509CertificateEx decryptCert : decryptingCertificates)
             {   
             	// ensure they key strength/size is allowed
@@ -512,11 +668,33 @@ public class SMIMECryptographerImpl implements Cryptographer
 		        final RecipientInformation recipient = recipients.get(recId);	
 		        if (recipient == null)
 		        	continue;
-	
-		        final JceKeyTransEnvelopedRecipient recip = new DirectJceKeyTransEnvelopedRecipient(decryptCert.getPrivateKey());
+                if (log.isDebugEnabled()) {
+                    DefaultAlgorithmNameFinder defaultAlgorithmNameFinder = new DefaultAlgorithmNameFinder();
+                    log.info("Decrypting: Encryption algorithm is " + defaultAlgorithmNameFinder.getAlgorithmName(m.getContentEncryptionAlgorithm()) + "(" + m.getEncryptionAlgOID() + ")");
+                    log.info("Decrypting: Key encryption algorithm is " + defaultAlgorithmNameFinder.getAlgorithmName(recipient.getKeyEncryptionAlgorithm()) + "(" + recipient.getKeyEncryptionAlgorithm().getAlgorithm().getId() + ")");
+                    if( recipient.getKeyEncryptionAlgorithm().getParameters() != null){
+                        if (log.isDebugEnabled()) {
+                            ASN1Encodable asn1Encodable = recipient.getKeyEncryptionAlgorithm().getParameters();
+                            if( asn1Encodable instanceof DLSequence) {
+                                DLSequence dlSequence = (DLSequence) asn1Encodable;
+                                /*
+                                RSAES-OAEP-params ::= SEQUENCE {
+                                    hashAlgorithm [0] HashAlgorithm DEFAULT sha1,
+                                    maskGenAlgorithm [1] MaskGenAlgorithm DEFAULT mgf1SHA1,
+                                    pSourceAlgorithm [2] PSourceAlgorithm DEFAULT pSpecifiedEmpty
+                                }
+                                 */
+                                RSAESOAEPparams rsaesoaePparams = RSAESOAEPparams.getInstance(dlSequence);
+                                log.info("Decrypting: Key encryption algorithm parameters: Hash Algorithm: " + rsaesoaePparams.getHashAlgorithm().getAlgorithm().getId() + " Mask Gen Algorithm: " + rsaesoaePparams.getMaskGenAlgorithm().getAlgorithm().getId() + " P Source Algorithm: " + rsaesoaePparams.getPSourceAlgorithm().getAlgorithm().getId());
+                            }
+                        }
+                    }
+                }
+                final JceKeyTransEnvelopedRecipient recip = new DirectJceKeyTransEnvelopedRecipient(decryptCert.getPrivateKey());
 		        recip.setProvider(CryptoExtensions.getJCESensitiveProviderName());
 		        recip.setContentProvider(CryptoExtensions.getJCEProviderName());
-		        
+
+
 		        final byte[] decryptedPayload = recipient.getContent(recip);
 	            if (log.isDebugEnabled())
 	            {	
@@ -830,7 +1008,41 @@ public class SMIMECryptographerImpl implements Cryptographer
     	 */
     	return encryptionOID.equalsIgnoreCase(EncryptionAlgorithm.DES_EDE3_CBC.getOID()) ? false : true;
     }
-    
+    /**
+     * Determines if a specific key encryption algorithm is allowed by policy and in conformance with the applicability statement.
+     * This check can be turned off with the ENFORCE_STRONG_ENCRYPTION options parameter.
+     * @return
+     */
+    protected boolean isAllowedKeyEncryptionAlgorithm(String encryptionOID)
+    {
+        if (!this.isStrongEncryptionEnforced())
+            return true;
+
+        /*
+         * Dis-allow those algorithms explicitly deprecated as of NIST 800-56B
+         * may include other algorithms in further implementations
+         */
+        return encryptionOID.equalsIgnoreCase(EncryptionAlgorithm.RSA_PKCS1_V15.getOID()) ? false : true;
+    }
+
+    /**
+     * Determines if a specific key encryption digest algorithm is allowed by policy and in conformance with the applicability statement.
+     * This check can be turned off with the ENFORCE_STRONG_ENCRYPTION options parameter.
+     * @return
+     */
+    protected boolean isAllowedKeyEncryptionDigestAlgorithm(String digestOID)
+    {
+        if (!this.isStrongEncryptionEnforced())
+            return true;
+
+        /*
+         * Dis-allow those algorithms explicitly deprecated as of NIST 800-56B
+         * may include other algorithms in further implementations
+         */
+        return digestOID.equalsIgnoreCase(DigestAlgorithm.SHA1.getOID()) ? false : true;
+    }
+
+
     /**
      * Determines if a certificate has a key of acceptable size/strength.
      * RSA keys MUST be at 2048 bits in length.

@@ -67,12 +67,40 @@
 		<dependency>
 		  <groupId>org.nhind</groupId>
 		  <artifactId>direct-policy</artifactId>
-		  <version>8.0.0</version>		  
+		  <version>8.0.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.bouncycastle</groupId>
+					<artifactId>bcprov-jdk15on</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.bouncycastle</groupId>
+					<artifactId>bcmail-jdk15on</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.bouncycastle</groupId>
+					<artifactId>bcpkix-jdk15on</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>	  
 		<dependency>
 		  <groupId>org.nhind</groupId>
 		  <artifactId>direct-common</artifactId>	
-		  <version>8.0.0</version>		  	  
+		  <version>8.0.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.bouncycastle</groupId>
+					<artifactId>bcprov-jdk15on</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.bouncycastle</groupId>
+					<artifactId>bcmail-jdk15on</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.bouncycastle</groupId>
+					<artifactId>bcpkix-jdk15on</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>	
 		<dependency>
 		  <groupId>org.nhind</groupId>
@@ -112,18 +140,18 @@
 		</dependency>	
 		<dependency>
 		    <groupId>org.bouncycastle</groupId>
-		    <artifactId>bcprov-jdk15on</artifactId>
-		    <version>${bcprov-jdk15on.version}</version>    
+		    <artifactId>bcprov-debug-jdk18on</artifactId>
+		    <version>1.78</version>
 		</dependency>  
 		<dependency>
 		    <groupId>org.bouncycastle</groupId>
-		    <artifactId>bcmail-jdk15on</artifactId>
-		    <version>${bcmail-jdk15on.version}</version>	 		       
-		</dependency>		
+		    <artifactId>bcmail-jdk18on</artifactId>
+		    <version>1.78</version>
+		</dependency>
 		<dependency>
 		    <groupId>org.bouncycastle</groupId>
-		    <artifactId>bcpkix-jdk15on</artifactId>
-		    <version>${bcpkix-jdk15on.version}</version>   			     
+		    <artifactId>bcpkix-jdk18on</artifactId>
+		    <version>1.78</version>
 		</dependency> 			
 		<dependency>
 		    <groupId>dnsjava</groupId>
@@ -164,7 +192,21 @@
 		    <groupId>org.springframework.boot</groupId>
 		    <artifactId>spring-boot-starter-test</artifactId>
 		    <scope>test</scope>
-		</dependency>	
+			<exclusions>
+				<exclusion>
+					<groupId>org.bouncycastle</groupId>
+					<artifactId>bcprov-jdk15on</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.bouncycastle</groupId>
+					<artifactId>bcmail-jdk15on</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.bouncycastle</groupId>
+					<artifactId>bcpkix-jdk15on</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 		<!--  Needed for Apache DS Tests -->
 	    <dependency>
 			<groupId>junit</groupId>

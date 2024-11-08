@@ -506,5 +506,142 @@ public class CryptographerTest
         {
         	FileUtils.writeByteArrayToFile(new File("./testCert.der"), cert.getEncoded());
         }
-	}	
+	}
+
+	@Test
+	public void testEncryptAndDecryptKeyEncryptionMimeEntityDefaultAlg() throws Exception
+	{
+		testEncryptAndDecryptKeyEncryptionMimeEntity(null, null, null, true, false, false);
+	}
+
+	@Test
+	public void testEncryptAndDecryptKeyEncryptionMimeEntityStrongEncryptionAlg() throws Exception
+	{
+		testEncryptAndDecryptKeyEncryptionMimeEntity(null, EncryptionAlgorithm.RSA_OAEP, null, true, false, false);
+	}
+
+	@Test
+	public void testEncryptAndDecryptKeyEncryptionMimeEntityStrongEncryptionAlgKeyEncryptDigestSHA256() throws Exception
+	{
+		testEncryptAndDecryptKeyEncryptionMimeEntity(null, EncryptionAlgorithm.RSA_OAEP, DigestAlgorithm.SHA256, true, false, false);
+	}
+	@Test
+	public void testEncryptAndDecryptKeyEncryptionMimeEntityStrongEncryptionAlgKeyEncryptDigestSHA384() throws Exception
+	{
+		testEncryptAndDecryptKeyEncryptionMimeEntity(null, EncryptionAlgorithm.RSA_OAEP, DigestAlgorithm.SHA384, true, false, false);
+	}
+	@Test
+	public void testEncryptAndDecryptKeyEncryptionMimeEntityStrongEncryptionAlgKeyEncryptDigestSHA512() throws Exception
+	{
+		testEncryptAndDecryptKeyEncryptionMimeEntity(null, EncryptionAlgorithm.RSA_OAEP, DigestAlgorithm.SHA512, true, false, false);
+	}
+	@Test
+	public void testEncryptAndDecryptKeyEncryptionMimeEntityStrongEncryptionAlgWeakKeyEncryptionDigestAlg() throws Exception
+	{
+		// This should throw an encryption exception, enforceStrongEncryption is set, SHA-1 is requested for key encryption digest
+		testEncryptAndDecryptKeyEncryptionMimeEntity(null, EncryptionAlgorithm.RSA_OAEP, DigestAlgorithm.SHA1, true, true, false);
+	}
+	public void testEncryptAndDecryptKeyEncryptionMimeEntityWeakEncryptionAlgStrongKeyEncryptionDigestAlg() throws Exception
+	{
+		// This should throw an encryption exception, enforceStrongEncryption is set, SHA-1 is requested for key encryption digest
+		testEncryptAndDecryptKeyEncryptionMimeEntity(null, EncryptionAlgorithm.RSA_PKCS1_V15, DigestAlgorithm.SHA256, true, true, false);
+	}
+	@Test
+	public void testEncryptAndDecryptKeyEncryptionMimeEntityWeakKeyEncryptionAlg() throws Exception
+	{
+		// This should throw an encryption exception, enforceStrongEncryption is set, PKCS#1 V1.5 is requested for key encryption
+		testEncryptAndDecryptKeyEncryptionMimeEntity(null, EncryptionAlgorithm.RSA_PKCS1_V15, null, true, true, false);
+	}
+	@Test
+	public void testEncryptAndDecryptKeyEncryptionMimeEntityWeakKeyEncryptionDigestAlg() throws Exception
+	{
+		// This should throw an encryption exception, enforceStrongEncryption is set, SHA-1 is requested for key encryption digest
+		testEncryptAndDecryptKeyEncryptionMimeEntity(null, null, DigestAlgorithm.SHA1, true, true, false);
+	}
+	@Test
+	public void testEncryptAndDecryptKeyEncryptionMimeEntityWeakKeyEncryptionDigestAlgNoEnforce() throws Exception
+	{
+		// This should NOT throw an encryption exception, enforceStrongEncryption is NOT set, SHA-1 is requested for key encryption digest
+		testEncryptAndDecryptKeyEncryptionMimeEntity(null, null, DigestAlgorithm.SHA1, false, false, false);
+	}
+	@Test
+	public void testEncryptAndDecryptKeyEncryptionMimeEntityWeakKeyEncryptionAlgNoEnforce() throws Exception
+	{
+		// This should NOT throw an encryption exception, enforceStrongEncryption is NOT set, PKCS#1V1.5 is requested for key encryption
+		testEncryptAndDecryptKeyEncryptionMimeEntity(null, EncryptionAlgorithm.RSA_PKCS1_V15, null, false, false, false);
+	}
+	private void testEncryptAndDecryptKeyEncryptionMimeEntity(EncryptionAlgorithm encAlg, EncryptionAlgorithm keyEncAlg, DigestAlgorithm keyEncDigAlg, boolean enforceStrongEncryption, boolean expectEncException, boolean expectDecException) throws Exception
+	{
+		X509Certificate cert = TestUtils.getExternalCert("user1");
+
+		SMIMECryptographerImpl cryptographer = new SMIMECryptographerImpl();
+		if (encAlg != null)
+			cryptographer.setEncryptionAlgorithm(encAlg);
+		if (keyEncAlg != null)
+			cryptographer.setKeyEncryptionAlgorithm(keyEncAlg);
+		if (keyEncDigAlg != null)
+			cryptographer.setKeyEncryptionDigestAlgorithm(keyEncDigAlg);
+		cryptographer.setStrongEncryptionEnforced(enforceStrongEncryption);
+
+		MimeEntity entity = new MimeEntity();
+		entity.setText("Hello world.");
+		entity.setHeader(MimeStandard.ContentTypeHeader, "text/plain");
+		entity.setHeader(MimeStandard.ContentTransferEncodingHeader, "7bit");
+
+		MimeEntity encEntity = null;
+		if (expectEncException)
+		{
+			boolean exceptionOccured = false;
+			try
+			{
+				encEntity = cryptographer.encrypt(entity, cert);
+				assertNotNull(encEntity);
+			}
+			catch (Exception e)
+			{
+				exceptionOccured = true;
+			}
+			assertTrue(exceptionOccured);
+			return;
+		} else {
+			encEntity = cryptographer.encrypt(entity, cert);
+			assertNotNull(encEntity);
+		}
+
+
+		/*
+		 * explicit header checking for compliance with Applicability
+		 * Statement v 1.2
+		 */
+		final ContentType type = new ContentType(encEntity.getContentType());
+		assertTrue(type.match(SMIMEStandard.CmsEnvelopeMediaType));
+		assertFalse(type.match(SMIMEStandard.CmsEnvelopeMediaTypeAlt));
+
+		X509CertificateEx certex = TestUtils.getInternalCert("user1");
+
+		if (expectDecException)
+		{
+			boolean exceptionOccured = false;
+			try
+			{
+				cryptographer.decrypt(encEntity, certex);
+			}
+			catch (Exception e)
+			{
+				exceptionOccured = true;
+			}
+			assertTrue(exceptionOccured);
+		}
+		else
+		{
+			MimeEntity decryEntity = cryptographer.decrypt(encEntity, certex);
+
+			assertNotNull(decryEntity);
+
+			byte[] decryEntityBytes = EntitySerializer.Default.serializeToBytes(decryEntity);
+			byte[] entityBytes = EntitySerializer.Default.serializeToBytes(entity);
+
+			assertTrue(Arrays.equals(decryEntityBytes, entityBytes));
+		}
+	}
 }

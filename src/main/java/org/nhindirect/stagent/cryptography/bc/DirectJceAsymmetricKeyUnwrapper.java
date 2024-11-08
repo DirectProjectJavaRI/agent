@@ -2,6 +2,7 @@ package org.nhindirect.stagent.cryptography.bc;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.security.AlgorithmParameters;
 import java.security.Key;
 import java.security.PrivateKey;
 import java.util.HashMap;
@@ -11,7 +12,9 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.operator.DefaultAlgorithmNameFinder;
 import org.bouncycastle.operator.GenericKey;
 import org.bouncycastle.operator.OperatorException;
 import org.bouncycastle.operator.jcajce.JceAsymmetricKeyUnwrapper;
@@ -62,7 +65,16 @@ public class DirectJceAsymmetricKeyUnwrapper extends JceAsymmetricKeyUnwrapper
                 // some providers do not support UNWRAP (this appears to be only for asymmetric algorithms)
                 if (sKey == null)
                 {
-                    keyCipher.init(Cipher.DECRYPT_MODE, privateKey);
+
+                    if( this.getAlgorithmIdentifier().getAlgorithm().getId().equals(PKCSObjectIdentifiers.id_RSAES_OAEP.toString())) {
+                        // Get the SHA Digest from the algorithm identifier
+                        AlgorithmParameters algorithmParameters = AlgorithmParameters.getInstance(this.getAlgorithmIdentifier().getAlgorithm().toString());
+                        algorithmParameters.init(this.getAlgorithmIdentifier().getParameters().toASN1Primitive().getEncoded());
+                        keyCipher.init(Cipher.DECRYPT_MODE, privateKey, algorithmParameters);
+                    } else {
+                        keyCipher.init(Cipher.DECRYPT_MODE, privateKey);
+                    }
+                    byte[] var1 = keyCipher.doFinal(encryptedKey);   // emm
                     sKey = new SecretKeySpec(keyCipher.doFinal(encryptedKey), encryptedKeyAlgorithm.getAlgorithm().getId());
                 }
 
