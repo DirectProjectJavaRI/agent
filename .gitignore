@@ -25,3 +25,13 @@ hs_err_pid*
 /.project
 /target/
 /tmp/
+direct.javari.directtrust.org.der
+direct.javari.directtrust.org.p12
+direct.javari.directtrust.orgKey.der
+.idea/.gitignore
+.idea/aws.xml
+.idea/compiler.xml
+.idea/jarRepositories.xml
+.idea/misc.xml
+.idea/vcs.xml
+.idea/codeStyles/codeStyleConfig.xml
