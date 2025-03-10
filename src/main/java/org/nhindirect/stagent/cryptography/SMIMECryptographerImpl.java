@@ -1039,7 +1039,9 @@ public class SMIMECryptographerImpl implements Cryptographer
          * Dis-allow those algorithms explicitly deprecated as of NIST 800-56B
          * may include other algorithms in further implementations
          */
-        return digestOID.equalsIgnoreCase(DigestAlgorithm.SHA1.getOID()) ? false : true;
+        return true;
+        // allow SHA1 for now
+        //return digestOID.equalsIgnoreCase(DigestAlgorithm.SHA1.getOID()) ? false : true;
     }
 
 
