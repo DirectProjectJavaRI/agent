@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>agent</artifactId>    
     <name>Direct Project Security And Trust Agent</name>
-    <version>8.0.0</version>
+    <version>8.0.1</version>
     <description>Direct Project Security And Trust Agent</description>
     <inceptionYear>2010</inceptionYear>
     <url>https://github.com/DirectProjectJavaRI/agent</url> 
@@ -86,7 +86,7 @@
 		<dependency>
 		  <groupId>org.nhind</groupId>
 		  <artifactId>direct-common</artifactId>	
-		  <version>8.0.0</version>
+		  <version>8.0.1</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.bouncycastle</groupId>
