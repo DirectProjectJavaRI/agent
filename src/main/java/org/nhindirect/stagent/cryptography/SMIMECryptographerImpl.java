@@ -50,8 +50,7 @@ import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1OctetString;
-import org.bouncycastle.asn1.ASN1Sequence;
-import org.bouncycastle.asn1.DERUTF8String;
+import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.DLSequence;
 import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.cms.AttributeTable;
@@ -142,7 +141,7 @@ public class SMIMECryptographerImpl implements Cryptographer
         this.m_keyEncryptionAlgorithm = (param == null) ? EncryptionAlgorithm.RSA_OAEP : EncryptionAlgorithm.fromString(param.getParamValue(), EncryptionAlgorithm.RSA_OAEP);
 
         param = OptionsManager.getInstance().getParameter(OptionsParameter.CRYPTOGRAHPER_KEY_ENCRYPTION_DIGEST_ALGORITHM);
-        this.m_keyEncryptionDigestAlgorithm = (param == null) ? DigestAlgorithm.SHA256 : DigestAlgorithm.fromString(param.getParamValue(), DigestAlgorithm.SHA256);
+        this.m_keyEncryptionDigestAlgorithm = (param == null) ? DigestAlgorithm.SHA1: DigestAlgorithm.fromString(param.getParamValue(), DigestAlgorithm.SHA1);
 
         param = OptionsManager.getInstance().getParameter(OptionsParameter.CRYPTOGRAHPER_SMIME_DIGEST_ALGORITHM);
         this.m_digestAlgorithm = (param == null) ? DigestAlgorithm.SHA256WITHRSA : DigestAlgorithm.fromString(param.getParamValue(), DigestAlgorithm.SHA256WITHRSA);
@@ -503,8 +502,8 @@ public class SMIMECryptographerImpl implements Cryptographer
         if (!this.isAllowedKeyEncryptionAlgorithm(m_keyEncryptionAlgorithm.getOID()))
             throw new NHINDException(MimeError.DisallowedEncryptionAlgorithm, "The key encryption algorithm " + m_keyEncryptionAlgorithm.algName + "("+ m_keyEncryptionAlgorithm.getOID()
                     + ") is not allowed");
-
-        if (!this.isAllowedKeyEncryptionDigestAlgorithm(m_keyEncryptionDigestAlgorithm.getOID()))
+        /* m_keyEncryptionDigestAlgorithm could be null if using RSA_PKCS1_V15 */
+        if (m_keyEncryptionDigestAlgorithm != null && !this.isAllowedKeyEncryptionDigestAlgorithm(m_keyEncryptionDigestAlgorithm.getOID()))
             throw new NHINDException(MimeError.DisallowedEncryptionAlgorithm, "The key encryption algorithm " + m_keyEncryptionDigestAlgorithm.algName + "("+ m_keyEncryptionDigestAlgorithm.getOID()
                     + ") is not allowed");
 
@@ -668,26 +667,30 @@ public class SMIMECryptographerImpl implements Cryptographer
 		        final RecipientInformation recipient = recipients.get(recId);	
 		        if (recipient == null)
 		        	continue;
-                if (log.isDebugEnabled()) {
-                    DefaultAlgorithmNameFinder defaultAlgorithmNameFinder = new DefaultAlgorithmNameFinder();
-                    log.info("Decrypting: Encryption algorithm is " + defaultAlgorithmNameFinder.getAlgorithmName(m.getContentEncryptionAlgorithm()) + "(" + m.getEncryptionAlgOID() + ")");
-                    log.info("Decrypting: Key encryption algorithm is " + defaultAlgorithmNameFinder.getAlgorithmName(recipient.getKeyEncryptionAlgorithm()) + "(" + recipient.getKeyEncryptionAlgorithm().getAlgorithm().getId() + ")");
-                    if( recipient.getKeyEncryptionAlgorithm().getParameters() != null){
-                        if (log.isDebugEnabled()) {
-                            ASN1Encodable asn1Encodable = recipient.getKeyEncryptionAlgorithm().getParameters();
-                            if( asn1Encodable instanceof DLSequence) {
-                                DLSequence dlSequence = (DLSequence) asn1Encodable;
-                                /*
-                                RSAES-OAEP-params ::= SEQUENCE {
-                                    hashAlgorithm [0] HashAlgorithm DEFAULT sha1,
-                                    maskGenAlgorithm [1] MaskGenAlgorithm DEFAULT mgf1SHA1,
-                                    pSourceAlgorithm [2] PSourceAlgorithm DEFAULT pSpecifiedEmpty
-                                }
-                                 */
-                                RSAESOAEPparams rsaesoaePparams = RSAESOAEPparams.getInstance(dlSequence);
-                                log.info("Decrypting: Key encryption algorithm parameters: Hash Algorithm: " + rsaesoaePparams.getHashAlgorithm().getAlgorithm().getId() + " Mask Gen Algorithm: " + rsaesoaePparams.getMaskGenAlgorithm().getAlgorithm().getId() + " P Source Algorithm: " + rsaesoaePparams.getPSourceAlgorithm().getAlgorithm().getId());
+                DefaultAlgorithmNameFinder defaultAlgorithmNameFinder = new DefaultAlgorithmNameFinder();
+                log.info("Decrypting: Encryption algorithm is " + defaultAlgorithmNameFinder.getAlgorithmName(m.getContentEncryptionAlgorithm()) + "(" + m.getEncryptionAlgOID() + ")");
+                log.info("Decrypting: Key encryption algorithm is " + defaultAlgorithmNameFinder.getAlgorithmName(recipient.getKeyEncryptionAlgorithm()) + "(" + recipient.getKeyEncryptionAlgorithm().getAlgorithm().getId() + ")");
+                if (recipient.getKeyEncryptionAlgorithm().getParameters() != null) {
+
+                    ASN1Encodable asn1Encodable = recipient.getKeyEncryptionAlgorithm().getParameters();
+                    RSAESOAEPparams rsaesoaePparams = null;
+                    /*
+                            RSAES-OAEP-params ::= SEQUENCE {
+                                hashAlgorithm [0] HashAlgorithm DEFAULT sha1,
+                                maskGenAlgorithm [1] MaskGenAlgorithm DEFAULT mgf1SHA1,
+                                pSourceAlgorithm [2] PSourceAlgorithm DEFAULT pSpecifiedEmpty
                             }
-                        }
+                    */
+                    if( asn1Encodable instanceof DERSequence) {
+                        DERSequence derSequence = (DERSequence) asn1Encodable;
+                        rsaesoaePparams = RSAESOAEPparams.getInstance(derSequence);
+                    }
+                    if( asn1Encodable instanceof DLSequence) {
+                        DLSequence dlSequence = (DLSequence) asn1Encodable;
+                        rsaesoaePparams = RSAESOAEPparams.getInstance(dlSequence);
+                    }
+                    if( rsaesoaePparams != null) {
+                        log.info("Decrypting: Key encryption algorithm parameters: Hash Algorithm: " + rsaesoaePparams.getHashAlgorithm().getAlgorithm().getId() + "(" + defaultAlgorithmNameFinder.getAlgorithmName(new ASN1ObjectIdentifier(rsaesoaePparams.getHashAlgorithm().getAlgorithm().getId())) + ") Mask Gen Algorithm: " + rsaesoaePparams.getMaskGenAlgorithm().getAlgorithm().getId() + "(" + getMaskFunctionGeneratorFromOID(rsaesoaePparams.getMaskGenAlgorithm().getAlgorithm().getId()) + ") P Source Algorithm: " + rsaesoaePparams.getPSourceAlgorithm().getAlgorithm().getId());
                     }
                 }
                 final JceKeyTransEnvelopedRecipient recip = new DirectJceKeyTransEnvelopedRecipient(decryptCert.getPrivateKey());
@@ -1022,7 +1025,9 @@ public class SMIMECryptographerImpl implements Cryptographer
          * Dis-allow those algorithms explicitly deprecated as of NIST 800-56B
          * may include other algorithms in further implementations
          */
-        return encryptionOID.equalsIgnoreCase(EncryptionAlgorithm.RSA_PKCS1_V15.getOID()) ? false : true;
+        /* Allow RSA_PKCS1_V15 for now */
+        //return encryptionOID.equalsIgnoreCase(EncryptionAlgorithm.RSA_PKCS1_V15.getOID()) ? false : true;
+        return true;
     }
 
     /**
@@ -1306,5 +1311,11 @@ public class SMIMECryptographerImpl implements Cryptographer
     	{
     		e.printStackTrace();
     	}
+    }
+    public static String getMaskFunctionGeneratorFromOID(String mfgOID){
+        if( mfgOID.equals(PKCSObjectIdentifiers.id_mgf1.getId()))
+            return "MGF1";
+
+        return "Unknown MFG: " + mfgOID;
     }
 }

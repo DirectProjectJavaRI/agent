@@ -85,8 +85,10 @@ public enum EncryptionAlgorithm
     	else if (algorithmName.equalsIgnoreCase(RSAandMGF1.getAlgName()))
     		return RSAandMGF1;  
     	else if (algorithmName.equalsIgnoreCase(ECDSA.getAlgName()))
-    		return ECDSA;        	
-    	else
+    		return ECDSA;
+		else if (algorithmName.equalsIgnoreCase(RSA_PKCS1_V15.getAlgName()))
+			return RSA_PKCS1_V15;
+		else
     		return defaultAlgorithm;
     }
     
