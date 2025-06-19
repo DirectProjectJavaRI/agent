@@ -23,6 +23,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 package org.nhindirect.stagent.cryptography;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.cms.CMSEnvelopedGenerator;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
 import org.bouncycastle.mail.smime.SMIMEEnvelopedGenerator;
@@ -45,8 +46,10 @@ public enum EncryptionAlgorithm
     DES_EDE3_CBC("DESEDE/CBC/PKCS5Padding", CMSEnvelopedGenerator.DES_EDE3_CBC),
     AES128_CBC("AES/CBC/PKCS5Padding", CMSEnvelopedGenerator.AES128_CBC),
     AES192_CBC("AES/CBC/PKCS5Padding", CMSEnvelopedGenerator.AES192_CBC),
-    AES256_CBC("AES/CBC/PKCS5Padding", CMSEnvelopedGenerator.AES256_CBC);
-    
+    AES256_CBC("AES/CBC/PKCS5Padding", CMSEnvelopedGenerator.AES256_CBC),
+	RSA_OAEP("RSA_OAEP", PKCSObjectIdentifiers.id_RSAES_OAEP.getId()),
+	RSA_PKCS1_V15("RSA_PKCS1_V15", PKCSObjectIdentifiers.rsaEncryption.getId());
+
     protected final String algName;
     protected final String OID;
     
@@ -82,7 +85,9 @@ public enum EncryptionAlgorithm
     	else if (algorithmName.equalsIgnoreCase(RSAandMGF1.getAlgName()))
     		return RSAandMGF1;  
     	else if (algorithmName.equalsIgnoreCase(ECDSA.getAlgName()))
-    		return ECDSA;        	
+    		return ECDSA;
+		else if (algorithmName.equalsIgnoreCase(RSA_PKCS1_V15.getAlgName()))
+			return RSA_PKCS1_V15;
     	else
     		return defaultAlgorithm;
     }
