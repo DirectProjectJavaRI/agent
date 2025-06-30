@@ -516,8 +516,8 @@ public class SMIMECryptographerImpl implements Cryptographer
                 // ensure the certificates key is allowed
                 if (isAllowedCertKey(cert)) {
                     if (log.isDebugEnabled()) {
-                        log.info("Encrypting: Encryption algorithm is " + this.m_encryptionAlgorithm.algName + "(" + m_encryptionAlgorithm.getOID().toString() + ")");
-                        log.info("Encrypting: Key encryption algorithm is " + this.m_keyEncryptionAlgorithm.algName + "(" + this.m_keyEncryptionAlgorithm.getOID().toString() + ")");
+                        log.debug("Encrypting: Encryption algorithm is " + this.m_encryptionAlgorithm.algName + "(" + m_encryptionAlgorithm.getOID().toString() + ")");
+                        log.debug("Encrypting: Key encryption algorithm is " + this.m_keyEncryptionAlgorithm.algName + "(" + this.m_keyEncryptionAlgorithm.getOID().toString() + ")");
                     }
                     JcaAlgorithmParametersConverter paramsConverter = new JcaAlgorithmParametersConverter();
                     if( m_keyEncryptionAlgorithm == EncryptionAlgorithm.RSA_OAEP) {
@@ -539,7 +539,7 @@ public class SMIMECryptographerImpl implements Cryptographer
                         if (log.isDebugEnabled()) {
                             ASN1Encodable asn1Encodable = algorithmIdentifier.getParameters();
                             RSAESOAEPparams rsaesoaePparams = (RSAESOAEPparams)asn1Encodable;
-                            log.info("Encrypting: Key encryption algorithm parameters: Hash Algorithm: " + rsaesoaePparams.getHashAlgorithm().getAlgorithm().getId() +  " Mask Gen Algorithm: " + rsaesoaePparams.getMaskGenAlgorithm().getAlgorithm().getId() + " P Source Algorithm: " + rsaesoaePparams.getPSourceAlgorithm().getAlgorithm().getId());
+                            log.debug("Encrypting: Key encryption algorithm parameters: Hash Algorithm: " + rsaesoaePparams.getHashAlgorithm().getAlgorithm().getId() +  " Mask Gen Algorithm: " + rsaesoaePparams.getMaskGenAlgorithm().getAlgorithm().getId() + " P Source Algorithm: " + rsaesoaePparams.getPSourceAlgorithm().getAlgorithm().getId());
                         }
                         // JceKeyTransRecipientInfoGenerator has at least 2 constructors
                         // with just a cert as the arg, the algorithm defaults to new JceAsymmetricKeyWrapper(recipientCert) for the AsymmetricKeyWrapper, which is RSA PKCS15
@@ -668,8 +668,8 @@ public class SMIMECryptographerImpl implements Cryptographer
                 if (recipient == null)
                     continue;
                 DefaultAlgorithmNameFinder defaultAlgorithmNameFinder = new DefaultAlgorithmNameFinder();
-                log.info("Decrypting: Encryption algorithm is " + defaultAlgorithmNameFinder.getAlgorithmName(m.getContentEncryptionAlgorithm()) + "(" + m.getEncryptionAlgOID() + ")");
-                log.info("Decrypting: Key encryption algorithm is " + defaultAlgorithmNameFinder.getAlgorithmName(recipient.getKeyEncryptionAlgorithm()) + "(" + recipient.getKeyEncryptionAlgorithm().getAlgorithm().getId() + ")");
+                log.debug("Decrypting: Encryption algorithm is " + defaultAlgorithmNameFinder.getAlgorithmName(m.getContentEncryptionAlgorithm()) + "(" + m.getEncryptionAlgOID() + ")");
+                log.debug("Decrypting: Key encryption algorithm is " + defaultAlgorithmNameFinder.getAlgorithmName(recipient.getKeyEncryptionAlgorithm()) + "(" + recipient.getKeyEncryptionAlgorithm().getAlgorithm().getId() + ")");
                 if (recipient.getKeyEncryptionAlgorithm().getParameters() != null) {
 
                     ASN1Encodable asn1Encodable = recipient.getKeyEncryptionAlgorithm().getParameters();

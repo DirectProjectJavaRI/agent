@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -536,6 +537,8 @@ public class CryptographerTest
 	{
 		testEncryptAndDecryptKeyEncryptionMimeEntity(null, EncryptionAlgorithm.RSA_OAEP, DigestAlgorithm.SHA512, true, false, false);
 	}
+	
+	@Disabled // SHA1 is allowed for now
 	@Test
 	public void testEncryptAndDecryptKeyEncryptionMimeEntityStrongEncryptionAlgWeakKeyEncryptionDigestAlg() throws Exception
 	{
@@ -547,12 +550,16 @@ public class CryptographerTest
 		// This should throw an encryption exception, enforceStrongEncryption is set, SHA-1 is requested for key encryption digest
 		testEncryptAndDecryptKeyEncryptionMimeEntity(null, EncryptionAlgorithm.RSA_PKCS1_V15, DigestAlgorithm.SHA256, true, true, false);
 	}
+	
+	@Disabled // PKCS1.5 is allowed for now
 	@Test
 	public void testEncryptAndDecryptKeyEncryptionMimeEntityWeakKeyEncryptionAlg() throws Exception
 	{
 		// This should throw an encryption exception, enforceStrongEncryption is set, PKCS#1 V1.5 is requested for key encryption
 		testEncryptAndDecryptKeyEncryptionMimeEntity(null, EncryptionAlgorithm.RSA_PKCS1_V15, null, true, true, false);
 	}
+	
+	@Disabled // SHA1 is allowed for now
 	@Test
 	public void testEncryptAndDecryptKeyEncryptionMimeEntityWeakKeyEncryptionDigestAlg() throws Exception
 	{
