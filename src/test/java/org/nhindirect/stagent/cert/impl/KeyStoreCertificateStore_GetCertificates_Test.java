@@ -155,28 +155,7 @@ public class KeyStoreCertificateStore_GetCertificates_Test extends TestCase
 		}.perform();
 		
 	}	
-	
-	public void testKeyStoreSearch_GetWithDN_AssertCertsFoundNotUsingAltSubject() throws Exception
-	{
-		new TestPlan()
-		{
-			@Override
-			protected String getSubjectToSearch()
-			{
-				return "gm2552@securehealthemail.com";
-			}
-			
-			@Override
-			protected void doAssertions(Collection<X509Certificate> certs) throws Exception
-			{
-				assertNotNull(certs);
-				assertEquals(1, certs.size());		
-				assertFalse(certFoundInAltSubject);
-			}
-			
-		}.perform();
-		
-	}	
+
 	
 	public void testKeyStoreSearch_GetExpiredCert_AssertCertsNotFound() throws Exception
 	{

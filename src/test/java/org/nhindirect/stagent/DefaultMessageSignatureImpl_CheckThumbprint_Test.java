@@ -20,7 +20,7 @@ import org.apache.commons.codec.Charsets;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.ASN1EncodableVector;
-import org.bouncycastle.asn1.DERObjectIdentifier;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.smime.SMIMECapabilitiesAttribute;
 import org.bouncycastle.asn1.smime.SMIMECapability;
@@ -37,7 +37,6 @@ import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
 import org.nhindirect.common.crypto.CryptoExtensions;
-import org.nhindirect.stagent.DefaultMessageSignatureImpl;
 import org.nhindirect.stagent.cert.X509CertificateEx;
 import org.nhindirect.stagent.cryptography.CryptoAlgorithmsHelper;
 import org.nhindirect.stagent.cryptography.DigestAlgorithm;
@@ -142,7 +141,7 @@ public class DefaultMessageSignatureImpl_CheckThumbprint_Test extends TestCase {
 			caps.addCapability(SMIMECapability.dES_EDE3_CBC);
 			caps.addCapability(SMIMECapability.rC2_CBC, 128);
 			caps.addCapability(SMIMECapability.dES_CBC);
-			caps.addCapability(new DERObjectIdentifier("1.2.840.113549.1.7.1"));
+			caps.addCapability(new ASN1ObjectIdentifier("1.2.840.113549.1.7.1"));
 			caps.addCapability(PKCSObjectIdentifiers.x509Certificate);
 			signedAttrs.add(new SMIMECapabilitiesAttribute(caps));
 
