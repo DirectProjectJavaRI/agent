@@ -9,7 +9,7 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collection;
 
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.InternetAddress;
 
 import org.nhindirect.stagent.AgentError;
 import org.nhindirect.stagent.NHINDException;
@@ -28,7 +28,7 @@ public class CertificateStore_getUsableCertsTest
 		{
 		    protected Collection<X509Certificate> filterUsable(Collection<X509Certificate> certs)
 		    {
-		    	if (certs.iterator().next().getSubjectDN().getName().contains("user1"))
+		    	if (certs.iterator().next().getSubjectX500Principal().getName().contains("user1"))
 		    		return null;
 		    	else
 		    		return certs;
@@ -104,7 +104,7 @@ public class CertificateStore_getUsableCertsTest
 		{
 		    protected Collection<X509Certificate> filterUsable(Collection<X509Certificate> certs)
 		    {
-		    	if (certs.iterator().next().getSubjectDN().getName().contains("user1"))
+		    	if (certs.iterator().next().getSubjectX500Principal().getName().contains("user1"))
 		    		return certs;
 		    	else
 		    		return certs;

@@ -6,10 +6,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-import javax.mail.Message;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.Message;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 
 import org.nhindirect.stagent.NHINDAgentTest;
 
@@ -71,7 +71,7 @@ public class MailSender
 			        p.setProperty("mail.debug", "true");	   
 			        
 			        // start a session
-			        javax.mail.Session session = javax.mail.Session.getDefaultInstance(p, null);
+			        jakarta.mail.Session session = jakarta.mail.Session.getDefaultInstance(p, null);
 			
 			        // create the message
 			        // create the message
@@ -107,7 +107,7 @@ public class MailSender
 			        p.put("mail.smtp.port", "10025");
 			        	        
 			        // start a session
-			        javax.mail.Session session = javax.mail.Session.getInstance(p, null);
+			        jakarta.mail.Session session = jakarta.mail.Session.getInstance(p, null);
 			
 			        // create the message
 			        MimeMessage message = new MimeMessage(session, new ByteArrayInputStream(msgText.getBytes("ASCII")));

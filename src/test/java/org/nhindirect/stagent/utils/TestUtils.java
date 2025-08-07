@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.PrivateKey;
+import java.security.Provider;
 import java.security.Security;
 import java.security.cert.CRL;
 import java.security.cert.CertificateFactory;
@@ -258,9 +259,10 @@ public class TestUtils
      * @return The Security provider name if the token is loaded successfully... an empty string other wise 
      * @throws Exception
      */
-	@SuppressWarnings("restriction")
 	public static String setupSafeNetToken() throws Exception
 	{	
+		// TODO: Update with JRE 17 semantics
+		
 		final CallbackHandler handler = new CallbackHandler()
 		{
 			public void	handle(Callback[] callbacks)
@@ -277,6 +279,7 @@ public class TestUtils
 			}
 		};
 		
+		/*
 		sun.security.pkcs11.SunPKCS11 p = null;
 		
 
@@ -292,8 +295,10 @@ public class TestUtils
 		{
 			return "";
 		}
-
+        
 		return p.getName();
+		*/
+		return "";
 	}
     
 	

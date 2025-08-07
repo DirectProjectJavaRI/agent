@@ -34,16 +34,16 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import javax.mail.Address;
-import javax.mail.Header;
-import javax.mail.Message.RecipientType;
-import javax.mail.MessagingException;
-import javax.mail.internet.ContentType;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.InternetHeaders;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.util.ByteArrayDataSource;
+import jakarta.mail.Address;
+import jakarta.mail.Header;
+import jakarta.mail.Message.RecipientType;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.ContentType;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.InternetHeaders;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.util.ByteArrayDataSource;
 
 import org.bouncycastle.cms.CMSSignedData;
 import org.nhindirect.common.crypto.CryptoExtensions;
@@ -1141,7 +1141,7 @@ public class DefaultNHINDAgent implements NHINDAgent, MutableAgent
                 catch (Exception e)
                 {
                 	log.info("Could not decrypt with message private cert subject {} and serial number {}",
-                			cert.getSubjectDN().getName(), cert.getSerialNumber().toString(16), e);
+                			cert.getSubjectX500Principal().getName(), cert.getSerialNumber().toString(16), e);
                 }
             }
         }

@@ -144,7 +144,6 @@ public class StripP12Passphrase
 	/*
 	 * Main strip operation of removing the password and passphrase and creating a new p12 file.
 	 */
-	@SuppressWarnings("deprecation")
 	private static void stripP12File()
 	{
 		FileOutputStream outStr = null;
@@ -242,7 +241,6 @@ public class StripP12Passphrase
 	/*
 	 * Load the exiting p12 file using the provided password and private key passphrase.
 	 */
-   @SuppressWarnings("deprecation")
 private static X509CertificateEx certFromData(byte[] data)
    {
     	X509CertificateEx retVal = null;

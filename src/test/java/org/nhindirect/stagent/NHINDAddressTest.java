@@ -8,7 +8,7 @@ import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.List;
 
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.InternetAddress;
 
 
 public class NHINDAddressTest

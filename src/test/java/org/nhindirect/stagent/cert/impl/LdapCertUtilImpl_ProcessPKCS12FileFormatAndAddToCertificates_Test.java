@@ -41,7 +41,6 @@ public class LdapCertUtilImpl_ProcessPKCS12FileFormatAndAddToCertificates_Test
 
 		protected ByteArrayInputStream theCreateInputStream;
 
-		@SuppressWarnings("deprecation")
 		protected ByteArrayInputStream createInputStream() throws Exception {
 			File fl = new File("testfile");
 			int idx = fl.getAbsolutePath().lastIndexOf("testfile");

@@ -130,12 +130,12 @@ public class KeyStoreCreate
 					}	            
 		            service.add(ff != null ? X509CertificateEx.fromX509Certificate(cert, ff) : cert, alias);
 				}
-				System.out.println("Alias added:\r\n\tCert DN: " + service.getByAlias(alias).getSubjectDN().getName() + "\r\n");
+				System.out.println("Alias added:\r\n\tCert DN: " + service.getByAlias(alias).getSubjectX500Principal().getName() + "\r\n");
 				
 			}
 			else
 			{
-				System.out.println("Alias already exists:\r\n\tCert DN: " + service.getByAlias(alias).getSubjectDN().getName() + "\r\n");
+				System.out.println("Alias already exists:\r\n\tCert DN: " + service.getByAlias(alias).getSubjectX500Principal().getName() + "\r\n");
 			}
 		}
 		catch (Exception e)

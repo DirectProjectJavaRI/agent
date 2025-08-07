@@ -25,8 +25,8 @@ package org.nhindirect.stagent;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetAddress;
 
 import org.nhindirect.stagent.mail.MailStandard;
 import org.nhindirect.stagent.mail.Message;

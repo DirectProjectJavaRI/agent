@@ -39,12 +39,12 @@ import java.security.interfaces.RSAPublicKey;
 
 import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
-import javax.mail.MessagingException;
-import javax.mail.internet.ContentType;
-import javax.mail.internet.InternetHeaders;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.internet.ParseException;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.ContentType;
+import jakarta.mail.internet.InternetHeaders;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.internet.ParseException;
 
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1EncodableVector;
@@ -402,7 +402,6 @@ public class SMIMECryptographerImpl implements Cryptographer
      * @param encryptingCertificates The public certificates that will be used to encrypt the message.
      * @return A MimeEntity containing the encrypted part.
      */
-    @SuppressWarnings("deprecation")
     public MimeEntity encrypt(MimeMultipart mmEntity, Collection<X509Certificate> encryptingCertificates)
     {
         MimeEntity entToEncrypt = null;
@@ -1166,8 +1165,6 @@ public class SMIMECryptographerImpl implements Cryptographer
         return signed;
     }
 
-
-    @SuppressWarnings("deprecation")
     private void writePreEncypt(byte message[])
     {
         String path = System.getProperty("user.dir") + "/tmp";
@@ -1203,7 +1200,6 @@ public class SMIMECryptographerImpl implements Cryptographer
         }
     }
 
-    @SuppressWarnings("deprecation")
     private void writePostEncypt(byte message[])
     {
         String path = System.getProperty("user.dir") + "/tmp";
@@ -1239,8 +1235,6 @@ public class SMIMECryptographerImpl implements Cryptographer
         }
     }
 
-
-    @SuppressWarnings("deprecation")
     private void writePreDecrypt(byte message[])
     {
         String path = System.getProperty("user.dir") + "/tmp";
@@ -1276,7 +1270,6 @@ public class SMIMECryptographerImpl implements Cryptographer
         }
     }
 
-    @SuppressWarnings("deprecation")
     private void writePostDecrypt(byte message[])
     {
         String path = System.getProperty("user.dir") + "/tmp";

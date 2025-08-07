@@ -27,10 +27,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.ContentType;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.internet.ParseException;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.ContentType;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.internet.ParseException;
 
 import org.apache.commons.io.IOUtils;
 import org.nhindirect.stagent.mail.MimeEntity;
@@ -55,7 +55,6 @@ public class SignedEntity
      * @param mmContentType The content type of the entity.
      * @param mm The MimeMultipart that contains the parts that were used to sign the message and the message signature part.
      */
-    @SuppressWarnings("deprecation")
 	public SignedEntity(ContentType mmContentType, MimeMultipart mm) throws MimeException
     {
     	originalMMPart = mm;        
@@ -172,7 +171,6 @@ public class SignedEntity
      * signature part.
      * @return The content (body) of the message as a byte array.
      */
-    @SuppressWarnings("deprecation")
 	public byte[] getEntityBodyAsBytes()
     {
     	byte[] retVal = null;

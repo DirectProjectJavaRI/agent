@@ -171,7 +171,6 @@ public class CreatePKCS12
 	 * certificate file name.
 	 * @return File descriptor of the created pcks12 file.  Null if an error occurred.  
 	 */
-	@SuppressWarnings("deprecation")
 	public static File create(File certFile, File keyFile, String password, File createFile)
 	{
 		File pkcs12File = null; 

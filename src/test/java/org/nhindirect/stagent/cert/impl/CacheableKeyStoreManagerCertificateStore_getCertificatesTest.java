@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.InternetAddress;
 
 import org.nhindirect.stagent.cert.X509CertificateEx;
 import org.nhindirect.stagent.utils.TestUtils;
