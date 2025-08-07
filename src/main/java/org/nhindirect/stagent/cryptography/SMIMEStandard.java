@@ -22,9 +22,9 @@ THE POSSIBILITY OF SUCH DAMAGE.
 
 package org.nhindirect.stagent.cryptography;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.ContentType;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.ContentType;
+import jakarta.mail.internet.MimeMessage;
 
 import org.nhindirect.stagent.mail.MailStandard;
 import org.nhindirect.stagent.mail.MimeEntity;

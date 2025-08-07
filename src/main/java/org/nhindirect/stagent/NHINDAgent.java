@@ -24,7 +24,7 @@ package org.nhindirect.stagent;
 
 import java.util.Collection;
 
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMessage;
 
 /**
  * The NHINDAgent is the primary entity for applying cryptography and trust logic on incoming and outgoing messages.  The main messaging system (such as an SMTP server,

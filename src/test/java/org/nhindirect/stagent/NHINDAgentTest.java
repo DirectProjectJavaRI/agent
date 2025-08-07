@@ -20,8 +20,8 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 
-import javax.mail.Header;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.Header;
+import jakarta.mail.internet.MimeMessage;
 
 import org.nhindirect.common.options.OptionsManager;
 import org.nhindirect.common.options.OptionsManagerUtils;

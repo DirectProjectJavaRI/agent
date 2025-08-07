@@ -25,13 +25,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Collection;
 
-import javax.activation.DataHandler;
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.util.ByteArrayDataSource;
-
-import org.apache.james.javax.MimeMultipartReport;
-
+import jakarta.activation.DataHandler;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.util.ByteArrayDataSource;
 
 /**
  * Overridden implementation of the Apache James MDNFactory.  Adds support for additional fiedls such as error and gateway and does not automatically

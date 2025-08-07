@@ -6,7 +6,7 @@ import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
-import javax.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeBodyPart;
 
 import org.apache.commons.io.FileUtils;
 import org.bouncycastle.cms.RecipientId;

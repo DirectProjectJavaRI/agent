@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.GregorianCalendar;
 
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.InternetAddress;
 
 import org.nhindirect.common.crypto.CryptoExtensions;
 import org.nhindirect.stagent.AgentError;
@@ -259,20 +259,20 @@ public abstract class CertificateStore implements X509Store, CertificateResolver
         	catch (CertificateExpiredException e)
         	{
         		final StringBuilder builder = new StringBuilder("Certificate has expired.\r\n\tExpiration: ").append(cert.getNotAfter());
-        		builder.append("\r\n\tDN: ").append(cert.getSubjectDN());
+        		builder.append("\r\n\tDN: ").append(cert.getSubjectX500Principal().getName());
         		builder.append("\r\n\tSerial Number: ").append(cert.getSerialNumber().toString(16));
         		log.warn(builder.toString());
         	}
         	catch (CertificateNotYetValidException e)
         	{
         		final StringBuilder builder = new StringBuilder("Certificate is not yet valid.\r\n\nNot Before: ").append(cert.getNotBefore());
-        		builder.append("\r\n\tDN: ").append(cert.getSubjectDN());
+        		builder.append("\r\n\tDN: ").append(cert.getSubjectX500Principal().getName());
         		builder.append("\r\n\tSerial Number: ").append(cert.getSerialNumber().toString(16));
         		log.warn(builder.toString());
         	}        	
             catch (Exception e) 
             {
-            	log.warn("filterUsable(Collection<X509Certificate> certs) - Certificate with DN {} is not valid.", cert.getSubjectDN() , e);
+            	log.warn("filterUsable(Collection<X509Certificate> certs) - Certificate with DN {} is not valid.", cert.getSubjectX500Principal().getName() , e);
             }
         }
         

@@ -5,7 +5,7 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collection;
 
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.InternetAddress;
 
 import org.apache.commons.io.FileUtils;
 import org.nhindirect.stagent.cert.impl.DNSCertificateStore;

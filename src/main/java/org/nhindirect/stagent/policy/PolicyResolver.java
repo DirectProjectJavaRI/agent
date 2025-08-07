@@ -23,7 +23,7 @@ package org.nhindirect.stagent.policy;
 
 import java.util.Collection;
 
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.InternetAddress;
 
 import org.nhindirect.policy.PolicyExpression;
 

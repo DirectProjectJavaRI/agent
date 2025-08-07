@@ -16,10 +16,10 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collection;
 
-import javax.mail.BodyPart;
-import javax.mail.internet.ContentType;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMultipart;
+import jakarta.mail.BodyPart;
+import jakarta.mail.internet.ContentType;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMultipart;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.cms.CMSSignedData;

@@ -25,7 +25,7 @@ package org.nhindirect.stagent.cert;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.InternetAddress;
 
 /**
  * Certificate resolver implementations are responsible for retrieving public X509Certificates from a 
