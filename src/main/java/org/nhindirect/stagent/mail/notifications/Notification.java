@@ -547,10 +547,12 @@ public class Notification
 				return content.toString();
 			else if (content instanceof InputStream)
 			{
-				InputStream str = (InputStream)part.getContent();
-				byte[] bytes = new byte[str.available()];
-				str.read(bytes);
-				return new String(bytes);
+				try (InputStream str = (InputStream)part.getContent())
+				{
+					byte[] bytes = new byte[str.available()];
+					str.read(bytes);
+					return new String(bytes);				
+				}
 			}
 			else
 				return content.toString();

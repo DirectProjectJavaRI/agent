@@ -12,6 +12,7 @@ import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.Provider;
 import java.security.Security;
+import java.security.Provider.Service;
 import java.security.cert.CRL;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -19,10 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
-
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.PasswordCallback;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.nhindirect.common.crypto.CryptoExtensions;
@@ -261,44 +259,24 @@ public class TestUtils
      */
 	public static String setupSafeNetToken() throws Exception
 	{	
-		// TODO: Update with JRE 17 semantics
 		
-		final CallbackHandler handler = new CallbackHandler()
-		{
-			public void	handle(Callback[] callbacks)
-			{
-				for (Callback callback : callbacks)
-				{
-					if (callback instanceof PasswordCallback)
-					{		
-						
-						 ((PasswordCallback)callback).setPassword("1Kingpuff".toCharArray());
-					
-					}
-				}
-			}
-		};
-		
-		/*
-		sun.security.pkcs11.SunPKCS11 p = null;
-		
-
+		Provider p = null;
 		try
 		{
 			final String configName = "./src/test/resources/pkcs11Config/pkcs11.cfg";
-			p = new sun.security.pkcs11.SunPKCS11(configName);
+			p = Security.getProvider("SunPKCS11");
+			p = p.configure(configName);
 			Security.addProvider(p);
-			p.login(null, handler);
-
+			Set<Service> services = p.getServices();
+			if (services.size() == 0)
+				return "";
 		}
 		catch (Exception e)
 		{
 			return "";
 		}
-        
+
 		return p.getName();
-		*/
-		return "";
 	}
     
 	

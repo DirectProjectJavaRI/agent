@@ -187,7 +187,6 @@ public class MessageSigInspector
         }
 	}
 	
-    @SuppressWarnings("deprecation")
 	protected static ASN1Object getObject(byte[] ext)
             throws PolicyProcessException
     {

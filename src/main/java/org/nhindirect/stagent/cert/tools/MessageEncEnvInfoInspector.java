@@ -2,15 +2,10 @@ package org.nhindirect.stagent.cert.tools;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.Collection;
 
 import jakarta.mail.internet.MimeMessage;
 
 import org.apache.commons.io.FileUtils;
-import org.bouncycastle.cms.KeyTransRecipientInformation;
-import org.bouncycastle.cms.RecipientId;
-import org.bouncycastle.cms.RecipientInformation;
-import org.bouncycastle.cms.RecipientInformationStore;
 import org.bouncycastle.mail.smime.SMIMEEnveloped;
 import org.nhindirect.common.crypto.CryptoExtensions;
 
@@ -82,18 +77,21 @@ public class MessageEncEnvInfoInspector
         	final SMIMEEnveloped env = new SMIMEEnveloped(new MimeMessage(null, inStream)); 
         	
         	String OID = env.getEncryptionAlgOID();
+        	/*
         	final RecipientInformationStore recipients = env.getRecipientInfos();
         	Collection<RecipientInformation> reps = recipients.getRecipients();
         	for (RecipientInformation repInfo : reps)
         	{
+        		
         		KeyTransRecipientInformation keyTransRepInfo = (KeyTransRecipientInformation)repInfo;
         		RecipientId recId = repInfo.getRID();
-        		//BigInteger serialNum = recId.getSerialNumber();
+        		BigInteger serialNum = recId.getSerialNumber();
         		
-        		//System.out.println(recId.toString());
-        		//System.out.println("HEX Serial: " + serialNum.toString(16));
+        		System.out.println(recId.toString());
+        		System.out.println("HEX Serial: " + serialNum.toString(16));
+        		
         	}
-        	
+        	*/
         	System.out.println("Encryption OID: " + OID);
         	
            	
