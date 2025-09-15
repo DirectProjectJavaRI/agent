@@ -107,7 +107,6 @@ public class LdapPublicCertUtilImpl implements LdapCertUtil{
 	 * @param subjectName The subject's email address or domain name.
 	 * @return Collection of certificates matching the LDAP query for the subject name.
 	 */
-	@SuppressWarnings("deprecation")
 	public Collection<X509Certificate> ldapSearch(String subjectName){
 		final Collection<X509Certificate> retVal = new ArrayList<X509Certificate>();
 		

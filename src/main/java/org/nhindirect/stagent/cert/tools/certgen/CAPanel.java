@@ -54,7 +54,6 @@ import javax.swing.border.SoftBevelBorder;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.bouncycastle.jce.PKCS10CertificationRequest;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.nhindirect.common.crypto.CryptoExtensions;
@@ -416,7 +415,6 @@ class CAPanel extends JPanel
 		generator.setVisible(true);
 	}
 	
-	@SuppressWarnings("deprecation")
 	private void signCSR()
 	{
 	 	JFileChooser fc = new JFileChooser(); 

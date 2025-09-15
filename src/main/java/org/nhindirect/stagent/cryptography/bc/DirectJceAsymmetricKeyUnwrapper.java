@@ -14,7 +14,6 @@ import javax.crypto.spec.SecretKeySpec;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
-import org.bouncycastle.operator.DefaultAlgorithmNameFinder;
 import org.bouncycastle.operator.GenericKey;
 import org.bouncycastle.operator.OperatorException;
 import org.bouncycastle.operator.jcajce.JceAsymmetricKeyUnwrapper;
@@ -74,7 +73,7 @@ public class DirectJceAsymmetricKeyUnwrapper extends JceAsymmetricKeyUnwrapper
                 } else {
                     keyCipher.init(Cipher.DECRYPT_MODE, privateKey);
                 }
-                byte[] var1 = keyCipher.doFinal(encryptedKey);   // emm
+                keyCipher.doFinal(encryptedKey);   // emm
                 sKey = new SecretKeySpec(keyCipher.doFinal(encryptedKey), encryptedKeyAlgorithm.getAlgorithm().getId());
             }
 

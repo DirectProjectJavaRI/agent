@@ -130,7 +130,6 @@ public class LdapCertUtilImpl implements LdapCertUtil{
 		}
 	}
 	
-	@SuppressWarnings("deprecation")
 	protected void processPKCS12FileFormatAndAddToCertificates(ByteArrayInputStream inputStream,
 			ArrayList<X509Certificate> certificates) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableKeyException {
 		KeyStore localKeyStore = KeyStore.getInstance("PKCS12");

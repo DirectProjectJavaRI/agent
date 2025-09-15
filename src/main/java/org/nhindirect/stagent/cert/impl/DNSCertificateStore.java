@@ -690,7 +690,6 @@ public class DNSCertificateStore extends CertificateStore implements CacheableCe
 		return extendedResolver;
 	}
 	
-	@SuppressWarnings("deprecation")
 	protected Certificate convertPKIXRecordToCert(CERTRecord certRec)
 	{
 		Certificate retVal = null;
@@ -716,7 +715,7 @@ public class DNSCertificateStore extends CertificateStore implements CacheableCe
 		return retVal;
 	}
 	
-	@SuppressWarnings("deprecation")
+
 	protected Certificate convertIPKIXRecordToCert(CERTRecord certRec)
 	{
 		Certificate retVal = null;

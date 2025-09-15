@@ -60,7 +60,6 @@ public class CRLRevocationManager_getCRLCollectionTest
 		assertEquals(1, CRLRevocationManager.getInstance().getCRLCollection().size());
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetCRLCollection_singleCRL_softRefExpired_assertEmpty()
 	{
