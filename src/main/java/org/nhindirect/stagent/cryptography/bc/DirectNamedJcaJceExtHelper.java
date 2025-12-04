@@ -72,7 +72,7 @@ public class DirectNamedJcaJceExtHelper extends NamedJcaJceHelper implements Dir
 	                		retVal.setAlgorithmMapping(PKCSObjectIdentifiers.id_RSAES_OAEP, "RSA/None/OAEPWithSHA-1AndMGF1Padding");
 	                }
 	                else {
-	                	retVal.setAlgorithmMapping(PKCSObjectIdentifiers.id_RSAES_OAEP, "RSA/None/OAEPWithSHA1AndMGF1Paddingg");
+	                	retVal.setAlgorithmMapping(PKCSObjectIdentifiers.id_RSAES_OAEP, "RSA/None/OAEPWithSHA1AndMGF1Padding");
 	                }					
 				}
         	}
