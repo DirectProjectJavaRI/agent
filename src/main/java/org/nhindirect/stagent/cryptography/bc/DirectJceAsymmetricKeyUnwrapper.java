@@ -65,10 +65,10 @@ public class DirectJceAsymmetricKeyUnwrapper extends JceAsymmetricKeyUnwrapper
 
             Class<?> helperClazz = Class.forName("org.bouncycastle.operator.jcajce.OperatorHelper");
 
-            Method cipherMeth = helperClazz.getDeclaredMethod("createAsymmetricWrapper", ASN1ObjectIdentifier.class, Map.class);
+            Method cipherMeth = helperClazz.getDeclaredMethod("createAsymmetricWrapper", AlgorithmIdentifier.class, Map.class);
             cipherMeth.setAccessible(true);
 
-            Cipher keyCipher = (Cipher)cipherMeth.invoke(helpField.get(this), this.getAlgorithmIdentifier().getAlgorithm(), extraMappings);
+            Cipher keyCipher = (Cipher)cipherMeth.invoke(helpField.get(this), this.getAlgorithmIdentifier(), extraMappings);
 
 
             // some providers do not support UNWRAP (this appears to be only for asymmetric algorithms)
