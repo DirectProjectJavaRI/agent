@@ -41,8 +41,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import javax.security.auth.x500.X500Principal;
 
 import org.apache.commons.io.IOUtils;
@@ -534,7 +534,6 @@ public class TrustChainValidator
         return getObject(bytes);
     }
     
-    @SuppressWarnings("deprecation")
 	private ASN1Object getObject(byte[] ext)
     {
     	ASN1InputStream aIn = null;

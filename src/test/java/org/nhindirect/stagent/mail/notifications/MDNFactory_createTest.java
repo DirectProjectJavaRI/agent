@@ -9,11 +9,11 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import javax.mail.BodyPart;
-import javax.mail.internet.InternetHeaders;
-import javax.mail.internet.MimeMultipart;
+import jakarta.mail.BodyPart;
+import jakarta.mail.internet.InternetHeaders;
+import jakarta.mail.internet.MimeMultipart;
 
-import org.apache.james.javax.MimeMultipartReport;
+
 import org.nhindirect.stagent.NHINDException;
 
 import com.sun.mail.dsn.DispositionNotification;

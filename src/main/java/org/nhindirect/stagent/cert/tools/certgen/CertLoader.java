@@ -57,7 +57,6 @@ public class CertLoader
     	CryptoExtensions.registerJCEProviders();
     }	
 	
-	@SuppressWarnings("deprecation")
 	public static CertCreateFields loadCertificate(File certFile, File keyFile, char[] password) throws Exception
 	{
 		byte[] certData = loadFileData(certFile);

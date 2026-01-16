@@ -503,7 +503,6 @@ public class LdapCertUtilImpl_LdapSearch_Test
 	public void testCertificateFormatIsX509_CertificateIsAddedCorrectly() throws Exception {
 		new TestPlan() {
 			
-			@SuppressWarnings("deprecation")
 			protected Object nextElement_Internal() {
 				BufferedInputStream f = null;
 				try {

@@ -27,11 +27,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Enumeration;
 
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.internet.InternetHeaders;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.internet.InternetHeaders;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
 
 import org.apache.commons.io.IOUtils;
 import org.nhindirect.stagent.parser.EntitySerializer;
@@ -184,10 +184,10 @@ public class Message extends MimeMessage
     		
 	        if (this.headers.getAllHeaders().hasMoreElements())
 	        {
-	        	Enumeration<javax.mail.Header> hEnum = this.headers.getAllHeaders();
+	        	Enumeration<jakarta.mail.Header> hEnum = this.headers.getAllHeaders();
 	        	while (hEnum.hasMoreElements())
 	        	{
-	        		javax.mail.Header hdr = hEnum.nextElement();
+	        		jakarta.mail.Header hdr = hEnum.nextElement();
 	        		if (MimeStandard.startsWith(hdr.getName(), MimeStandard.HeaderPrefix))
 	        			headers.addHeader(hdr.getName(), hdr.getValue());
 	        	}
@@ -254,7 +254,6 @@ public class Message extends MimeMessage
      * Gets the content (body) of the message as a byte array.
      * @return The content (body) of the message as a byte array.
      */
-    @SuppressWarnings("deprecation")
 	public byte[] getContentAsBytes()
     {
     	byte retVal[] = null;
