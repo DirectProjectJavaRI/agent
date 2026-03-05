@@ -371,7 +371,6 @@ public class CRLRevocationManager implements RevocationManager
                 InputStream crlInputStream = urlConnection.getInputStream();
                 
                 byte[] crlBtyeArray = IOUtils.toByteArray(crlInputStream);
-                FileUtils.writeByteArrayToFile(new File("Crl.crl"), crlBtyeArray);
                 
                 try 
                 {
