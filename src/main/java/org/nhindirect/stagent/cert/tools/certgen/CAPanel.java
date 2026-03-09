@@ -443,9 +443,9 @@ class CAPanel extends JPanel
 		        // validate the certificate 
 				signedCert.verify(currentCert.getSignerCert().getPublicKey());
 
-				// write it to a file
+				// write it to a file; include the serial number in the filename to ensure uniqueness across signings
 				final String addressName = CryptoExtensions.getSubjectAddress(signedCert);
-				final File outFile = new File(addressName + ".der");
+				final File outFile = new File(addressName + "_" + signedCert.getSerialNumber() + ".der");
 				FileUtils.writeByteArrayToFile(outFile, signedCert.getEncoded());
 				
 				JOptionPane.showMessageDialog(this,"Signing successful.\r\nCertificate saved to " + outFile.getAbsolutePath(), 

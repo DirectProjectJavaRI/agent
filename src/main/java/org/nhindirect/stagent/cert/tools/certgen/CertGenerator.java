@@ -58,6 +58,7 @@ import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.asn1.x509.X509Extensions;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
+import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.crypto.prng.VMPCRandomGenerator;
 import org.bouncycastle.jce.X509Principal;
@@ -153,9 +154,10 @@ public class CertGenerator
 				subjectDN,
 				publicKey);
 
-		// Copy extensions from the CSR into the certificate; track whether a SAN and key usage were included
+		// Copy extensions from the CSR into the certificate; track whether a SAN, key usage, and SKI were included
 		boolean hasSAN = false;
 		boolean hasKeyUsage = false;
+		boolean hasSKI = false;
 		final Attribute[] attrs = certReq.getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest);
 		if (attrs != null && attrs.length > 0)
 		{
@@ -166,6 +168,14 @@ public class CertGenerator
 			}
 			hasSAN = extensions.getExtension(Extension.subjectAlternativeName) != null;
 			hasKeyUsage = extensions.getExtension(Extension.keyUsage) != null;
+			hasSKI = extensions.getExtension(Extension.subjectKeyIdentifier) != null;
+		}
+
+		// If the CSR had no Subject Key Identifier, generate one from the public key
+		if (!hasSKI)
+		{
+			certBuilder.addExtension(Extension.subjectKeyIdentifier, false,
+					new JcaX509ExtensionUtils().createSubjectKeyIdentifier(publicKey));
 		}
 
 		// If the CSR had no key usage, default to digitalSignature and keyEncipherment
