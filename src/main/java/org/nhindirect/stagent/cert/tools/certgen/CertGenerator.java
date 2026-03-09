@@ -26,6 +26,7 @@ import java.security.AlgorithmParameters;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.cert.X509Certificate;
@@ -41,23 +42,30 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 
 import org.apache.commons.io.FileUtils;
-import org.bouncycastle.asn1.ASN1Sequence;
-import org.bouncycastle.asn1.ASN1Set;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
-import org.bouncycastle.asn1.DERSequence;
-import org.bouncycastle.asn1.cms.Attribute;
-import org.bouncycastle.asn1.pkcs.CertificationRequestInfo;
+import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
+import org.bouncycastle.asn1.x500.RDN;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x500.style.IETFUtils;
 import org.bouncycastle.asn1.x509.BasicConstraints;
+import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.Extensions;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.KeyUsage;
-import org.bouncycastle.asn1.x509.X509Extension;
 import org.bouncycastle.asn1.x509.X509Extensions;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
+import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.crypto.prng.VMPCRandomGenerator;
-import org.bouncycastle.jce.PKCS10CertificationRequest;
 import org.bouncycastle.jce.X509Principal;
-import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequest;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
 import org.bouncycastle.x509.extension.AuthorityKeyIdentifierStructure;
 import org.nhindirect.common.crypto.CryptoExtensions;
@@ -118,74 +126,75 @@ public class CertGenerator
 		return retVal;
 	}
 	
-	public static X509Certificate createCertFromCSR(PemObject certReq, CertCreateFields signerCert) throws Exception
+	public static X509Certificate createCertFromCSR(PKCS10CertificationRequest certReq, CertCreateFields signerCert) throws Exception
 	{
-		/*
-		certReq.verify();
-		
-		final CertificationRequestInfo reqInfo = certReq.getCertificationRequestInfo();
+		// Verify the CSR signature
+		final JcaContentVerifierProviderBuilder verifierBuilder = new JcaContentVerifierProviderBuilder()
+				.setProvider(CryptoExtensions.getJCEProviderName());
+		if (!certReq.isSignatureValid(verifierBuilder.build(certReq.getSubjectPublicKeyInfo())))
+			throw new Exception("CSR signature is invalid");
 
-		final X509V3CertificateGenerator  v1CertGen = new X509V3CertificateGenerator();
+		// Extract the public key from the CSR
+		final PublicKey publicKey = new JcaPKCS10CertificationRequest(certReq.getEncoded())
+				.setProvider(CryptoExtensions.getJCEProviderName()).getPublicKey();
+
 		final Calendar start = Calendar.getInstance();
 		final Calendar end = Calendar.getInstance();
-		end.add(Calendar.YEAR, 3); 
-		
-        v1CertGen.setSerialNumber(BigInteger.valueOf(generatePositiveRandom()));
-        v1CertGen.setIssuerDN(signerCert.getSignerCert().getSubjectX500Principal()); // issuer is the parent cert
-        v1CertGen.setNotBefore(start.getTime());
-        v1CertGen.setNotAfter(end.getTime());
-        v1CertGen.setSubjectDN(new X509Principal(reqInfo.getSubject().toString()));
-        v1CertGen.setPublicKey(certReq.getPublicKey());
-        v1CertGen.setSignatureAlgorithm("SHA256WithRSAEncryption");
+		end.add(Calendar.YEAR, 3);
 
-        
-        final ASN1Set attributesAsn1Set = reqInfo.getAttributes();
-        
-        X509Extensions certificateRequestExtensions = null;
-        for (int i = 0; i < attributesAsn1Set.size(); ++i)
-        {
-           // There should be only only one attribute in the set. (that is, only
-           // the `Extension Request`, but loop through to find it properly)
-           final DEREncodable derEncodable = attributesAsn1Set.getObjectAt( i );
-           
-           
-           if (derEncodable instanceof DERSequence)
-           {
-              final Attribute attribute = new Attribute( (DERSequence) attributesAsn1Set
-                    .getObjectAt( i ) );
+		final X500Name subjectDN = certReq.getSubject();
+		final X500Name issuerDN = new JcaX509CertificateHolder(signerCert.getSignerCert()).getSubject();
 
-              if (attribute.getAttrType().equals( PKCSObjectIdentifiers.pkcs_9_at_extensionRequest ))
-              {
-                 // The `Extension Request` attribute is present.
-                 final ASN1Set attributeValues = attribute.getAttrValues();
+		final JcaX509v3CertificateBuilder certBuilder = new JcaX509v3CertificateBuilder(
+				issuerDN,
+				BigInteger.valueOf(generatePositiveRandom()),
+				start.getTime(),
+				end.getTime(),
+				subjectDN,
+				publicKey);
 
-                 // The X509Extensions are contained as a value of the ASN.1 Set.
-                 // Assume that it is the first value of the set.
-                 if (attributeValues.size() >= 1)
-                 {
-                    certificateRequestExtensions = new X509Extensions( (ASN1Sequence) attributeValues
-                          .getObjectAt( 0 ) );
+		// Copy extensions from the CSR into the certificate; track whether a SAN and key usage were included
+		boolean hasSAN = false;
+		boolean hasKeyUsage = false;
+		final Attribute[] attrs = certReq.getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest);
+		if (attrs != null && attrs.length > 0)
+		{
+			final Extensions extensions = Extensions.getInstance(attrs[0].getAttrValues().getObjectAt(0));
+			for (ASN1ObjectIdentifier oid : extensions.getExtensionOIDs())
+			{
+				certBuilder.addExtension(extensions.getExtension(oid));
+			}
+			hasSAN = extensions.getExtension(Extension.subjectAlternativeName) != null;
+			hasKeyUsage = extensions.getExtension(Extension.keyUsage) != null;
+		}
 
-                    // No need to search any more.
-                    //break;
-                 }
-              }
-           }
-        }
+		// If the CSR had no key usage, default to digitalSignature and keyEncipherment
+		if (!hasKeyUsage)
+		{
+			certBuilder.addExtension(Extension.keyUsage, true,
+					new KeyUsage(KeyUsage.digitalSignature | KeyUsage.keyEncipherment));
+		}
 
-        @SuppressWarnings("unchecked")
-		Enumeration<DERObjectIdentifier> oids = certificateRequestExtensions.oids();
-        while (oids.hasMoreElements())
-        {
-        	DERObjectIdentifier oid = oids.nextElement();
-        	X509Extension ex = certificateRequestExtensions.getExtension(oid);
-        	
-        	v1CertGen.addExtension(oid, ex.isCritical(), X509Extension.convertValueToObject(ex));
-        }
-        
-        return v1CertGen.generate((PrivateKey)signerCert.getSignerKey(), CryptoExtensions.getJCEProviderName());
-        */
-		return null;
+		// If the CSR had no SAN, add a DNS SAN derived from the subject CN
+		if (!hasSAN)
+		{
+			final RDN[] rdns = subjectDN.getRDNs(BCStyle.CN);
+			if (rdns.length > 0)
+			{
+				final String cn = IETFUtils.valueToString(rdns[0].getFirst().getValue());
+				certBuilder.addExtension(Extension.subjectAlternativeName, false,
+						new GeneralNames(new GeneralName(GeneralName.dNSName, cn)));
+			}
+		}
+
+		// Sign the certificate with the signer's private key
+		final ContentSigner contentSigner = new JcaContentSignerBuilder("SHA256WithRSAEncryption")
+				.setProvider(CryptoExtensions.getJCEProviderName())
+				.build((PrivateKey) signerCert.getSignerKey());
+
+		return new JcaX509CertificateConverter()
+				.setProvider(CryptoExtensions.getJCEProviderName())
+				.getCertificate(certBuilder.build(contentSigner));
 	}
 	
 	private static CertCreateFields createNewCA(CertCreateFields fields, KeyPair keyPair, boolean addAltNames) throws Exception
