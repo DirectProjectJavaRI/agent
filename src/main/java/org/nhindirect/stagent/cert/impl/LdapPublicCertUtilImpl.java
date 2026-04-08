@@ -77,6 +77,7 @@ public class LdapPublicCertUtilImpl implements LdapCertUtil{
 	
 	private static final String DEFAULT_LDAP_TIMEOUT = "5000";
 	private static final String DEFAULT_LDAP_CONNECT_TIMEOUT = "10000";
+	private static final int DEFAULT_LDAP_SEARCH_TIMEOUT = 4000;
 	
 	private static final String LDAP_TIMEOUT = "com.sun.jndi.ldap.read.timeout";
 	private static final String LDAP_CONNECT_TIMEOUT = "com.sun.jndi.ldap.connect.timeout";	
@@ -321,6 +322,7 @@ public class LdapPublicCertUtilImpl implements LdapCertUtil{
 			ctls.setReturningObjFlag(true);
 			ctls.setSearchScope(SearchControls.OBJECT_SCOPE);
 			ctls.setReturningAttributes(new String[] {BASE_DN_ATTRIBUTE});
+			ctls.setTimeLimit(DEFAULT_LDAP_SEARCH_TIMEOUT);
 			
 			NamingEnumeration<SearchResult> objResults = ctx.search("",  "objectclass=*", ctls);
 			while (objResults != null && objResults.hasMore()){
