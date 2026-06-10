@@ -400,7 +400,7 @@ public class CRLRevocationManager implements RevocationManager
             }
             catch (Exception e)
             {
-                log.warn("Unable to retrieve or parse CRL from URI {}", crlUrlString);
+                log.warn("Unable to retrieve or parse CRL from URI {}: {}", crlUrlString, e.getMessage(), e);
             }
         }
         
