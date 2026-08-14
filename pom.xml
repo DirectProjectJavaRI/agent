@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd ">
     <groupId>org.nhind</groupId>    
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>agent</artifactId>    
+    <artifactId>agent</artifactId>
     <name>Direct Project Security And Trust Agent</name>
-    <version>9.0.0-SNAPSHOT</version>
+    <version>9.0.0</version>
     <description>Direct Project Security And Trust Agent</description>
     <inceptionYear>2010</inceptionYear>
     <url>https://github.com/DirectProjectJavaRI/agent</url> 
@@ -62,17 +62,17 @@
 		<dependency>
 		  <groupId>org.nhind</groupId>
 		  <artifactId>direct-policy</artifactId>
-		  <version>9.0.0-SNAPSHOT</version>		  
-		</dependency>	  
+		  <version>9.0.0</version>
+		</dependency>
 		<dependency>
 		  <groupId>org.nhind</groupId>
-		  <artifactId>direct-common</artifactId>	
-		  <version>9.0.0-SNAPSHOT</version>		  	  
-		</dependency>	
+		  <artifactId>direct-common</artifactId>
+		  <version>9.0.0</version>
+		</dependency>
 		<dependency>
 		  <groupId>org.nhind</groupId>
 		  <artifactId>direct-msg-monitor-model</artifactId>
-		  <version>9.0.0-SNAPSHOT</version>
+		  <version>9.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -270,7 +270,7 @@
               </execution>
             </executions>	        
 	      </plugin>
-	      <!--  for releases only 	
+	      <!--  for releases only
 	      <plugin>
              <groupId>org.apache.maven.plugins</groupId>
              <artifactId>maven-gpg-plugin</artifactId>
@@ -285,7 +285,7 @@
             </executions>
             <version>3.0.1</version>
          </plugin>
-         -->	
+         -->
         <plugin>
           <groupId>org.sonatype.central</groupId>
           <artifactId>central-publishing-maven-plugin</artifactId>
