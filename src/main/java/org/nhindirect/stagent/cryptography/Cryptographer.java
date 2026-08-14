@@ -25,7 +25,7 @@ package org.nhindirect.stagent.cryptography;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 
-import javax.mail.internet.MimeMultipart;
+import jakarta.mail.internet.MimeMultipart;
 
 import org.bouncycastle.cms.CMSSignedData;
 import org.nhindirect.stagent.SignatureValidationException;

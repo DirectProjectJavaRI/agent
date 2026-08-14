@@ -25,8 +25,8 @@ package org.nhindirect.stagent;
 import java.util.Collection;
 import java.util.Collections;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 
 import org.nhindirect.stagent.mail.MimeError;
 import org.nhindirect.stagent.mail.MimeException;

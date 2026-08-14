@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.InternetAddress;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -306,7 +306,7 @@ public class TrustTest
 		return retVal;
 	}
 	
-	@SuppressWarnings({ "unchecked", "deprecation" })
+	@SuppressWarnings({ "unchecked"})
 	protected static Collection<X509Certificate> convertRawBundleToAnchorCollection(byte[] rawBundle)
 	{
 		Collection<? extends Certificate> bundleCerts = null;

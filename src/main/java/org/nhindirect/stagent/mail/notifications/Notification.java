@@ -31,14 +31,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import javax.mail.BodyPart;
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetHeaders;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.util.ByteArrayDataSource;
+import jakarta.mail.BodyPart;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetHeaders;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.util.ByteArrayDataSource;
 
-import org.apache.james.javax.MimeMultipartReport;
 import org.nhindirect.stagent.NHINDException;
 import org.nhindirect.stagent.mail.MailStandard;
 import org.nhindirect.stagent.mail.MimeEntity;
@@ -548,10 +547,12 @@ public class Notification
 				return content.toString();
 			else if (content instanceof InputStream)
 			{
-				InputStream str = (InputStream)part.getContent();
-				byte[] bytes = new byte[str.available()];
-				str.read(bytes);
-				return new String(bytes);
+				try (InputStream str = (InputStream)part.getContent())
+				{
+					byte[] bytes = new byte[str.available()];
+					str.read(bytes);
+					return new String(bytes);				
+				}
 			}
 			else
 				return content.toString();

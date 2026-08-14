@@ -25,11 +25,11 @@ package org.nhindirect.stagent.mail;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.ContentType;
-import javax.mail.internet.InternetHeaders;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.ParseException;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.ContentType;
+import jakarta.mail.internet.InternetHeaders;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.ParseException;
 
 import org.apache.commons.io.IOUtils;
 import org.nhindirect.stagent.parser.EntitySerializer;
@@ -162,7 +162,6 @@ public class MimeEntity extends MimeBodyPart
      * Gets the content (body) of the entity as a byte array.
      * @return The content (body) of the entity as a byte array.
      */
-    @SuppressWarnings("deprecation")
 	public byte[] getContentAsBytes()
     {
     	byte retVal[] = null;

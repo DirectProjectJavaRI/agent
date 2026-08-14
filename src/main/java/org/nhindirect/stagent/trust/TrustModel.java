@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.InternetAddress;
 
 import org.nhindirect.common.cert.SignerCertPair;
 import org.nhindirect.common.crypto.CryptoExtensions;

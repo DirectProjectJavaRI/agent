@@ -185,7 +185,6 @@ public class KeyStoreCertificateStore extends CertificateStore
 		bootstrapFromFile();
 	}
 	
-	@SuppressWarnings("deprecation")
 	private void bootstrapFromFile()
 	{
 		try
@@ -262,7 +261,6 @@ public class KeyStoreCertificateStore extends CertificateStore
 	/**
 	 * {@inheritDoc}
 	 */    
-    @SuppressWarnings("deprecation")
 	public void remove(X509Certificate cert)
     {
     	if (certs.remove(cert))
@@ -303,7 +301,6 @@ public class KeyStoreCertificateStore extends CertificateStore
      * @param cert The certificate to add to the keystore.
      * @param alias The alias of the certificate.
      */
-    @SuppressWarnings("deprecation")
 	public void add(X509Certificate cert, String alias)
     {
     	if (certs.contains(cert))

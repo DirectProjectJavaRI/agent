@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.InternetAddress;
 
 import org.nhindirect.stagent.cert.CertificateResolver;
 import org.nhindirect.stagent.cert.X509Store;

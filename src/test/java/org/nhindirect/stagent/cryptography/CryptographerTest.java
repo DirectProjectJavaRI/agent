@@ -21,9 +21,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 
-import javax.mail.internet.ContentType;
-import javax.mail.internet.InternetHeaders;
-import javax.mail.internet.MimeMultipart;
+import jakarta.mail.internet.ContentType;
+import jakarta.mail.internet.InternetHeaders;
+import jakarta.mail.internet.MimeMultipart;
 
 
 import org.apache.commons.io.FileUtils;

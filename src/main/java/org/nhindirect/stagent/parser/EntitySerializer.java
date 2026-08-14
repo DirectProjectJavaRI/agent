@@ -36,11 +36,11 @@ import org.apache.commons.io.IOUtils;
 import org.nhindirect.stagent.mail.MimeError;
 import org.nhindirect.stagent.mail.MimeException;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.internet.MimePart;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.internet.MimePart;
 
 /**
  * Serializes and deserializes {@link MimeParts} objects.
@@ -84,7 +84,6 @@ public class EntitySerializer
      * @param entity The entity to serialize.
      * @param stream The writer that the serialized object will be written to.
      */
-    @SuppressWarnings("deprecation")
 	public void serialize(MimePart message, Writer writer)
     {
     	
@@ -108,7 +107,6 @@ public class EntitySerializer
      * @param entity The entity to serialize.
      * @return A raw String representation of the entity.
      */
-    @SuppressWarnings("deprecation")
 	public String serialize(MimePart message)
     {
     	String retVal = "";
@@ -136,7 +134,6 @@ public class EntitySerializer
      * @param entity The entity to serialize.
      * @return A raw byte representation of the entity.
      */
-    @SuppressWarnings("deprecation")
 	public byte[] serializeToBytes(MimePart message)
     {
     	byte[] retVal;    	
@@ -163,7 +160,6 @@ public class EntitySerializer
      * @param boundary The boundary string that will separate each entity.
      * @param writer The writer that the entities will be serialized to.
      */
-    @SuppressWarnings("deprecation")
 	public void serialize(Collection<MimeBodyPart> parts, String boundary, Writer writer)
     {
         if (parts == null || parts.size() == 0)
@@ -192,7 +188,6 @@ public class EntitySerializer
      * @param boundary The boundary string that will separate each entity.
      * @return A raw String representation of the serialized entities.
      */    
-    @SuppressWarnings("deprecation")
 	public String serialize(Collection<MimeBodyPart> parts, String boundary)
     {
     	String retVal = "";

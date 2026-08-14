@@ -371,7 +371,6 @@ public class CRLRevocationManager implements RevocationManager
                 InputStream crlInputStream = urlConnection.getInputStream();
                 
                 byte[] crlBtyeArray = IOUtils.toByteArray(crlInputStream);
-                FileUtils.writeByteArrayToFile(new File("Crl.crl"), crlBtyeArray);
                 
                 try 
                 {
@@ -400,7 +399,7 @@ public class CRLRevocationManager implements RevocationManager
             }
             catch (Exception e)
             {
-                log.warn("Unable to retrieve or parse CRL from URI {}", crlUrlString);
+                log.warn("Unable to retrieve or parse CRL from URI {}: {}", crlUrlString, e.getMessage(), e);
             }
         }
         

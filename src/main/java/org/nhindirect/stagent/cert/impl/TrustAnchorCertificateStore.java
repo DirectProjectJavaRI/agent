@@ -30,7 +30,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.InternetAddress;
 
 import org.nhindirect.stagent.NHINDAddress;
 import org.nhindirect.stagent.cert.CertificateResolver;

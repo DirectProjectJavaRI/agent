@@ -125,7 +125,7 @@ public class X509CertificateEx extends X509Certificate
 	 */
 	public Principal getIssuerDN() 	 
 	{
-		return internalCert.getIssuerDN();
+		return internalCert.getIssuerX500Principal();
 	}	
 	
 	@Override
@@ -233,7 +233,7 @@ public class X509CertificateEx extends X509Certificate
 	 */
 	public Principal getSubjectDN()  
 	{
-		return internalCert.getSubjectDN();
+		return internalCert.getSubjectX500Principal();
 	}		
 	
 	@Override

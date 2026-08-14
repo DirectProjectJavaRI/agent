@@ -60,15 +60,13 @@ public class CRLRevocationManager_getCRLCollectionTest
 		assertEquals(1, CRLRevocationManager.getInstance().getCRLCollection().size());
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testGetCRLCollection_singleCRL_softRefExpired_assertEmpty()
 	{
 		String uri = "http://localhost:8080/master.crl";
 		
 		
-		SoftReference<X509CRL> softRef = mock(SoftReference.class);
-		when(softRef.get()).thenReturn(null);
+		SoftReference<X509CRL> softRef = new SoftReference<>(null);
 		
 		CRLRevocationManager.cache.put(uri, softRef);
 		

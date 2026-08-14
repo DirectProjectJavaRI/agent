@@ -11,7 +11,7 @@ public class MockJCEProvider extends Provider
 
 	public MockJCEProvider()
 	{
-		super("JunitMockProvider", 1, "A mock junit security provider");
+		super("JunitMockProvider", "1", "A mock junit security provider");
 	}
 	
 	

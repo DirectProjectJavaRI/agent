@@ -25,9 +25,9 @@ package org.nhindirect.stagent.mail.notifications;
 import java.util.Calendar;
 import java.util.UUID;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.ContentType;
-import javax.mail.internet.InternetHeaders;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.ContentType;
+import jakarta.mail.internet.InternetHeaders;
 
 import org.nhindirect.stagent.mail.MailStandard;
 import org.nhindirect.stagent.mail.Message;

@@ -489,23 +489,29 @@ public class DNSCertificateStore extends CertificateStore implements CacheableCe
 		}
 		
 		// add or update the local cert store
-		if (retVal != null && retVal.size() > 0 && localStoreDelegate != null)
+		if (retVal != null && retVal.size() > 0)
 		{
-			for (X509Certificate cert : retVal)
+			if (localStoreDelegate != null)
 			{
-
-				if (localStoreDelegate != null)
+				for (X509Certificate cert : retVal)
 				{
+
 					if (localStoreDelegate.contains(cert)) 
 						localStoreDelegate.update(cert);
 					else
 						localStoreDelegate.add(cert);
-				}
-			}			
+				}	
+			}		
 			try
 			{
-				if (cache != null)
-					cache.put(name, retVal);
+				JCS cache = this.getCache();
+				
+				if (cache != null) {
+					synchronized(cache) {
+						cache.put(name, retVal);
+					}
+				}
+					
 			}
 			catch (CacheException e)
 			{
@@ -690,7 +696,6 @@ public class DNSCertificateStore extends CertificateStore implements CacheableCe
 		return extendedResolver;
 	}
 	
-	@SuppressWarnings("deprecation")
 	protected Certificate convertPKIXRecordToCert(CERTRecord certRec)
 	{
 		Certificate retVal = null;
@@ -716,7 +721,7 @@ public class DNSCertificateStore extends CertificateStore implements CacheableCe
 		return retVal;
 	}
 	
-	@SuppressWarnings("deprecation")
+
 	protected Certificate convertIPKIXRecordToCert(CERTRecord certRec)
 	{
 		Certificate retVal = null;
