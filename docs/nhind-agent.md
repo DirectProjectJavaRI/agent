@@ -1,3 +1,7 @@
+---
+title: NHINDAgent
+---
+
 # NHINDAgent
 
 The NHINDAgent is the main interface in the agent module and orchestrates logic among its internal components to implement the DirectProject [specification](http://wiki.directproject.org/w/images/e/e6/Applicability_Statement_for_Secure_Health_Transport_v1.2.pdf). Its objective is to process incoming and outgoing messages according to the rules of the specification.

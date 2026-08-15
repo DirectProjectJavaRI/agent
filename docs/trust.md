@@ -1,3 +1,7 @@
+---
+title: Trust
+---
+
 # Trust
 
 Arguably the most important aspect of the security and trust specification is the trust model.  The security and encryption algorithms can ensure that a message is securely transported from one location to another without being compromised or tampered with, but what value is a message if you do not trust its contents?  In theory anyone can setup a HISP, create certificates, and claim to have some type of authoritative credentials.  A HISP user may be able to irrefutably validate their identity according to their credentials (certificates), but how do you know you can trust the content of the dialog?  The security and trust model allows a HISP to "filter" and accept messages only from HISPs that they deem trust worthy.  Transitively, a HISP should only allow users to create destinations or "account" that they deem trust worthy.  The leads into the subject of identity proofing which is outside the scope of the trust model.  However as a rule of thumb, only HISPs that follow and prove to abide by good certificate practices and identity proofing procedures should be trusted.

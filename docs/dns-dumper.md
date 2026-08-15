@@ -1,3 +1,7 @@
+---
+title: DNS Certificate Dumper
+---
+
 # DNS Certificate Dumper
 
 The reference implementation source tree provides a tool retrieving user and organizational certificates by email address or domain over DNS and writing the certificate to a DER encoded file. The tool is located under the agent/tools directory in the source tree and is named dnsCertDumper.sh for unix/linux based systems and dnsCertDumper.bat for Windows.

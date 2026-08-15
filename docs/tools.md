@@ -1,3 +1,7 @@
+---
+title: Tools
+---
+
 # Tools
 
 This section describes tools that accompany the agent source code.
@@ -12,6 +16,6 @@ mvn clean install
 
 These tools are also bundled together in the stock assembly tar.gz file under a directory named *tools*.
 
-* [Certificate Generation](CertGen)
-* [DNS Certificate Dumper](DNSDumper)
-* [LDAP Certificate Dumper](LDAPDumper)
+* [Certificate Generation](cert-gen)
+* [DNS Certificate Dumper](dns-dumper)
+* [LDAP Certificate Dumper](ldap-dumper)
