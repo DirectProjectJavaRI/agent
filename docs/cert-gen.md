@@ -1,3 +1,7 @@
+---
+title: Certificate Generation
+---
+
 # Certificate Generation
 
 The reference implementation source tree provides a simple tool for creating root certificate authorities (CAs), intermediate certificates authorities, and certificates. The tool is located under the /agent/tools directory in the source tree and is named certGen.sh for unix/linux based systems and certGen.bat for Windows.

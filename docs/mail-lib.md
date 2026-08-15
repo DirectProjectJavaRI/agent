@@ -1,3 +1,7 @@
+---
+title: Mail Library
+---
+
 # Mail Library
 
 The agent module contains various utility mail classes to facilitate implementing the security and trust implementation.

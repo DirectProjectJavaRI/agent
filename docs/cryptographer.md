@@ -1,3 +1,7 @@
+---
+title: Cryptographer
+---
+
 # Cryptographer
 
 Cryptographers are responsible for encrypting, decrypting, signing, and validating signatures and support multiple message container constructs. They are defined by the [Cryptographer](http://api.directproject.info/agent/2.2.1/apidocs/org/nhindirect/stagent/cryptography/Cryptographer.html) interface.

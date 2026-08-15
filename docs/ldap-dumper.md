@@ -1,3 +1,7 @@
+---
+title: LDAP Certificate Dumper
+---
+
 # LDAP Certificate Dumper
 
 The reference implementation source tree provides a tool retrieving user and organizational certificates by email address or domain using LDAP and writing the certificate to a DER encoded file. The tool is located under the agent/tools directory in the source tree and is named ldapCertDumper.sh for unix/linux based systems and ldapCertDumper.bat for Windows.

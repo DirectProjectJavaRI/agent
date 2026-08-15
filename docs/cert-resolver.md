@@ -1,3 +1,7 @@
+---
+title: Certificate Resolvers
+---
+
 # Certificate Resolvers
 
 The agent utilizes X509 certificates for encryption and signature purposes. Certificates are required for every destination (sometime referred to in the Direct Project as a universal address). The Direct Project network is made up a series of HISPs with each HISP containing one or more destinations. A HISP maintains certificates for all if it's destinations and must obtain public certificates for destinations owned by other HISPs. The obvious looming question is how does the agent obtain certificates for local and remote destinations.
@@ -114,12 +118,12 @@ The first parameter is a map of JNDI environment parameters specific to an LDAP 
 | Name | Value | Description |
 | --- | --- | --- |
 | java.naming.factory.initial | com.sun.jndi.ldap.LdapCtxFactory	| Indicator to JNDI to create an LDAP specific JNDI context |
-| java.naming.provider.url | ldap://<ldap server:port> | The URL or the LDAP server. For high availability and fail over servers multiple servers may be specified by separating each URL with a comma. |
+| java.naming.provider.url | `ldap://<ldap server:port>` | The URL or the LDAP server. For high availability and fail over servers multiple servers may be specified by separating each URL with a comma. |
 | java.naming.factory.initial | com.sun.jndi.ldap.LdapCtxFactory	| Indicator to JNDI to create an LDAP specific JNDI context |
-| com.sun.jndi.ldap.read.timeout	| <Positive Integer>	| The time out in milli seconds for the initial connection to the LDAP store. |
+| com.sun.jndi.ldap.read.timeout	| `<Positive Integer>`	| The time out in milli seconds for the initial connection to the LDAP store. |
 | java.naming.security.authentication | "simple"	"none" | Indicates if LDAP connection will use a simple or anonymous (none) binding. |
-| java.naming.security.principal	| <username>	 | For simple authentication, the user name used for LDAP binding. | 
-| java.naming.security.credentials | <password> | For simple authentication, the password used for LDAP binding. |
+| java.naming.security.principal	| `<username>`	 | For simple authentication, the user name used for LDAP binding. | 
+| java.naming.security.credentials | `<password>` | For simple authentication, the password used for LDAP binding. |
 
 The remaining parameters are used for certificate searching in the LDAP server.
 
@@ -164,7 +168,7 @@ The remaining parameters are used for certificate searching in the LDAP server.
 
 If the LdapPublicCertUtilImpl implementation is provided, the LDAPCertificateStore takes on the role of a public LDAP certificate resolver. This implementation is much easier to configure as all discovery of servers and base DNs are dynamic. However, this implementation provides a completely different purpose than the previous implementation. The public LDAP resolver standardizes the way certificates are discovered using LDAP much the same way the DNS resolvers standardizes DNS discovery. The public LDAP resolver discovers certificates using the following steps:
 
-1. Discovers the location of the LDAP server(s) using DNS SRV records. The format of the DNS SRV name is ldap.tcp.<address domain name>. The returned SRV records contain the LDAP server(s) host name and port.
+1. Discovers the location of the LDAP server(s) using DNS SRV records. The format of the DNS SRV name is `ldap.tcp.<address domain name>`. The returned SRV records contain the LDAP server(s) host name and port.
 2. Connects the LDAP server using anonymous bind.
 3. Discovers the base DNs (naming contexts).
 4. Performs a query on each base DNs using the mail attribute of the iNetOrgPerson schema.
