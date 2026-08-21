@@ -4,7 +4,7 @@ title: Certificate Resolvers
 
 # Certificate Resolvers
 
-The agent utilizes X509 certificates for encryption and signature purposes. Certificates are required for every destination (sometime referred to in the Direct Project as a universal address). The Direct Project network is made up a series of HISPs with each HISP containing one or more destinations. A HISP maintains certificates for all if it's destinations and must obtain public certificates for destinations owned by other HISPs. The obvious looming question is how does the agent obtain certificates for local and remote destinations.
+The agent utilizes X509 certificates for encryption and signature purposes. Certificates are required for every destination (sometimes referred to in the Direct Project as a universal address). The Direct Project network is made up of a series of HISPs, with each HISP containing one or more destinations. A HISP maintains certificates for all of its destinations and must obtain public certificates for destinations owned by other HISPs. The obvious looming question is how the agent obtains certificates for local and remote destinations.
 
 Certificates are obtained by the agent using the [CertificateResolver](http://api.directproject.info/agent/2.2.1/apidocs/org/nhindirect/stagent/cert/CertificateResolver.html) interface.
 
@@ -17,27 +17,27 @@ public interface CertificateResolver
 }
 ```
 
-The agent passes the email address of the destination and obtains a list of valid certificates for that address. **NOTE:** Because the agent supports the concept of "multiple circles of trust", a particular destination may have multiple certificates.
+The agent passes the email address of the destination and obtains a list of valid certificates for that address. **NOTE:** Because the agent supports the concept of "multiple circles of trust," a particular destination may have multiple certificates.
 
-Now lets set some context with a couple of definitions:
+Now let's set some context with a couple of definitions:
 
 1. Local Destination: An address/destination whose domain is controlled by the agent.
 2. Remote Destination: All other addresses that are not local destinations.
 
-The DefaultNHINDAgent requires two CertificteResolver instances: one for private certificates (local destinations) and one for public certificates (remote destinations). In many cases (if not most), the private and public resolver may use completely different implementations. In any case, the private resolver must be able to retrieve certificates from a medium that has access to the certificates' private keys.
+The DefaultNHINDAgent requires two CertificateResolver instances: one for private certificates (local destinations) and one for public certificates (remote destinations). In many cases (if not most), the private and public resolvers use completely different implementations. In any case, the private resolver must be able to retrieve certificates from a medium that has access to the certificates' private keys.
 
-The default agent supports multiple simultaneous resolvers for public certificate resolution. Multiple public resolvers are configured by passing a collection of resolvers to the agents constructor. The agent uses each resolver in the order they are obtained by the collection's Iterator. The agent only iterates through the resolvers until at least one certificate is found; at that point iteration stops.
+The default agent supports multiple simultaneous resolvers for public certificate resolution. Multiple public resolvers are configured by passing a collection of resolvers to the agent's constructor. The agent uses each resolver in the order returned by the collection's Iterator, and only iterates through the resolvers until at least one certificate is found; at that point, iteration stops.
 
 The agent library provides the following resolver implementations:
 
 * KeyStore - Uses a Java keystore file to obtain certificates. The keystore may contain both public and private certificates.
 * DNS - Uses DNS cert records to obtain public certificates.
-* LDAP - Uses an LDAP server to obtain certificates from a configured LDAP location and schema. Generally this server holds private certificates, however, server may contain both public and private certificates.
+* LDAP - Uses an LDAP server to obtain certificates from a configured LDAP location and schema. Generally this server holds private certificates; however, it may contain both public and private certificates.
 * Public LDAP - Dynamically discovers public LDAP servers based on the address domain and obtains public certificates using the iNetOrgPerson schema and anonymous binding.
 
 ## Domain Level Certificates
 
-The DNSCertificateStore uses DNS name resolution to obtain public certificates in accordance to [RFC4398](http://tools.ietf.org/html/rfc4398). The DNSCertificateStore provides the following constructors:
+The DNSCertificateStore uses DNS name resolution to obtain public certificates in accordance with [RFC4398](http://tools.ietf.org/html/rfc4398). The DNSCertificateStore provides the following constructors:
 
 ```
 public DNSCertificateStore()
@@ -48,11 +48,11 @@ public DNSCertificateStore(Collection<String> servers,
 		CertificateStore bootstrapStore, CertStoreCachePolicy policy)
 ```
 
-The first is constructs a default resolver and uses the local machine's configure DNS servers to resolve certificates. It also creates a default cache policy and a default key file based bootstrap store. Bootstrap stores are used to initialize the resolver cache at instantiation time.
+The first constructs a default resolver and uses the local machine's configured DNS servers to resolve certificates. It also creates a default cache policy and a default key-file-based bootstrap store. Bootstrap stores are used to initialize the resolver cache at instantiation time.
 
 The second allows you to override the DNS servers that the resolver will use to locate CERT records.
 
-The last allows you to provide a custom bootstrap store and a custom cache policy. Passing null for the server list for either constructor results in the resolver using the machine's configured DNS servers.
+The third allows you to provide a custom bootstrap store and a custom cache policy. Passing null for the server list on either constructor results in the resolver using the machine's configured DNS servers.
 
 Certificate resolvers that use cache policies implement the [CacheableCertStore](http://api.directproject.info/agent/2.2.1/apidocs/org/nhindirect/stagent/cert/CacheableCertStore.html) interface. This interface allows the cache and bootstrap parameters to be set after instance construction.
 
@@ -60,16 +60,16 @@ Certificate resolvers that use cache policies implement the [CacheableCertStore]
 
 ```
   .
-  File keyStoreFile = File("/opt/keystores/dnsBoostrapKeyStore");
-  CertificateResolver boostrap = new KeyStoreCertificateStore(keyStoreFile);
+  File keyStoreFile = File("/opt/keystores/dnsBootstrapKeyStore");
+  CertificateResolver bootstrap = new KeyStoreCertificateStore(keyStoreFile);
   CertStoreCachePolicy policy = new DefaultCertStoreCachePolicy();
-  CertificateResolver reslv = new DNSCertificateStore(null, boostrap, policy);
+  CertificateResolver resolver = new DNSCertificateStore(null, bootstrap, policy);
   .
   .
   InternetAddress recip = getMessageRecip(msg);
-  Collection<X509Certificate> pubCerts = reslv.getCertificates(recip);
+  Collection<X509Certificate> pubCerts = resolver.getCertificates(recip);
   .
-  .	
+  .
 ```
 
 ## LDAPCertificateStore
@@ -86,25 +86,23 @@ public LDAPCertificateStore(LdapCertUtilImpl ldapCertUtil,
 			
 public LDAPCertificateStore(LdapCertUtil ldapCertUtil, 
 			CertificateStore bootstrapStore, CertStoreCachePolicy policy)
-
-public LDAPCertificateStore()
 ```
 
-**NOTE:** The first constructor is a remnant of an older version of the certificate store and is maintained for passivity and compatibility reasons.
+**NOTE:** The first constructor is a remnant of an older version of the certificate store and is maintained for backward compatibility.
 
-##### Genereric/Private LDAP
+### Generic/Private LDAP
 
-If the LdapCertUtilImpl implementation is provided, the LDAPCertificateStore takes on the role of a generic LDAP based resolution implementation to obtain public and private certificates from an LDAP server.
+If the LdapCertUtilImpl implementation is provided, the LDAPCertificateStore takes on the role of a generic LDAP-based resolution implementation to obtain public and private certificates from an LDAP server.
 
-Similar the other certificate stores, the default constructor creates an uninitialized store. However, the LDAPCertificateStore does not have setter methods for LDAP configuration information (making it immutable). You should use the second constructor to initialize the store.
+Similar to the other certificate stores, the default constructor creates an uninitialized store. However, the LDAPCertificateStore does not have setter methods for LDAP configuration information (making it immutable). You should use the second constructor to initialize the store.
 
-The second constructor accepts configuration information contained in the LdapCertUtilImpl structure. Additionally it also allows you to provide a custom bootstrap store and a custom cache policy (both parameters can be null in which case the store will create a default bootstrap and cache policy).
+The second constructor accepts configuration information contained in the LdapCertUtilImpl structure. It also allows you to provide a custom bootstrap store and a custom cache policy (both parameters can be null, in which case the store will create a default bootstrap store and cache policy).
 
 ```
 public LdapCertUtilImpl(LdapEnvironment ldapEnvironment, String keyStorePassword, String certificateFormat)
 ```
 
-First let's cover the keyStorePassword and certificateFormat parameters. Generally LDAP will store the certificate in either an X.509 or PKCS12 format. The X.509 format is generally for public certificates only and does not contain any private key information, therefore it does require a keyStorePassword. The [PKCS12](http://en.wikipedia.org/wiki/PKCS12) format combines both the public certificate along with the private key and requires a password to access the information stored in the entry. **NOTE:** A limitation of the LDAPCertificateStore is that is does not allow a separate password for each certificate/private key entry; it uses the same password for each entry.
+First, let's cover the keyStorePassword and certificateFormat parameters. Generally, LDAP will store the certificate in either an X.509 or PKCS12 format. The X.509 format is generally for public certificates only and does not contain any private key information, and therefore does not require a keyStorePassword. The [PKCS12](http://en.wikipedia.org/wiki/PKCS12) format combines both the public certificate and the private key and requires a password to access the information stored in the entry. **NOTE:** A limitation of the LDAPCertificateStore is that it does not allow a separate password for each certificate/private key entry; it uses the same password for every entry.
 
 The LdapEnvironment structure contains the configuration information used by the resolver to connect to and search the LDAP server.
 
@@ -117,29 +115,28 @@ The first parameter is a map of JNDI environment parameters specific to an LDAP 
 
 | Name | Value | Description |
 | --- | --- | --- |
-| java.naming.factory.initial | com.sun.jndi.ldap.LdapCtxFactory	| Indicator to JNDI to create an LDAP specific JNDI context |
-| java.naming.provider.url | `ldap://<ldap server:port>` | The URL or the LDAP server. For high availability and fail over servers multiple servers may be specified by separating each URL with a comma. |
-| java.naming.factory.initial | com.sun.jndi.ldap.LdapCtxFactory	| Indicator to JNDI to create an LDAP specific JNDI context |
-| com.sun.jndi.ldap.read.timeout	| `<Positive Integer>`	| The time out in milli seconds for the initial connection to the LDAP store. |
-| java.naming.security.authentication | "simple"	"none" | Indicates if LDAP connection will use a simple or anonymous (none) binding. |
-| java.naming.security.principal	| `<username>`	 | For simple authentication, the user name used for LDAP binding. | 
+| java.naming.factory.initial | com.sun.jndi.ldap.LdapCtxFactory | Indicator to JNDI to create an LDAP-specific JNDI context. |
+| java.naming.provider.url | `ldap://<ldap server:port>` | The URL of the LDAP server. For high availability and failover, multiple servers may be specified by separating each URL with a comma. |
+| com.sun.jndi.ldap.read.timeout | `<Positive Integer>` | The timeout, in milliseconds, for the initial connection to the LDAP store. |
+| java.naming.security.authentication | "simple" or "none" | Indicates whether the LDAP connection will use simple or anonymous (none) binding. |
+| java.naming.security.principal | `<username>` | For simple authentication, the username used for LDAP binding. |
 | java.naming.security.credentials | `<password>` | For simple authentication, the password used for LDAP binding. |
 
 The remaining parameters are used for certificate searching in the LDAP server.
 
 | Parameter | Description |
 | --- | --- |
-| ldapSearchBase	 | The distinguished name used as the base of LDAP searches. |
-| ldapSearchAttribute | The attribute in the LDAP store that is used to match a search query. This attribute enerally holds an email address or domain name. |
-| returningCertAttribute	| The attribute in the search query result that holds the certificate file. |
+| ldapSearchBase | The distinguished name used as the base of LDAP searches. |
+| ldapSearchAttribute | The attribute in the LDAP store that is used to match a search query. This attribute generally holds an email address or domain name. |
+| returningCertAttribute | The attribute in the search query result that holds the certificate file. |
 
 **Example**
 
 ```
   .
   .
-  File keyStoreFile = File("/opt/keystores/dnsBoostrapKeyStore");
-  CertificateResolver boostrap = new KeyStoreCertificateStore(keyStoreFile);
+  File keyStoreFile = File("/opt/keystores/dnsBootstrapKeyStore");
+  CertificateResolver bootstrap = new KeyStoreCertificateStore(keyStoreFile);
   CertStoreCachePolicy policy = new DefaultCertStoreCachePolicy();
   .
   .
@@ -150,26 +147,25 @@ The remaining parameters are used for certificate searching in the LDAP server.
   envParams.add(com.sun.jndi.ldap.read.timeout, "10000");
   envParams.add(Context.SECURITY_AUTHENTICATION, "simple");
   envParams.add(Context.SECURITY_PRINCIPAL, "user");
-  envParams.add(Context.SECURITY_CREDENTIALSL, "password");
-
+  envParams.add(Context.SECURITY_CREDENTIALS, "password");
 
   LdapEnvironment env = new LdapEnvironment(envParams, "privKeyStore", "cn=users,ou=cerner,cn=com", "email");
   LdapCertUtilImpl utilImpl = new LdapCertUtilImpl(env, "pa$$word", "pkcs12");
-  CertificateResolver reslv = new DNSCertificateStore(null, boostrap, policy);
+  CertificateResolver resolver = new LDAPCertificateStore(utilImpl, bootstrap, policy);
   .
   .
   InternetAddress recip = getMessageSender(msg);
-  Collection<X509Certificate> pubCerts = reslv.getCertificates(recip);
+  Collection<X509Certificate> pubCerts = resolver.getCertificates(recip);
   .
-  .	
+  .
 ```
 
-##### Public LDAP
+### Public LDAP
 
-If the LdapPublicCertUtilImpl implementation is provided, the LDAPCertificateStore takes on the role of a public LDAP certificate resolver. This implementation is much easier to configure as all discovery of servers and base DNs are dynamic. However, this implementation provides a completely different purpose than the previous implementation. The public LDAP resolver standardizes the way certificates are discovered using LDAP much the same way the DNS resolvers standardizes DNS discovery. The public LDAP resolver discovers certificates using the following steps:
+If the LdapPublicCertUtilImpl implementation is provided, the LDAPCertificateStore takes on the role of a public LDAP certificate resolver. This implementation is much easier to configure, as discovery of servers and base DNs is entirely dynamic. It also serves a completely different purpose than the previous implementation: the public LDAP resolver standardizes the way certificates are discovered using LDAP, much the same way the DNS resolver standardizes DNS discovery. The public LDAP resolver discovers certificates using the following steps:
 
-1. Discovers the location of the LDAP server(s) using DNS SRV records. The format of the DNS SRV name is `ldap.tcp.<address domain name>`. The returned SRV records contain the LDAP server(s) host name and port.
-2. Connects the LDAP server using anonymous bind.
+1. Discovers the location of the LDAP server(s) using DNS SRV records. The format of the DNS SRV name is `ldap.tcp.<address domain name>`. The returned SRV records contain the LDAP server(s) hostname and port.
+2. Connects to the LDAP server using anonymous bind.
 3. Discovers the base DNs (naming contexts).
-4. Performs a query on each base DNs using the mail attribute of the iNetOrgPerson schema.
-5. Returns each certificate in the userSMIMECertificate attribute of the iNetOrgPerson schema. Certificates are expected to be in binary format as defined by [RFC2798](http://www.ietf.org/rfc/rfc2798.txt)
+4. Performs a query on each base DN using the mail attribute of the iNetOrgPerson schema.
+5. Returns each certificate in the userSMIMECertificate attribute of the iNetOrgPerson schema. Certificates are expected to be in binary format as defined by [RFC2798](http://www.ietf.org/rfc/rfc2798.txt).

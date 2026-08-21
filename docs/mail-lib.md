@@ -8,15 +8,15 @@ The agent module contains various utility mail classes to facilitate implementin
 
 ## MimeEntity
 
-The [MimeEnity](http://api.directproject.info/agent/2.2.1/apidocs/org/nhindirect/stagent/mail/MimeEntity.html) class is an extension of the Java Mail [MimeBodyPart](http://java.sun.com/products/javamail/javadocs/javax/mail/internet/MimeBodyPart.html) with utility functions to determine if the entity consists of a multiple part and serialization to a byte array.
+The [MimeEntity](http://api.directproject.info/agent/2.2.1/apidocs/org/nhindirect/stagent/mail/MimeEntity.html) class is an extension of the Java Mail [MimeBodyPart](http://java.sun.com/products/javamail/javadocs/javax/mail/internet/MimeBodyPart.html) with utility functions to determine whether the entity consists of multiple parts, and to serialize it to a byte array.
 
 ## NHINDAddress
 
-The [NHINDAddress](http://api.directproject.info/agent/2.2.1/apidocs/org/nhindirect/stagent/NHINDAddress.html) class is an extension of the JavaMail [InternetAddress](http://java.sun.com/products/javamail/javadocs/javax/mail/internet/InternetAddress.html) with utility methods and attributes to bind certificates, store trust anchors, and set the trust status. It also include simple parsing parsing.
+The [NHINDAddress](http://api.directproject.info/agent/2.2.1/apidocs/org/nhindirect/stagent/NHINDAddress.html) class is an extension of the JavaMail [InternetAddress](http://java.sun.com/products/javamail/javadocs/javax/mail/internet/InternetAddress.html) with utility methods and attributes to bind certificates, store trust anchors, and set the trust status. It also includes simple parsing.
 
 ## WrappedMessage
 
-The [WrappedMessage](http://api.directproject.info/agent/2.2.1/apidocs/org/nhindirect/stagent/mail/WrappedMessage.html) class is a utility class for wrapping messaging in an RFC822 container and copying headers from the original message to the container. It also provides unwrapping methods.
+The [WrappedMessage](http://api.directproject.info/agent/2.2.1/apidocs/org/nhindirect/stagent/mail/WrappedMessage.html) class is a utility class for wrapping a message in an RFC822 container and copying headers from the original message to the container. It also provides unwrapping methods.
 
 ## Message
 
@@ -36,9 +36,9 @@ The [IncomingMessage](http://api.directproject.info/agent/2.2.1/apidocs/org/nhin
 
 ## OutgoingMessage
 
-The [OutgoingMessage](http://api.directproject.info/agent/2.2.1/apidocs/org/nhindirect/stagent/OutgoingMessage.html) class is an extension of the DefaultMessageEnvelope. At this time is does provide any other functionality above and beyond DefaultMessageEnvelope other than strong typing.
+The [OutgoingMessage](http://api.directproject.info/agent/2.2.1/apidocs/org/nhindirect/stagent/OutgoingMessage.html) class is an extension of the DefaultMessageEnvelope. At this time it does not provide any functionality beyond DefaultMessageEnvelope other than strong typing.
 
 ## EntitySerializer
 
-The [EntitySerializer](http://api.directproject.info/agent/2.2.1/apidocs/org/nhindirect/stagent/parser/EntitySerializer.html) class is a utility class for serializing and deserializing message to and from different message structures and raw representations.
+The [EntitySerializer](http://api.directproject.info/agent/2.2.1/apidocs/org/nhindirect/stagent/parser/EntitySerializer.html) class is a utility class for serializing and deserializing messages to and from different message structures and raw representations.
 

@@ -34,38 +34,37 @@ public interface NHINDAgent
 }
 ```
 
-The interface provides multiple signatures for processing inbound and outbound messages depending on what message format is available to the caller. Note that agent does not provide logic to discern if a message is incoming or outgoing; it is the responsibility of the caller to make this assertion. This is because the semantics of incoming and outgoing are dependent on the runtime environment and protocol stack that the agent is executing in.
+The interface provides multiple signatures for processing inbound and outbound messages, depending on what message format is available to the caller. Note that the agent does not provide logic to discern whether a message is incoming or outgoing; it is the responsibility of the caller to make this determination, because the semantics of incoming and outgoing depend on the runtime environment and protocol stack that the agent is executing in.
 
 ## ProcessOutgoing
 
-The ProcessOutgoing method and its variants accept a message that needs to be signed and encrypted according to the security and trust specification. All variants result in the same output: an OutgoingMessage that contains the singed and encrypted version of the original message. To produce the final outgoing message, the method uses the following high level algorithm.
+The ProcessOutgoing method and its variants accept a message that needs to be signed and encrypted according to the security and trust specification. All variants result in the same output: an OutgoingMessage that contains the signed and encrypted version of the original message. To produce the final outgoing message, the method uses the following high-level algorithm:
 
-1. If the message is presented in raw text format or as a MimeMessage, the message is wrapped in a MessageEnvelope and the recipients and sender are parsed. NOTE: The sender and recipients are obtained from the TO and FROM routing headers. If the caller has access to other headers that may supersede the TO and FROM routing headers (ex. RCPT TO SMTP header) , then the caller should use a variant that allows the TO and FROM headers to be overridden.
-2. The message is placed in a message wrapper whose content is the original message including all of the original message's headers and a content type of message/rfc822. Only the routing headers and required messages headers of the original message are copied to the message wrapper's headers. This is necessary to protect potentially sensitive information that may be in the original message's headers such as the subject. See the Message Wrapping section of the DirectProject [specification](http://wiki.directproject.org/w/images/e/e6/Applicability_Statement_for_Secure_Health_Transport_v1.2.pdf) for full details.
-3. Enforces the trust model ensuring that all recipients have valid certificates and that the sender is allowed to send to each recipient according to the trust policy. Recipients that are not trusted are placed in the rejectedRecipients attributes of the returned OutgoingMessage. If there are no trusted recipients, then an exception is thrown with an error code of NoTrustedRecipients.
-4. The message is signed using a detached signature with the senders certificate(s) and private key(s). The result is a multipart MIME where the first part is the wrapped message and the second part is a base64 encoded signature block (content type application/pkcs7-signature; name=smime.p7s; smime-type=signed-data).
-5. The message is encrypted using a random symmetric key and the symmetric key is encrypted using each recipients' public key. The resulting message is base64 encoded message with a content type of application/pkcs7-mime; smime-type=enveloped-data; name="smime.p7m".
+1. If the message is presented in raw text format or as a MimeMessage, the message is wrapped in a MessageEnvelope and the recipients and sender are parsed. **NOTE:** The sender and recipients are obtained from the TO and FROM routing headers. If the caller has access to other headers that may supersede the TO and FROM routing headers (e.g., the SMTP RCPT TO header), then the caller should use a variant that allows the TO and FROM headers to be overridden.
+2. The message is placed in a message wrapper whose content is the original message, including all of the original message's headers, with a content type of message/rfc822. Only the routing headers and required message headers of the original message are copied to the message wrapper's headers. This is necessary to protect potentially sensitive information that may be in the original message's headers, such as the subject. See the Message Wrapping section of the DirectProject [specification](http://wiki.directproject.org/w/images/e/e6/Applicability_Statement_for_Secure_Health_Transport_v1.2.pdf) for full details.
+3. Enforces the trust model, ensuring that all recipients have valid certificates and that the sender is allowed to send to each recipient according to the trust policy. Recipients that are not trusted are placed in the rejectedRecipients attribute of the returned OutgoingMessage. If there are no trusted recipients, an exception is thrown with an error code of NoTrustedRecipients.
+4. The message is signed using a detached signature with the sender's certificate(s) and private key(s). The result is a multipart MIME where the first part is the wrapped message and the second part is a base64-encoded signature block (content type application/pkcs7-signature; name=smime.p7s; smime-type=signed-data).
+5. The message is encrypted using a random symmetric key, and the symmetric key is encrypted using each recipient's public key. The resulting message is a base64-encoded message with a content type of application/pkcs7-mime; smime-type=enveloped-data; name="smime.p7m".
 
 The final encrypted message can be retrieved from the OutgoingMessage using the getMessage() method.
 
 ## ProcessIncoming
 
-The ProcessIncomoing method and its variants accept a message that needs to be decrypted and have the signature verified according to the security and trust specification. All variants result in the same output: an IncomingMessage that contains the sender's original message. To produce the final incoming message, the method uses the following high level algorithm.
+The ProcessIncoming method and its variants accept a message that needs to be decrypted and have its signature verified according to the security and trust specification. All variants result in the same output: an IncomingMessage that contains the sender's original message. To produce the final incoming message, the method uses the following high-level algorithm:
 
-
-1. If the message is presented in raw text format or as a MimeMessage, the message is placed in a MessageEnvelope and the recipients and sender are parsed. NOTE: The sender and recipients are obtained from the TO and FROM routing headers. If the caller has access to other headers that may supersede the TO and FROM routing headers (ex. RCPT TO SMTP header) , then the caller should use a variant that allows the TO and FROM headers to be overridden.
-2. Categorizes the recipients list and ensures that valid recipients in the agent's domain exist in the recipient list. If there are no recipients in the message that belong to the agent's domain, then an exception is thrown with an error code of NoTrustedRecipients.
+1. If the message is presented in raw text format or as a MimeMessage, the message is placed in a MessageEnvelope and the recipients and sender are parsed. **NOTE:** The sender and recipients are obtained from the TO and FROM routing headers. If the caller has access to other headers that may supersede the TO and FROM routing headers (e.g., the SMTP RCPT TO header), then the caller should use a variant that allows the TO and FROM headers to be overridden.
+2. Categorizes the recipient list and ensures that valid recipients in the agent's domain exist in the recipient list. If there are no recipients in the message that belong to the agent's domain, an exception is thrown with an error code of NoTrustedRecipients.
 3. Obtains valid public certificates for the sender and private keys for the recipients.
-4. Decrypts the message using the private certificates of the recipients and the encrypted symmetric key. It practice, only one valid private key is necessary because the message is encrypted using only one symmetric key. As long as the agent can retrieve the symmetric key, the message can be successfully decrypted. Trust of each recipient is validate in a later stage. The result of the decryption stage is a multipart MIME with the original wrapped message and a detached signature.
+4. Decrypts the message using the private certificates of the recipients and the encrypted symmetric key. In practice, only one valid private key is necessary, because the message is encrypted using only one symmetric key. As long as the agent can retrieve the symmetric key, the message can be successfully decrypted. Trust of each recipient is validated in a later stage. The result of the decryption stage is a multipart MIME with the original wrapped message and a detached signature.
 5. Unwraps the original message from the message wrapper located in the first part of the multipart MIME from the previous step.
-6. The message signature is validated using the senders public certificate(s).
-7. Enforces the trust model by ensuring that sender has a valid trust anchor for each recipient. If the sender is not trusted by any recipients, then an exception is thrown with an error code of NoTrustedRecipients.
+6. The message signature is validated using the sender's public certificate(s).
+7. Enforces the trust model by ensuring that the sender has a valid trust anchor for each recipient. If the sender is not trusted by any recipients, an exception is thrown with an error code of NoTrustedRecipients.
 
 The final decrypted message can be retrieved from the IncomingMessage using the getMessage() method.
 
 ## Message Wrapping
 
-To protect potentially sensitive information from being exposed as the message travels across the network backbone, the original message (including all headers) is placed in a message wrapper with a content type of message/rfc822. Only routing information and required headers are copied to the message wrapper's header. The following examples shows an original message and the message placed in a message wrapper.
+To protect potentially sensitive information from being exposed as the message travels across the network backbone, the original message (including all headers) is placed in a message wrapper with a content type of message/rfc822. Only routing information and required headers are copied to the message wrapper's headers. The following examples show an original message and the message placed in a message wrapper.
 
 **Original Message**
 
@@ -155,25 +154,25 @@ Content-ID: <19950104161302.I-D@CNRI.Reston.VA.US>
 
 **Routing Header Tampering**
 
-Because the SMTP and outer MIME routing headers are exposed in plain text and are not signed, they are susceptible to rewriting in transport. In many cases this is normal where additional information may be written to the headers as the message moves from server to server, however, it some scenarios header information may be rewritten maliciously in an attempt to reroute a message to different or additional destinations. Protecting against this type of exploit is one of the value propositions of message wrapping.
+Because the SMTP and outer MIME routing headers are exposed in plain text and are not signed, they are susceptible to rewriting in transport. In many cases this is normal, where additional information may be written to the headers as the message moves from server to server; however, in some scenarios header information may be rewritten maliciously in an attempt to reroute a message to different or additional destinations. Protecting against this type of exploit is one of the value propositions of message wrapping.
 
-The original MIME routing headers are digitally signed at the source system and therefore can be considered as authoritative. By default, the agent removes any additional recipients that are added to the outer routing headers (i.e. that are not in the wrapped/signed routing headers) and continues to deliver messages that are present in the signed routing headers. Some institutional or agency policies may consider this scenario to be a high enough security risk to flag the message as untrusted. The agent supports a policy flag to allow these "tampered" (in context of routing headers) messages to be rejected outright as untrusted using the *REJECTONROUTINGTAMPER* options parameter. For backward behavioral compatibility, this option is set to false by default.
+The original MIME routing headers are digitally signed at the source system and can therefore be considered authoritative. By default, the agent removes any additional recipients that are added to the outer routing headers (i.e., that are not in the wrapped/signed routing headers) and continues to deliver messages to the recipients present in the signed routing headers. Some institutional or agency policies may consider this scenario to be a high enough security risk to flag the message as untrusted. The agent supports a policy flag to allow these "tampered" (in the context of routing headers) messages to be rejected outright as untrusted, using the *REJECTONROUTINGTAMPER* options parameter. For backward behavioral compatibility, this option is set to false by default.
 
 ## Certificate Resolution
 
-Certificates can be resolved in a variety of ways depending of the HISP's operational structure. The agent requires three resolver implementations be provided:
+Certificates can be resolved in a variety of ways, depending on the HISP's operational structure. The agent requires three resolver implementations to be provided:
 
-1. A public certificate resolver for obtaining certificates for destinations outside of the agent's list of domains. DNS is the current preferred method, but different implementations may use alternative methods or combination of mediums.
-2. A private certificate resolver for obtaining certificates and private keys for destinations owned by agent's list of domains.
-3. A trust anchor resolver for obtaining trusted certificate authorities for each domain and optionally each user.
+1. A public certificate resolver for obtaining certificates for destinations outside of the agent's list of domains. DNS is the current preferred method, but different implementations may use alternative methods or a combination of mediums.
+2. A private certificate resolver for obtaining certificates and private keys for destinations owned by the agent's list of domains.
+3. A trust anchor resolver for obtaining trusted certificate authorities for each domain and, optionally, each user.
 
 Each resolver implementation requires different configuration parameters depending on the implementation's resolution method.
 
-**NOTE:** To prevent bogus/rogue users from being added to a domain, the trust anchor resolver must includes the local domain's certificate authority.
+**NOTE:** To prevent bogus/rogue users from being added to a domain, the trust anchor resolver must include the local domain's certificate authority.
 
 ## Multi-Domain Support
 
-In some cases, a HISP may be hosting multiple domains. To support this hosting model, the agent supports hosting multiple domains within one instance of the agent.
+In some cases, a HISP may host multiple domains. To support this model, the agent supports hosting multiple domains within a single agent instance.
 
 ## DefaultNHINDAgent
 
@@ -213,13 +212,13 @@ public class DefaultNHINDAgent implements NHINDAgent
 
 **Concurrent Programming**
 
-A good/scalable message system should support multiple threads of execution for increased bandwidth. All public methods of the DefaultNHINDAgent are thread safe and can be called concurrently.
+A good, scalable message system should support multiple threads of execution for increased bandwidth. All public methods of the DefaultNHINDAgent are thread safe and can be called concurrently.
 
-##### Limitations
+### Limitations
 
-**Single Resolver Consfiguration**
+**Single Resolver Configuration**
 
-The default agent does not allow for different resolver configurations per domain. One and only one resolver configuration can be used for the public and private resolver parameters respectively.
+The default agent does not allow for different resolver configurations per domain. Only one resolver configuration can be used for the public resolver parameter, and only one for the private resolver parameter.
 
 ## Message Encryption Stage Representation
 
@@ -586,6 +585,6 @@ g3/56tKnW00PvVy4BDQ5xcfc0fD+Q/owUXDYYniWjez3Kzdcg7svZXOAfCY2/T1j1lRyjnE5ZxRU
 8XPjMXn5i9c/DbIBtKR6nbXkGXTwR7U9PSh2jp2nQOasODaAfQAAAAAAAAAAAAA=
 ```
 
-For incoming message, the process is reversed in order.
+For incoming messages, the process is reversed.
 
-**NOTE:**  Running this process on the same original message in a debugger should result in a slightly different encrypted message because a new symtric encryption key is produced with each execution.
+**NOTE:** Running this process on the same original message in a debugger should result in a slightly different encrypted message, because a new symmetric encryption key is produced with each execution.

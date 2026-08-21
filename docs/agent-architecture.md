@@ -8,9 +8,9 @@ At a high level the agent can be viewed as a black box that implements the Direc
 
 ![highLevelArch](assets/highLevelArch.png)
 
-Each component within the agent functions independently whilst the agent orchestrates the business logic between the internal components.
+Each component within the agent functions independently while the agent orchestrates the business logic between the internal components.
 
-##### Core Components and Interfaces
+## Core Components and Interfaces
 
 * [NHINDAgent](nhind-agent): Interface specification for the security and trust agent. Incoming and outgoing messages are processed by the agent according to the DirectProject [specification](http://wiki.directproject.org/w/images/e/e6/Applicability_Statement_for_Secure_Health_Transport_v1.2.pdf). [JavaDoc](http://api.directproject.info/agent/2.2.1/apidocs/org/nhindirect/stagent/NHINDAgent.html)
 * [Cryptographer](cryptographer): Interface specification for message encryption/decryption and message signature operations. [JavaDoc](http://api.directproject.info/agent/2.2.1/apidocs/org/nhindirect/stagent/cryptography/Cryptographer.html)

@@ -6,9 +6,9 @@ title: Tools
 
 This section describes tools that accompany the agent source code.
 
-The reference implementation's agent source tree provides a set of tools to assist testing and development. The tools are located under the /agent/tools (assuming you clone the code under a directory called agent) directory in the source tree.
+The reference implementation's agent source tree provides a set of tools to assist with testing and development. The tools are located under the /agent/tools directory in the source tree (assuming you clone the code under a directory called agent).
 
-NOTE: You will also need maven installed to build the tools. After checking out the source and installing maven, build the tools by running the following command in the agent directory:
+**NOTE:** You will also need Maven installed to build the tools. After checking out the source and installing Maven, build the tools by running the following command in the agent directory:
 
 ```
 mvn clean install
